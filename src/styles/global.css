@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Couleurs — fonds Pantone 11-0515 Lemon Icing / 13-4306 Ice Melt,
+     accent Viva Magenta 18-1750, encre pour le texte */
+  --color-bg: #f6ebc8;
+  --color-bg-alt: #d3e4f1;
+  --color-ink: #191a2e;
+  --color-text-secondary: #4c4d63;
+  --color-accent: #bb2649;
+  --color-line: #c7c2b4;
+  --color-surface: #ffffff;
+
+  /* Typographie */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Rayons — angles nets partout, sauf cartes */
+  --radius-none: 0;
+  --radius-card: 4px;
+
+  /* Espacements de repère */
+  --corner-mark-size: 17px;
+}
+
+/* Repères d'angle — motif réutilisé dans chaque section */
+.corner-mark {
+  position: absolute;
+  width: var(--corner-mark-size);
+  height: var(--corner-mark-size);
+  pointer-events: none;
+}
+
+.corner-mark--tl {
+  top: 24px;
+  left: 24px;
+  border-top: 1px solid var(--color-line);
+  border-left: 1px solid var(--color-line);
+}
+
+.corner-mark--tr {
+  top: 24px;
+  right: 24px;
+  border-top: 1px solid var(--color-line);
+  border-right: 1px solid var(--color-line);
+}
+
+.corner-mark--bl {
+  bottom: 24px;
+  left: 24px;
+  border-bottom: 1px solid var(--color-line);
+  border-left: 1px solid var(--color-line);
+}
+
+.corner-mark--br {
+  bottom: 24px;
+  right: 24px;
+  border-bottom: 1px solid var(--color-line);
+  border-right: 1px solid var(--color-line);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-bg);
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-ink);
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font-family: var(--font-body);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

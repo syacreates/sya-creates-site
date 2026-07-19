@@ -1,0 +1,129 @@
+---
+import '../styles/global.css';
+import Footer from '../components/Footer.astro';
+---
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mentions légales — Sya Creates</title>
+  </head>
+  <body>
+    <main class="legal">
+      <div class="legal__inner">
+        <p class="legal__eyebrow">Mentions légales</p>
+        <h1 class="legal__title">Mentions légales</h1>
+
+        <section class="legal__section">
+          <h2>Éditeur du site</h2>
+          <p>
+            Sya Creates — Designer UX/UI indépendante<br />
+            [Statut juridique à compléter — ex. Micro-entreprise]<br />
+            SIRET : [à compléter]<br />
+            Adresse : [à compléter]<br />
+            Email : sya.creates@gmail.com
+          </p>
+        </section>
+
+        <section class="legal__section">
+          <h2>Directrice de la publication</h2>
+          <p>Sya Creates</p>
+        </section>
+
+        <section class="legal__section">
+          <h2>Hébergement</h2>
+          <p>
+            [Nom de l'hébergeur à compléter — ex. Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA
+            91789, USA]
+          </p>
+        </section>
+
+        <section class="legal__section">
+          <h2>Propriété intellectuelle</h2>
+          <p>
+            L'ensemble des contenus présents sur ce site (textes, visuels, identité graphique) est
+            la propriété de Sya Creates, sauf mention contraire, et ne peut être reproduit sans
+            autorisation préalable.
+          </p>
+        </section>
+
+        <section class="legal__section">
+          <h2>Données personnelles</h2>
+          <p>
+            Les informations transmises via le formulaire de contact sont utilisées uniquement
+            pour répondre à votre demande et ne sont ni revendues ni transmises à des tiers.
+            Conformément au RGPD, vous pouvez demander l'accès, la rectification ou la suppression
+            de vos données en écrivant à sya.creates@gmail.com.
+          </p>
+        </section>
+
+        <a href="/" class="legal__back">← Retour à l'accueil</a>
+      </div>
+    </main>
+
+    <Footer />
+  </body>
+</html>
+
+<style>
+  .legal {
+    background: var(--color-bg);
+    padding: 96px 48px;
+  }
+
+  .legal__inner {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .legal__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    margin-bottom: 20px;
+  }
+
+  .legal__title {
+    font-size: clamp(1.75rem, 1.5rem + 1vw, 2.5rem);
+    color: var(--color-ink);
+    margin-bottom: 48px;
+  }
+
+  .legal__section {
+    margin-bottom: 40px;
+  }
+
+  .legal__section h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 12px;
+  }
+
+  .legal__section p {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--color-text-secondary);
+  }
+
+  .legal__back {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-underline-offset: 4px;
+    margin-top: 24px;
+  }
+
+  @media (max-width: 860px) {
+    .legal {
+      padding: 64px 24px;
+    }
+  }
+</style>

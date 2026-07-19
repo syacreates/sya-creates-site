@@ -1,0 +1,126 @@
+---
+import SectionCorners from './SectionCorners.astro';
+---
+
+<section class="about" id="a-propos">
+  <SectionCorners />
+
+  <div class="about__grid">
+    <div class="about__photo">
+      <img src="/images/sya-creates-photo.jpg" alt="Portrait de Sya Creates" />
+    </div>
+
+    <div class="about__content">
+      <p class="about__eyebrow">À propos</p>
+
+      <h2 class="about__title">
+        Dix ans à concevoir des produits, avant de les concevoir pour vous.
+      </h2>
+
+      <p class="about__paragraph">
+        Pendant plusieurs années chez RTE, j'ai conçu des outils et des interfaces pour des
+        équipes RH et innovation, dans un contexte où la clarté et la fiabilité ne sont pas
+        négociables.
+      </p>
+
+      <p class="about__paragraph">
+        Aujourd'hui freelance, j'ai gardé cette exigence et j'y ai ajouté une pratique du
+        développement assisté par IA, pour livrer plus vite sans perdre en qualité.
+      </p>
+
+      <p class="about__aside">
+        Une conviction personnelle m'anime aussi : à terme, mettre cette expertise au service
+        d'une fondation dédiée aux femmes entrepreneures.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about {
+    position: relative;
+    background: var(--color-bg);
+    padding: 96px 48px;
+  }
+
+  .about__grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 64px;
+    align-items: center;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  .about__photo {
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 1px solid var(--color-ink);
+  }
+
+  .about__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  .about__content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .about__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
+
+  .about__title {
+    font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.25rem);
+    line-height: 1.2;
+    font-weight: 600;
+    color: var(--color-ink);
+    max-width: 24ch;
+  }
+
+  .about__paragraph {
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    max-width: 56ch;
+  }
+
+  .about__aside {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    max-width: 52ch;
+    padding-top: 12px;
+    border-top: 1px solid var(--color-line);
+  }
+
+  @media (max-width: 860px) {
+    .about {
+      padding: 64px 24px;
+    }
+
+    .about__grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .about__photo {
+      aspect-ratio: 4 / 5;
+      max-width: 360px;
+    }
+  }
+</style>

@@ -1,0 +1,59 @@
+---
+interface Props {
+  variant?: 'on-dark' | 'on-light';
+  class?: string;
+}
+
+const { variant = 'on-light', class: className = '' } = Astro.props;
+---
+
+<a href="/" class={`logo logo--${variant} ${className}`} aria-label="Sya Creates — accueil">
+  <svg class="logo__mark" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M2 13 V2 H13" fill="none" stroke="currentColor" stroke-width="1.5" />
+    <path d="M31 2 H42 V13" fill="none" stroke="currentColor" stroke-width="1.5" />
+    <path d="M42 31 V42 H31" fill="none" stroke="currentColor" stroke-width="1.5" />
+    <path d="M13 42 H2 V31" fill="none" stroke="currentColor" stroke-width="1.5" />
+    <text x="22" y="29" text-anchor="middle" class="logo__initial">S</text>
+  </svg>
+  <span class="logo__wordmark">Sya<span class="logo__dot">.</span>Creates</span>
+</a>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--color-ink);
+  }
+
+  .logo--on-dark {
+    color: var(--color-bg);
+  }
+
+  .logo__mark {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    color: currentColor;
+  }
+
+  .logo__initial {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 600;
+    fill: currentColor;
+  }
+
+  .logo__wordmark {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: currentColor;
+    white-space: nowrap;
+  }
+
+  .logo__dot {
+    color: var(--color-accent);
+  }
+</style>

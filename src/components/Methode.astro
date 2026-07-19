@@ -1,0 +1,192 @@
+---
+import SectionCorners from './SectionCorners.astro';
+
+const etapes = [
+  {
+    numero: '01',
+    titre: 'Cadrage',
+    texte: "On clarifie l'objectif, le périmètre et les contraintes avant de concevoir quoi que ce soit.",
+  },
+  {
+    numero: '02',
+    titre: 'Design',
+    texte: 'Parcours, wireframes puis interfaces visuelles, validés avec vous à chaque étape clé.',
+  },
+  {
+    numero: '03',
+    titre: 'Développement IA-assisted',
+    texte: "Le design devient une interface fonctionnelle, développée rapidement grâce à des outils d'IA.",
+  },
+  {
+    numero: '04',
+    titre: 'Livraison',
+    texte: 'Mise en ligne ou transmission à votre équipe technique, avec une documentation claire.',
+  },
+  {
+    numero: '05',
+    titre: 'Suivi',
+    texte: 'Un accompagnement disponible après la livraison pour ajuster et faire évoluer le produit.',
+  },
+];
+---
+
+<section class="method" id="methode">
+  <SectionCorners />
+
+  <div class="method__inner">
+    <p class="method__eyebrow">Méthode</p>
+
+    <h2 class="method__title">
+      Une méthode claire, pour que vous sachiez toujours où on en est.
+    </h2>
+
+    <p class="method__intro">
+      Pas de boîte noire : chaque étape est cadrée, documentée et validée avant de passer à la
+      suivante. Le développement assisté par IA accélère l'exécution — jamais la clarté du
+      processus.
+    </p>
+
+    <div class="method__steps">
+      {
+        etapes.map((etape, index) => (
+          <div class={`method-step ${index === etapes.length - 1 ? 'method-step--active' : ''}`}>
+            <span class="method-step__dot" />
+            <span class="method-step__numero">{etape.numero}</span>
+            <h3 class="method-step__titre">{etape.titre}</h3>
+            <p class="method-step__texte">{etape.texte}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .method {
+    position: relative;
+    background: var(--color-bg-alt);
+    padding: 96px 48px;
+  }
+
+  .method__inner {
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  .method__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    margin-bottom: 20px;
+  }
+
+  .method__title {
+    font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.25rem);
+    line-height: 1.2;
+    font-weight: 600;
+    color: var(--color-ink);
+    max-width: 34ch;
+  }
+
+  .method__intro {
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    max-width: 62ch;
+    margin-top: 24px;
+  }
+
+  .method__steps {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+    margin-top: 80px;
+    padding-top: 24px;
+  }
+
+  .method__steps::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--color-line);
+  }
+
+  .method-step {
+    position: relative;
+  }
+
+  .method-step__dot {
+    position: absolute;
+    top: -19px;
+    left: 0;
+    width: 11px;
+    height: 11px;
+    background: var(--color-surface);
+    border: 1.5px solid var(--color-ink);
+  }
+
+  .method-step--active .method-step__dot {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .method-step__numero {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--color-accent);
+    margin-bottom: 16px;
+  }
+
+  .method-step__titre {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 10px;
+  }
+
+  .method-step__texte {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+
+  @media (max-width: 860px) {
+    .method {
+      padding: 64px 24px;
+    }
+
+    .method__steps {
+      grid-template-columns: 1fr;
+      gap: 0;
+      margin-top: 48px;
+      padding-top: 0;
+    }
+
+    .method__steps::before {
+      display: none;
+    }
+
+    .method-step {
+      padding: 24px 0;
+      border-top: 1px solid var(--color-line);
+    }
+
+    .method-step:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .method-step__dot {
+      display: none;
+    }
+  }
+</style>

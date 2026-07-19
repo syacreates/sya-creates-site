@@ -1,0 +1,161 @@
+---
+import SectionCorners from './SectionCorners.astro';
+
+const piliers = [
+  {
+    numero: '01',
+    titre: 'Expertise UX/UI',
+    texte:
+      "Dix ans de pratique produit, de la recherche utilisateur au design d'interface, dont plusieurs années chez RTE sur des sujets de transformation RH et d'innovation.",
+  },
+  {
+    numero: '02',
+    titre: 'AI-assisted development',
+    texte:
+      "Le code va aussi vite que le design. Les outils d'IA accélèrent le prototypage et l'intégration, pour livrer des interfaces fonctionnelles en jours, pas en mois.",
+  },
+  {
+    numero: '03',
+    titre: "Rapidité d'exécution",
+    texte:
+      "Moins d'allers-retours, moins d'incertitude : une méthode resserrée qui va du cadrage à la mise en ligne sans perdre en qualité ni en clarté.",
+  },
+];
+---
+
+<section class="positioning" id="positionnement">
+  <SectionCorners />
+
+  <div class="positioning__inner">
+    <p class="positioning__eyebrow">Positionnement</p>
+
+    <h2 class="positioning__title">
+      Le design comme métier, l'IA comme accélérateur.
+    </h2>
+
+    <p class="positioning__intro">
+      Dix ans à concevoir des produits utiles pour des organisations exigeantes m'ont appris
+      qu'un bon design ne se résume pas à une interface soignée : c'est une méthode. Le
+      développement assisté par IA ne remplace pas cette méthode — il la met au service d'une
+      exécution plus rapide, sans rogner sur la qualité.
+    </p>
+
+    <div class="positioning__pillars">
+      {
+        piliers.map((pilier) => (
+          <div class="pillar">
+            <span class="pillar__numero">{pilier.numero}</span>
+            <h3 class="pillar__titre">{pilier.titre}</h3>
+            <p class="pillar__texte">{pilier.texte}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .positioning {
+    position: relative;
+    background: var(--color-bg-alt);
+    padding: 96px 48px;
+  }
+
+  .positioning__inner {
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  .positioning__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    margin-bottom: 20px;
+  }
+
+  .positioning__title {
+    font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.25rem);
+    line-height: 1.2;
+    font-weight: 600;
+    color: var(--color-ink);
+    max-width: 22ch;
+  }
+
+  .positioning__intro {
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    max-width: 62ch;
+    margin-top: 24px;
+  }
+
+  .positioning__pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    margin-top: 64px;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .pillar {
+    padding: 32px 32px 0 0;
+    border-left: 1px solid var(--color-line);
+  }
+
+  .pillar:first-child {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .pillar:not(:first-child) {
+    padding-left: 32px;
+  }
+
+  .pillar__numero {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--color-accent);
+    margin-bottom: 16px;
+  }
+
+  .pillar__titre {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 12px;
+  }
+
+  .pillar__texte {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+
+  @media (max-width: 860px) {
+    .positioning {
+      padding: 64px 24px;
+    }
+
+    .positioning__pillars {
+      grid-template-columns: 1fr;
+      border-top: none;
+    }
+
+    .pillar,
+    .pillar:not(:first-child) {
+      border-left: none;
+      border-top: 1px solid var(--color-line);
+      padding: 32px 0 0 0;
+    }
+
+    .pillar:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+  }
+</style>

@@ -1,0 +1,123 @@
+---
+import Logo from './Logo.astro';
+
+const anneeCourante = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <Logo variant="on-dark" />
+      <p class="site-footer__tagline">UX/UI Design · AI-assisted development</p>
+    </div>
+
+    <nav class="site-footer__nav" aria-label="Navigation du site">
+      <a href="#positionnement">Positionnement</a>
+      <a href="#offres">Offres</a>
+      <a href="#methode">Méthode</a>
+      <a href="#a-propos">À propos</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <div class="site-footer__contact">
+      <a href="mailto:sya.creates@gmail.com">sya.creates@gmail.com</a>
+      <a href="#contact">Prendre rendez-vous</a>
+    </div>
+  </div>
+
+  <div class="site-footer__bottom">
+    <p>© {anneeCourante} Sya Creates. Tous droits réservés.</p>
+    <a href="/mentions-legales">Mentions légales</a>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--color-ink);
+    padding: 64px 48px 32px;
+  }
+
+  .site-footer__inner {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 48px;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-bottom: 48px;
+    border-bottom: 1px solid rgba(239, 237, 230, 0.2);
+  }
+
+  .site-footer__tagline {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(239, 237, 230, 0.6);
+    margin-top: 12px;
+  }
+
+  .site-footer__nav,
+  .site-footer__contact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .site-footer__nav a,
+  .site-footer__contact a {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    color: var(--color-bg);
+    text-decoration: none;
+  }
+
+  .site-footer__nav a:hover,
+  .site-footer__contact a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-underline-offset: 4px;
+  }
+
+  .site-footer__bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-top: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .site-footer__bottom p {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: rgba(239, 237, 230, 0.5);
+  }
+
+  .site-footer__bottom a {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: rgba(239, 237, 230, 0.7);
+    text-decoration: underline;
+    text-decoration-color: rgba(239, 237, 230, 0.3);
+    text-underline-offset: 3px;
+  }
+
+  @media (max-width: 860px) {
+    .site-footer {
+      padding: 48px 24px 24px;
+    }
+
+    .site-footer__inner {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .site-footer__bottom {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
