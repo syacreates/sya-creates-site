@@ -1,15 +1,12 @@
 ---
-import '../styles/global.css';
+import Layout from '../layouts/Layout.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<html lang="fr">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Mentions légales — Sya Creates</title>
-  </head>
-  <body>
+<Layout
+  title="Mentions légales — Sya Creates"
+  description="Mentions légales du site de Sya Creates, designer UX/UI indépendante."
+>
     <main class="legal">
       <div class="legal__inner">
         <p class="legal__eyebrow">Mentions légales</p>
@@ -62,8 +59,7 @@ import Footer from '../components/Footer.astro';
     </main>
 
     <Footer />
-  </body>
-</html>
+</Layout>
 
 <style>
   .legal {
