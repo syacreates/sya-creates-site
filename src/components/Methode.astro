@@ -120,12 +120,27 @@ const etapes = [
 
   .method-step {
     position: relative;
+    padding: 16px;
+    margin: -16px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-card);
+    transition: transform 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
+    transform-origin: center top;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .method-step:hover {
+      transform: scale(1.06);
+      border-color: var(--color-line);
+      background: var(--color-surface);
+      z-index: 2;
+    }
   }
 
   .method-step__dot {
     position: absolute;
-    top: -19px;
-    left: 0;
+    top: -3px;
+    left: 16px;
     width: 11px;
     height: 11px;
     background: var(--color-surface);
@@ -181,7 +196,10 @@ const etapes = [
 
     .method-step {
       padding: 24px 0;
+      margin: 0;
+      border-radius: 0;
       border-top: 1px solid var(--color-line);
+      transform: none;
     }
 
     .method-step:first-child {
