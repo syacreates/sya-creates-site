@@ -254,6 +254,12 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
     border: 1px solid var(--color-line);
     border-radius: var(--radius-card);
     padding: 28px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .channel-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-ink);
   }
 
   .channel-card__symbol {
@@ -304,45 +310,6 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
     align-items: flex-start;
     gap: 10px;
     margin-top: 16px;
-  }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 14px 28px;
-    font-family: var(--font-body);
-    font-weight: 600;
-    font-size: 0.9375rem;
-    text-decoration: none;
-    border-radius: var(--radius-none);
-    border: 1px solid transparent;
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-  }
-
-  .btn--primary {
-    background: var(--color-accent);
-    color: var(--color-surface);
-  }
-
-  .btn--primary:hover {
-    background: color-mix(in srgb, var(--color-accent) 88%, black);
-  }
-
-  .link-underline {
-    font-family: var(--font-body);
-    font-weight: 500;
-    font-size: 0.9375rem;
-    color: var(--color-ink);
-    text-decoration: underline;
-    text-decoration-color: var(--color-accent);
-    text-underline-offset: 4px;
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    text-align: left;
   }
 
   .contact__form-wrap {
