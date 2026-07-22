@@ -135,6 +135,11 @@ const etapes = [
       background: var(--color-surface);
       z-index: 2;
     }
+
+    .method-step:hover .method-step__dot {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+    }
   }
 
   .method-step__dot {
@@ -145,6 +150,7 @@ const etapes = [
     height: 11px;
     background: var(--color-surface);
     border: 1.5px solid var(--color-ink);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
   }
 
   .method-step--active .method-step__dot {
