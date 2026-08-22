@@ -65,8 +65,8 @@ const offres = [
 
     <div class="offers__grid">
       {
-        offres.map((offre) => (
-          <div class="offer-card glass-card">
+        offres.map((offre, index) => (
+          <div class="offer-card glass-card reveal-item" style={`--i: ${index}`}>
             <span class="offer-card__numero">{offre.numero}</span>
             <h3 class="offer-card__titre">{offre.titre}</h3>
             <p class="offer-card__texte">{offre.texte}</p>

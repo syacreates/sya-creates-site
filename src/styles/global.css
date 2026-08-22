@@ -27,6 +27,10 @@
   --radius-pill: 999px;
   --radius-card: 22px;
   --radius-card-sm: 16px;
+
+  /* Easing "spring" — entrées et survols au ressort doux, comme sur le site modèle */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 *,
@@ -115,7 +119,8 @@ button {
   border-radius: var(--radius-pill);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  transition: transform 0.35s var(--ease-spring), box-shadow 0.35s var(--ease-spring),
+    filter 0.2s ease, background-color 0.2s ease;
 }
 
 .btn--primary {
@@ -125,13 +130,14 @@ button {
 }
 
 .btn--primary:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.03);
   filter: brightness(1.05);
   box-shadow: 0 24px 50px -18px rgba(139, 92, 246, 0.45);
 }
 
 .btn--primary:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.1s;
 }
 
 .btn--ghost {
@@ -143,8 +149,13 @@ button {
 }
 
 .btn--ghost:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.03);
   background: var(--color-glass-strong);
+}
+
+.btn--ghost:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.1s;
 }
 
 .link-underline {
@@ -176,11 +187,12 @@ button {
   border: 1px solid var(--color-glass-border);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+  transition: transform 0.4s var(--ease-spring), box-shadow 0.4s var(--ease-spring),
+    background-color 0.3s ease;
 }
 
 .glass-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-6px) scale(1.015);
   background: var(--color-surface);
   box-shadow: 0 26px 50px -20px rgba(36, 27, 58, 0.3);
 }
@@ -209,10 +221,25 @@ button {
 .reveal {
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transition: opacity 0.8s var(--ease-spring), transform 0.8s var(--ease-spring);
 }
 
 .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Cascade — chaque carte d'une grille apparaît avec un léger délai après la
+   précédente (index posé via style="--i: n" sur l'élément). Se déclenche via
+   la même classe .is-visible que la section parente, donc aucun JS de plus. */
+.reveal-item {
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+  transition: opacity 0.6s var(--ease-spring), transform 0.6s var(--ease-spring);
+  transition-delay: calc(var(--i, 0) * 70ms);
+}
+
+.reveal.is-visible .reveal-item {
   opacity: 1;
   transform: none;
 }
@@ -231,10 +258,10 @@ button {
 
 @keyframes float-blob {
   0%, 100% {
-    transform: translate(0, 0);
+    transform: translate(0, 0) scale(1);
   }
   50% {
-    transform: translate(0, -18px);
+    transform: translate(10px, -22px) scale(1.06);
   }
 }
 

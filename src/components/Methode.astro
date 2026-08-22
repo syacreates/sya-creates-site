@@ -48,7 +48,10 @@ const etapes = [
     <div class="method__steps">
       {
         etapes.map((etape, index) => (
-          <div class={`method-step glass-card ${index === etapes.length - 1 ? 'method-step--active' : ''}`}>
+          <div
+            class={`method-step glass-card reveal-item ${index === etapes.length - 1 ? 'method-step--active' : ''}`}
+            style={`--i: ${index}`}
+          >
             <span class="method-step__dot" />
             <span class="method-step__numero">{etape.numero}</span>
             <h3 class="method-step__titre">{etape.titre}</h3>

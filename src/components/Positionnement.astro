@@ -4,7 +4,7 @@ const piliers = [
     numero: '01',
     titre: 'Expertise UX/UI',
     texte:
-      "Dix ans de pratique produit, de la recherche utilisateur au design d'interface, dont plusieurs années chez RTE sur des sujets de transformation RH et d'innovation.",
+      "Dix ans de pratique produit, de la recherche utilisateur au design d'interface, dont plusieurs années sur des sujets de transformation RH et d'innovation au sein de grandes organisations.",
   },
   {
     numero: '02',
@@ -41,8 +41,8 @@ const piliers = [
 
     <div class="positioning__pillars">
       {
-        piliers.map((pilier) => (
-          <div class="pillar glass-card">
+        piliers.map((pilier, index) => (
+          <div class="pillar glass-card reveal-item" style={`--i: ${index}`}>
             <span class="pillar__numero">{pilier.numero}</span>
             <h3 class="pillar__titre">{pilier.titre}</h3>
             <p class="pillar__texte">{pilier.texte}</p>
