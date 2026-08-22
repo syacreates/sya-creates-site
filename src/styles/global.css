@@ -1,63 +1,32 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  /* Couleurs — fonds Pantone 11-0515 Lemon Icing / 13-4306 Ice Melt,
-     accent Viva Magenta 18-1750, encre pour le texte */
-  --color-bg: #f6ebc8;
-  --color-bg-alt: #d3e4f1;
-  --color-ink: #191a2e;
-  --color-text-secondary: #4c4d63;
-  --color-accent: #bb2649;
-  --color-line: #c7c2b4;
+  /* Couleurs — fond dégradé pastel lavande/menthe, encre violet foncé, accent dégradé */
+  --color-bg: #f4f0fb;
+  --color-bg-alt: #eef8f2;
+  --color-ink: #241b3a;
+  --color-text-secondary: #5c5570;
+  --color-accent: #8b5cf6;
+  --color-accent-2: #ec4899;
+  --color-line: rgba(36, 27, 58, 0.1);
   --color-surface: #ffffff;
+  --color-glass: rgba(255, 255, 255, 0.6);
+  --color-glass-strong: rgba(255, 255, 255, 0.78);
+  --color-glass-border: rgba(255, 255, 255, 0.7);
+
+  --gradient-accent: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
+  --shadow-soft: 0 20px 45px -20px rgba(139, 92, 246, 0.35);
+  --shadow-card: 0 12px 32px -18px rgba(36, 27, 58, 0.25);
 
   /* Typographie */
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'Inter', -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
-  /* Rayons — angles nets partout, sauf cartes */
-  --radius-none: 0;
-  --radius-card: 4px;
-
-  /* Espacements de repère */
-  --corner-mark-size: 17px;
-}
-
-/* Repères d'angle — motif réutilisé dans chaque section */
-.corner-mark {
-  position: absolute;
-  width: var(--corner-mark-size);
-  height: var(--corner-mark-size);
-  pointer-events: none;
-}
-
-.corner-mark--tl {
-  top: 24px;
-  left: 24px;
-  border-top: 1px solid var(--color-line);
-  border-left: 1px solid var(--color-line);
-}
-
-.corner-mark--tr {
-  top: 24px;
-  right: 24px;
-  border-top: 1px solid var(--color-line);
-  border-right: 1px solid var(--color-line);
-}
-
-.corner-mark--bl {
-  bottom: 24px;
-  left: 24px;
-  border-bottom: 1px solid var(--color-line);
-  border-left: 1px solid var(--color-line);
-}
-
-.corner-mark--br {
-  bottom: 24px;
-  right: 24px;
-  border-bottom: 1px solid var(--color-line);
-  border-right: 1px solid var(--color-line);
+  /* Rayons — tout en courbes douces */
+  --radius-pill: 999px;
+  --radius-card: 22px;
+  --radius-card-sm: 16px;
 }
 
 *,
@@ -74,13 +43,18 @@ html {
 
 body {
   margin: 0;
-  background: var(--color-bg);
+  background:
+    radial-gradient(720px 480px at 8% -10%, rgba(139, 92, 246, 0.16), transparent 60%),
+    radial-gradient(680px 460px at 96% 8%, rgba(236, 72, 153, 0.12), transparent 60%),
+    radial-gradient(900px 600px at 50% 60%, rgba(52, 211, 153, 0.1), transparent 65%),
+    var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
 h1, h2, h3, h4 {
@@ -102,34 +76,75 @@ button {
   font-family: var(--font-body);
 }
 
-/* Boutons et liens partagés (Hero, Contact, Offres…) */
+/* Pastille "eyebrow" — utilisée en tête de chaque section, comme un badge de statut */
+.eyebrow-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  background: var(--color-glass);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-pill);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.eyebrow-pill__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gradient-accent);
+  flex-shrink: 0;
+}
+
+/* Boutons et liens partagés */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 14px 28px;
+  padding: 15px 30px;
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 0.9375rem;
   text-decoration: none;
-  border-radius: var(--radius-none);
+  border-radius: var(--radius-pill);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.15s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
 .btn--primary {
-  background: var(--color-accent);
-  color: var(--color-surface);
+  background: var(--gradient-accent);
+  color: #ffffff;
+  box-shadow: var(--shadow-soft);
 }
 
 .btn--primary:hover {
-  background: color-mix(in srgb, var(--color-accent) 88%, black);
   transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 24px 50px -18px rgba(139, 92, 246, 0.45);
 }
 
 .btn--primary:active {
   transform: translateY(0);
+}
+
+.btn--ghost {
+  background: var(--color-glass);
+  color: var(--color-ink);
+  border-color: var(--color-glass-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.btn--ghost:hover {
+  transform: translateY(-2px);
+  background: var(--color-glass-strong);
 }
 
 .link-underline {
@@ -145,11 +160,49 @@ button {
   padding: 0;
   cursor: pointer;
   text-align: left;
-  transition: text-decoration-color 0.15s ease;
+  transition: text-decoration-color 0.15s ease, color 0.15s ease;
 }
 
 .link-underline:hover {
-  text-decoration-color: var(--color-ink);
+  text-decoration-color: var(--color-accent-2);
+}
+
+/* Cartes en verre — motif réutilisé dans chaque section.
+   Pas de backdrop-filter ici : avec des dizaines de cartes à l'écran, le flou
+   coûte cher à recomposer pendant le scroll. Un fond quasi opaque suffit à
+   garder l'effet "verre" sans saccades. */
+.glass-card {
+  background: var(--color-glass-strong);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-6px);
+  background: var(--color-surface);
+  box-shadow: 0 26px 50px -20px rgba(36, 27, 58, 0.3);
+}
+
+/* Panneau en verre flouté — réservé aux éléments isolés et peu nombreux
+   (navbar, visuel du hero, formulaire, footer) où le flou reste peu coûteux. */
+.glass-panel {
+  background: var(--color-glass);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-card);
+}
+
+/* Blobs décoratifs flous, en fond de section */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* Reveal au scroll — activé par IntersectionObserver dans Layout.astro */
@@ -173,6 +226,15 @@ button {
   }
   100% {
     transform: scale(1);
+  }
+}
+
+@keyframes float-blob {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(0, -18px);
   }
 }
 

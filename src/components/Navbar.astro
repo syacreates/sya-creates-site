@@ -1,0 +1,185 @@
+---
+import Logo from './Logo.astro';
+
+const navLinks = [
+  { href: '#positionnement', label: 'Positionnement' },
+  { href: '#offres', label: 'Offres' },
+  { href: '#methode', label: 'Méthode' },
+  { href: '#a-propos', label: 'À propos' },
+];
+---
+
+<header class="navbar">
+  <div class="navbar__inner glass-panel">
+    <Logo />
+
+    <nav class="navbar__links" aria-label="Navigation principale">
+      {navLinks.map((link) => <a href={link.href}>{link.label}</a>)}
+    </nav>
+
+    <a href="#contact" class="btn btn--primary navbar__cta">Réserver un appel</a>
+
+    <button
+      type="button"
+      class="navbar__burger"
+      id="navbar-burger"
+      aria-expanded="false"
+      aria-controls="navbar-mobile"
+      aria-label="Ouvrir le menu"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <nav class="navbar__mobile" id="navbar-mobile" aria-label="Navigation mobile">
+    {navLinks.map((link) => <a href={link.href}>{link.label}</a>)}
+    <a href="#contact" class="btn btn--primary navbar__mobile-cta">Réserver un appel</a>
+  </nav>
+</header>
+
+<script>
+  const burger = document.getElementById('navbar-burger');
+  const mobile = document.getElementById('navbar-mobile');
+
+  burger?.addEventListener('click', () => {
+    const isOpen = mobile?.classList.toggle('navbar__mobile--open');
+    burger.setAttribute('aria-expanded', String(Boolean(isOpen)));
+  });
+
+  mobile?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      mobile.classList.remove('navbar__mobile--open');
+      burger?.setAttribute('aria-expanded', 'false');
+    });
+  });
+</script>
+
+<style>
+  .navbar {
+    position: sticky;
+    top: 20px;
+    z-index: 50;
+    padding: 0 24px;
+  }
+
+  .navbar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 14px 16px 14px 24px;
+  }
+
+  .navbar__links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .navbar__links a {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-ink);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .navbar__links a:hover {
+    color: var(--color-accent);
+  }
+
+  .navbar__cta {
+    padding: 11px 22px;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+  }
+
+  .navbar__burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .navbar__burger span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    margin: 0 auto;
+    background: var(--color-ink);
+    border-radius: 2px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .navbar__mobile {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 1180px;
+    margin: 8px auto 0;
+    padding: 16px;
+  }
+
+  .navbar__mobile a {
+    padding: 12px 14px;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-ink);
+    text-decoration: none;
+    border-radius: var(--radius-card-sm);
+  }
+
+  .navbar__mobile a:hover {
+    background: rgba(139, 92, 246, 0.1);
+  }
+
+  .navbar__mobile-cta {
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  .navbar__mobile--open {
+    display: flex;
+  }
+
+  .navbar__mobile.navbar__mobile--open {
+    background: var(--color-glass);
+    border: 1px solid var(--color-glass-border);
+    border-radius: var(--radius-card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: var(--shadow-card);
+  }
+
+  @media (max-width: 860px) {
+    .navbar {
+      top: 12px;
+      padding: 0 16px;
+    }
+
+    .navbar__inner {
+      padding: 10px 12px 10px 18px;
+    }
+
+    .navbar__links,
+    .navbar__cta {
+      display: none;
+    }
+
+    .navbar__burger {
+      display: flex;
+    }
+  }
+</style>

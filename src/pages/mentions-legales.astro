@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 ---
 
@@ -7,6 +8,7 @@ import Footer from '../components/Footer.astro';
   title="Mentions légales — Sya Creates"
   description="Mentions légales du site de Sya Creates, designer UX/UI indépendante."
 >
+    <Navbar />
     <main class="legal">
       <div class="legal__inner">
         <p class="legal__eyebrow">Mentions légales</p>
@@ -63,8 +65,7 @@ import Footer from '../components/Footer.astro';
 
 <style>
   .legal {
-    background: var(--color-bg);
-    padding: 96px 48px;
+    padding: 64px 24px 96px;
   }
 
   .legal__inner {

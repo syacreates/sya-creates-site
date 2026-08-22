@@ -1,17 +1,19 @@
 ---
-import SectionCorners from './SectionCorners.astro';
 ---
 
 <section class="about" id="a-propos">
-  <SectionCorners />
+  <span class="blob blob--about" aria-hidden="true"></span>
 
   <div class="about__grid">
-    <div class="about__photo">
+    <div class="about__photo glass-card">
       <img src="/images/sya-creates-photo.jpg" alt="Portrait de Sya Creates" />
     </div>
 
     <div class="about__content">
-      <p class="about__eyebrow">À propos</p>
+      <span class="eyebrow-pill">
+        <span class="eyebrow-pill__dot"></span>
+        À propos
+      </span>
 
       <h2 class="about__title">
         Dix ans à concevoir des produits, avant de les concevoir pour vous.
@@ -39,11 +41,21 @@ import SectionCorners from './SectionCorners.astro';
 <style>
   .about {
     position: relative;
-    background: var(--color-bg);
-    padding: 96px 48px;
+    padding: 96px 24px;
+    overflow: hidden;
+  }
+
+  .blob--about {
+    width: 380px;
+    height: 380px;
+    bottom: -140px;
+    right: -100px;
+    background: radial-gradient(circle, rgba(236, 72, 153, 0.14), transparent 70%);
   }
 
   .about__grid {
+    position: relative;
+    z-index: 1;
     display: grid;
     grid-template-columns: 0.9fr 1.1fr;
     gap: 64px;
@@ -55,8 +67,11 @@ import SectionCorners from './SectionCorners.astro';
   .about__photo {
     aspect-ratio: 4 / 5;
     overflow: hidden;
-    background: var(--color-surface);
-    border: 1px solid var(--color-ink);
+    padding: 0;
+  }
+
+  .about__photo:hover {
+    transform: none;
   }
 
   .about__photo img {
@@ -71,14 +86,6 @@ import SectionCorners from './SectionCorners.astro';
     display: flex;
     flex-direction: column;
     gap: 20px;
-  }
-
-  .about__eyebrow {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-text-secondary);
   }
 
   .about__title {
@@ -110,7 +117,7 @@ import SectionCorners from './SectionCorners.astro';
 
   @media (max-width: 860px) {
     .about {
-      padding: 64px 24px;
+      padding: 64px 20px;
     }
 
     .about__grid {

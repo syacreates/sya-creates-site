@@ -5,46 +5,53 @@ const anneeCourante = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
-  <div class="site-footer__inner">
-    <div class="site-footer__brand">
-      <Logo variant="on-dark" />
-      <p class="site-footer__tagline">UX/UI Design · AI-assisted development</p>
+  <div class="site-footer__card glass-panel">
+    <div class="site-footer__inner">
+      <div class="site-footer__brand">
+        <Logo variant="on-dark" />
+        <p class="site-footer__tagline">UX/UI Design · AI-assisted development</p>
+      </div>
+
+      <nav class="site-footer__nav" aria-label="Navigation du site">
+        <a href="#positionnement">Positionnement</a>
+        <a href="#offres">Offres</a>
+        <a href="#methode">Méthode</a>
+        <a href="#a-propos">À propos</a>
+        <a href="#contact">Contact</a>
+      </nav>
+
+      <div class="site-footer__contact">
+        <a href="mailto:sya.creates@gmail.com">sya.creates@gmail.com</a>
+        <a href="#contact" class="btn btn--primary site-footer__cta">Prendre rendez-vous</a>
+      </div>
     </div>
 
-    <nav class="site-footer__nav" aria-label="Navigation du site">
-      <a href="#positionnement">Positionnement</a>
-      <a href="#offres">Offres</a>
-      <a href="#methode">Méthode</a>
-      <a href="#a-propos">À propos</a>
-      <a href="#contact">Contact</a>
-    </nav>
-
-    <div class="site-footer__contact">
-      <a href="mailto:sya.creates@gmail.com">sya.creates@gmail.com</a>
-      <a href="#contact">Prendre rendez-vous</a>
+    <div class="site-footer__bottom">
+      <p>© {anneeCourante} Sya Creates. Tous droits réservés.</p>
+      <a href="/mentions-legales">Mentions légales</a>
     </div>
-  </div>
-
-  <div class="site-footer__bottom">
-    <p>© {anneeCourante} Sya Creates. Tous droits réservés.</p>
-    <a href="/mentions-legales">Mentions légales</a>
   </div>
 </footer>
 
 <style>
   .site-footer {
+    padding: 32px 24px 48px;
+  }
+
+  .site-footer__card {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 48px;
     background: var(--color-ink);
-    padding: 64px 48px 32px;
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
   .site-footer__inner {
     display: grid;
     grid-template-columns: 1.2fr 1fr 1fr;
     gap: 48px;
-    max-width: 1180px;
-    margin: 0 auto;
-    padding-bottom: 48px;
-    border-bottom: 1px solid rgba(239, 237, 230, 0.2);
+    padding-bottom: 40px;
+    border-bottom: 1px solid rgba(239, 237, 230, 0.15);
   }
 
   .site-footer__tagline {
@@ -65,7 +72,7 @@ const anneeCourante = new Date().getFullYear();
   }
 
   .site-footer__nav a,
-  .site-footer__contact a {
+  .site-footer__contact a:not(.btn) {
     font-family: var(--font-body);
     font-size: 0.9375rem;
     color: var(--color-bg);
@@ -73,18 +80,21 @@ const anneeCourante = new Date().getFullYear();
   }
 
   .site-footer__nav a:hover,
-  .site-footer__contact a:hover {
+  .site-footer__contact a:not(.btn):hover {
     text-decoration: underline;
-    text-decoration-color: var(--color-accent);
+    text-decoration-color: var(--color-accent-2);
     text-underline-offset: 4px;
+  }
+
+  .site-footer__cta {
+    padding: 10px 20px;
+    font-size: 0.875rem;
   }
 
   .site-footer__bottom {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 1180px;
-    margin: 0 auto;
     padding-top: 24px;
     flex-wrap: wrap;
     gap: 12px;
@@ -107,7 +117,11 @@ const anneeCourante = new Date().getFullYear();
 
   @media (max-width: 860px) {
     .site-footer {
-      padding: 48px 24px 24px;
+      padding: 20px 16px 32px;
+    }
+
+    .site-footer__card {
+      padding: 32px 24px;
     }
 
     .site-footer__inner {
