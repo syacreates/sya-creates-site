@@ -1,22 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  /* Couleurs — fond dégradé pastel lavande/menthe, encre violet foncé, accent dégradé */
-  --color-bg: #f4f0fb;
-  --color-bg-alt: #eef8f2;
-  --color-ink: #241b3a;
-  --color-text-secondary: #5c5570;
-  --color-accent: #8b5cf6;
-  --color-accent-2: #ec4899;
-  --color-line: rgba(36, 27, 58, 0.1);
+  /* Couleurs — fond crème/sable, encre vert forêt, accent dégradé vert */
+  --color-bg: #f7f3e8;
+  --color-bg-alt: #efe6d0;
+  --color-ink: #16241c;
+  --color-text-secondary: #5b6259;
+  --color-accent: #1f3d2e;
+  --color-accent-2: #4c8c63;
+  --color-line: rgba(22, 36, 28, 0.1);
   --color-surface: #ffffff;
-  --color-glass: rgba(255, 255, 255, 0.6);
-  --color-glass-strong: rgba(255, 255, 255, 0.78);
+  --color-glass: rgba(255, 252, 244, 0.6);
+  --color-glass-strong: rgba(255, 252, 244, 0.8);
   --color-glass-border: rgba(255, 255, 255, 0.7);
 
   --gradient-accent: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
-  --shadow-soft: 0 20px 45px -20px rgba(139, 92, 246, 0.35);
-  --shadow-card: 0 12px 32px -18px rgba(36, 27, 58, 0.25);
+  --shadow-soft: 0 20px 45px -20px rgba(31, 61, 46, 0.35);
+  --shadow-card: 0 12px 32px -18px rgba(22, 36, 28, 0.22);
 
   /* Typographie */
   --font-display: 'Fraunces', Georgia, serif;
@@ -48,9 +48,9 @@ html {
 body {
   margin: 0;
   background:
-    radial-gradient(720px 480px at 8% -10%, rgba(139, 92, 246, 0.16), transparent 60%),
-    radial-gradient(680px 460px at 96% 8%, rgba(236, 72, 153, 0.12), transparent 60%),
-    radial-gradient(900px 600px at 50% 60%, rgba(52, 211, 153, 0.1), transparent 65%),
+    radial-gradient(720px 480px at 8% -10%, rgba(31, 61, 46, 0.14), transparent 60%),
+    radial-gradient(680px 460px at 96% 8%, rgba(214, 178, 110, 0.16), transparent 60%),
+    radial-gradient(900px 600px at 50% 60%, rgba(76, 140, 99, 0.1), transparent 65%),
     var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-body);
@@ -132,7 +132,7 @@ button {
 .btn--primary:hover {
   transform: translateY(-2px) scale(1.03);
   filter: brightness(1.05);
-  box-shadow: 0 24px 50px -18px rgba(139, 92, 246, 0.45);
+  box-shadow: 0 24px 50px -18px rgba(31, 61, 46, 0.45);
 }
 
 .btn--primary:active {
