@@ -1,30 +1,70 @@
 ---
 const email = 'sya.creates@gmail.com';
 
-const questions = [
+const tabs = [
   {
-    q: 'Comment se déroule une mission avec toi ?',
-    r: "On part toujours d'un cadrage pour clarifier l'objectif et le périmètre, puis on enchaîne design UX, design UI, développement assisté par IA et livraison — chaque étape est validée avec toi avant de passer à la suivante.",
+    id: 'diagnostic',
+    label: '🔍 Le diagnostic UX/UI',
+    questions: [
+      {
+        q: 'Ce diagnostic, il est fait pour qui ?',
+        r: "Pour toute équipe qui a un produit déjà en ligne (SaaS ou app) et qui sent qu'il y a un problème d'expérience utilisateur, sans savoir précisément où il se situe.",
+      },
+      {
+        q: "Et si je n'ai pas de données d'usage propres ?",
+        r: "Ce n'est pas bloquant : le diagnostic s'appuie d'abord sur une revue directe du produit — parcours, UI, accessibilité. Les données, quand elles existent, viennent affiner l'analyse.",
+      },
+      {
+        q: 'Combien de temps ça me prend, de mon côté ?',
+        r: "Une session de restitution d'1h45, plus les échanges de cadrage en amont. Le reste, c'est moi qui m'en occupe.",
+      },
+      {
+        q: "Quelle différence avec l'accompagnement sur-mesure ?",
+        r: "Le diagnostic est un livrable ponctuel : tu repars avec une analyse et une roadmap. L'accompagnement, c'est moi qui reste dans la durée pour la mettre en œuvre avec toi.",
+      },
+      {
+        q: 'On peut démarrer tout de suite ?',
+        r: "Dès qu'on a validé le périmètre ensemble lors de l'appel découverte, oui.",
+      },
+      {
+        q: 'Et après la remise du diagnostic ?',
+        r: "Tu es libre de le mettre en œuvre en interne avec ton équipe, ou de passer sur l'accompagnement sur-mesure si tu préfères que je t'aide à l'exécuter.",
+      },
+      {
+        q: 'Tu interviens sur quel type de produit ?',
+        r: 'Principalement des SaaS et applications B2B/B2C — le plus important est que le produit ait déjà de vrais utilisateurs.',
+      },
+    ],
   },
   {
-    q: 'Tu interviens en remote ou sur site ?',
-    r: 'Je travaille principalement à distance, avec des points réguliers en visio. Une intervention ponctuelle sur site est possible selon le projet.',
-  },
-  {
-    q: 'Le développement assisté par IA, c\'est fiable ?',
-    r: "Oui : l'IA accélère l'écriture du code, mais chaque interface reste passée en revue et testée avant livraison. La qualité ne dépend jamais uniquement de l'outil.",
-  },
-  {
-    q: "Est-ce adapté si je n'ai pas encore de produit ?",
-    r: "Tout à fait — l'offre de diagnostic peut aussi servir à cadrer un besoin avant même qu'une ligne de code soit écrite.",
-  },
-  {
-    q: 'Quel est le délai moyen pour un projet ?',
-    r: 'Ça dépend du périmètre : un diagnostic se rend généralement en une à deux semaines, un accompagnement complet se cadre ensemble selon tes contraintes.',
-  },
-  {
-    q: 'Comment se passe le premier échange ?',
-    r: "Un appel découverte de 20 minutes, sans engagement, pour comprendre ton besoin et voir si on est faits pour travailler ensemble.",
+    id: 'accompagnement',
+    label: "🤝 Un accompagnement dans la durée",
+    questions: [
+      {
+        q: 'Comment se déroule une mission avec toi ?',
+        r: "On part toujours d'un cadrage pour clarifier l'objectif et le périmètre, puis on enchaîne design UX, design UI, développement assisté par IA et livraison — chaque étape est validée avec toi avant de passer à la suivante.",
+      },
+      {
+        q: 'Tu interviens en remote ou sur site ?',
+        r: 'Je travaille principalement à distance, avec des points réguliers en visio. Une intervention ponctuelle sur site est possible selon le projet.',
+      },
+      {
+        q: "Quelle est la durée moyenne d'une mission ?",
+        r: 'Ça dépend du périmètre : certaines missions durent quelques semaines, d\'autres plusieurs mois. On cadre ça ensemble dès le départ.',
+      },
+      {
+        q: 'Comment se passe la facturation ?',
+        r: "Sur devis, en fonction du périmètre et du rythme d'engagement — je te propose un chiffrage clair avant de démarrer.",
+      },
+      {
+        q: "Le développement assisté par IA, c'est fiable ?",
+        r: "Oui : l'IA accélère l'écriture du code, mais chaque interface reste passée en revue et testée avant livraison. La qualité ne dépend jamais uniquement de l'outil.",
+      },
+      {
+        q: "Est-ce adapté si je n'ai pas encore de produit ?",
+        r: "Tout à fait — on peut démarrer dès la phase de cadrage, avant même qu'une ligne de code soit écrite.",
+      },
+    ],
   },
 ];
 ---
@@ -39,25 +79,64 @@ const questions = [
     <h2 class="faq__title">Questions fréquentes</h2>
 
     <p class="faq__intro">
-      Tout ce qu'on me demande avant de démarrer une collaboration. Une autre question ? 💬
+      Tout ce qu'on me demande avant de démarrer une collaboration.
+      <span class="emoji-wiggle-idle" aria-hidden="true">💬</span> Une autre question ?
       Écris-moi directement à <a href={`mailto:${email}`} class="link-underline">{email}</a>.
     </p>
 
-    <div class="faq__list">
+    <div class="faq__tabs" role="tablist">
       {
-        questions.map((item) => (
-          <details class="accordion-item">
-            <summary>
-              <span>{item.q}</span>
-              <span class="accordion-item__icon" aria-hidden="true">+</span>
-            </summary>
-            <p class="accordion-item__answer">{item.r}</p>
-          </details>
+        tabs.map((tab, index) => (
+          <button
+            type="button"
+            class="faq__tab"
+            data-tab={tab.id}
+            role="tab"
+            aria-selected={index === 0 ? 'true' : 'false'}
+          >
+            {tab.label}
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="faq__panels">
+      {
+        tabs.map((tab, index) => (
+          <div class="faq__panel" data-panel={tab.id} hidden={index !== 0}>
+            <div class="faq__list">
+              {tab.questions.map((item) => (
+                <details class="accordion-item">
+                  <summary>
+                    <span>{item.q}</span>
+                    <span class="accordion-item__icon" aria-hidden="true">+</span>
+                  </summary>
+                  <p class="accordion-item__answer">{item.r}</p>
+                </details>
+              ))}
+            </div>
+          </div>
         ))
       }
     </div>
   </div>
 </section>
+
+<script>
+  const tabButtons = document.querySelectorAll<HTMLButtonElement>('.faq__tab');
+  const panels = document.querySelectorAll<HTMLElement>('.faq__panel');
+
+  tabButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const targetId = button.dataset.tab;
+
+      tabButtons.forEach((btn) => btn.setAttribute('aria-selected', String(btn === button)));
+      panels.forEach((panel) => {
+        panel.hidden = panel.dataset.panel !== targetId;
+      });
+    });
+  });
+</script>
 
 <style>
   .faq {
@@ -86,14 +165,68 @@ const questions = [
     margin-top: 20px;
   }
 
+  .faq__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 40px;
+  }
+
+  .faq__tab {
+    padding: 12px 20px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--color-ink);
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: transform 0.3s var(--ease-spring), background-color 0.2s ease,
+      color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .faq__tab:hover {
+    transform: translateY(-2px);
+  }
+
+  .faq__tab[aria-selected='true'] {
+    background: var(--gradient-accent);
+    color: #ffffff;
+    border-color: transparent;
+  }
+
   .faq__list {
-    margin-top: 48px;
+    margin-top: 32px;
     border-top: 1px solid var(--color-line);
+  }
+
+  @keyframes emoji-idle-bob {
+    0%, 100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-3px) rotate(-6deg);
+    }
+  }
+
+  .emoji-wiggle-idle {
+    display: inline-block;
+    animation: emoji-idle-bob 2.4s ease-in-out infinite;
   }
 
   @media (max-width: 860px) {
     .faq {
       padding: 64px 20px;
+    }
+
+    .faq__tabs {
+      flex-direction: column;
+    }
+
+    .faq__tab {
+      width: 100%;
+      text-align: center;
     }
   }
 </style>
