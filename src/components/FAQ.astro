@@ -1,7 +1,7 @@
 ---
 const email = 'sya.creates@gmail.com';
 
-const tabs = [
+const columns = [
   {
     id: 'diagnostic',
     label: '🔍 Le diagnostic UX/UI',
@@ -84,28 +84,14 @@ const tabs = [
       Écris-moi directement à <a href={`mailto:${email}`} class="link-underline">{email}</a>.
     </p>
 
-    <div class="faq__tabs" role="tablist">
+    <div class="faq__columns">
       {
-        tabs.map((tab, index) => (
-          <button
-            type="button"
-            class="faq__tab"
-            data-tab={tab.id}
-            role="tab"
-            aria-selected={index === 0 ? 'true' : 'false'}
-          >
-            {tab.label}
-          </button>
-        ))
-      }
-    </div>
+        columns.map((column) => (
+          <div class="faq__column">
+            <h3 class="faq__column-title">{column.label}</h3>
 
-    <div class="faq__panels">
-      {
-        tabs.map((tab, index) => (
-          <div class="faq__panel" data-panel={tab.id} hidden={index !== 0}>
             <div class="faq__list">
-              {tab.questions.map((item) => (
+              {column.questions.map((item) => (
                 <details class="accordion-item">
                   <summary>
                     <span>{item.q}</span>
@@ -121,22 +107,6 @@ const tabs = [
     </div>
   </div>
 </section>
-
-<script>
-  const tabButtons = document.querySelectorAll<HTMLButtonElement>('.faq__tab');
-  const panels = document.querySelectorAll<HTMLElement>('.faq__panel');
-
-  tabButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      const targetId = button.dataset.tab;
-
-      tabButtons.forEach((btn) => btn.setAttribute('aria-selected', String(btn === button)));
-      panels.forEach((panel) => {
-        panel.hidden = panel.dataset.panel !== targetId;
-      });
-    });
-  });
-</script>
 
 <style>
   .faq {
@@ -165,48 +135,23 @@ const tabs = [
     margin-top: 20px;
   }
 
-  .faq__tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 40px;
+  .faq__columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 48px;
+    margin-top: 48px;
   }
 
-  .faq__tab {
-    padding: 12px 20px;
-    font-family: var(--font-body);
+  .faq__column-title {
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--color-accent);
+    font-size: 1.0625rem;
     font-weight: 600;
-    font-size: 0.9375rem;
     color: var(--color-ink);
-    background: var(--color-surface);
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-pill);
-    cursor: pointer;
-    transition: transform 0.3s var(--ease-spring), background-color 0.2s ease,
-      color 0.2s ease, border-color 0.2s ease;
-  }
-
-  .faq__tab:hover {
-    transform: translateY(-2px);
-  }
-
-  .faq__tab[aria-selected='true'] {
-    background: var(--gradient-accent);
-    color: #ffffff;
-    border-color: transparent;
   }
 
   .faq__list {
-    margin-top: 32px;
-    padding-top: 1px;
-    border-top: 1px solid var(--color-line);
-    column-count: 2;
-    column-gap: 48px;
-  }
-
-  .faq__list .accordion-item {
-    break-inside: avoid;
-    -webkit-column-break-inside: avoid;
+    margin-top: 4px;
   }
 
   @keyframes emoji-idle-bob {
@@ -228,17 +173,9 @@ const tabs = [
       padding: 64px 20px;
     }
 
-    .faq__tabs {
-      flex-direction: column;
-    }
-
-    .faq__tab {
-      width: 100%;
-      text-align: center;
-    }
-
-    .faq__list {
-      column-count: 1;
+    .faq__columns {
+      grid-template-columns: 1fr;
+      gap: 40px;
     }
   }
 </style>
