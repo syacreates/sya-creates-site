@@ -1,6 +1,7 @@
 ---
 const offres = [
   {
+    emoji: '🔍',
     titre: 'Le diagnostic UX/UI',
     sousTitre: 'Sur devis',
     texte:
@@ -14,6 +15,7 @@ const offres = [
     ],
   },
   {
+    emoji: '🤝',
     titre: "L'accompagnement sur-mesure",
     sousTitre: 'Sur devis',
     texte:
@@ -52,7 +54,10 @@ const offres = [
         offres.map((offre, index) => (
           <div class="offer glass-card reveal-item" style={`--i: ${index}`}>
             <div class="offer__header">
-              <h3 class="offer__titre">{offre.titre}</h3>
+              <h3 class="offer__titre">
+                <span class="offer__emoji" aria-hidden="true">{offre.emoji}</span>
+                {offre.titre}
+              </h3>
               <span class="offer__sous-titre">{offre.sousTitre}</span>
             </div>
 
@@ -147,9 +152,16 @@ const offres = [
   }
 
   .offer__titre {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
     font-size: 1.375rem;
     font-weight: 600;
     color: var(--color-ink);
+  }
+
+  .offer__emoji {
+    font-size: 1.25rem;
   }
 
   .offer__sous-titre {

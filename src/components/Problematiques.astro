@@ -1,21 +1,25 @@
 ---
 const problemes = [
   {
+    emoji: '📉',
     titre: 'Une interface qui ne convertit pas',
     texte:
       "Le produit fonctionne, mais les utilisateurs abandonnent avant l'étape clé — sans qu'on sache précisément où, ni pourquoi.",
   },
   {
+    emoji: '🔀',
     titre: 'Design et développement désynchronisés',
     texte:
       'Les maquettes prennent des semaines à devenir une interface réelle, et le résultat livré finit par trahir ce qui avait été validé.',
   },
   {
+    emoji: '🎲',
     titre: 'Des décisions produit prises à vue',
     texte:
       "Sans parcours utilisateur clairement cadré, chaque nouvelle fonctionnalité rouvre le débat au lieu de s'appuyer sur une base solide.",
   },
   {
+    emoji: '🕰️',
     titre: 'Un design qui vieillit mal',
     texte:
       'Une interface bricolée au fil des besoins finit par perdre en cohérence — et en crédibilité aux yeux de tes utilisateurs.',
@@ -44,6 +48,7 @@ const problemes = [
       {
         problemes.map((probleme, index) => (
           <div class="problem-card glass-card reveal-item" style={`--i: ${index}`}>
+            <span class="problem-card__emoji" aria-hidden="true">{probleme.emoji}</span>
             <h3 class="problem-card__titre">{probleme.titre}</h3>
             <p class="problem-card__texte">{probleme.texte}</p>
           </div>
@@ -100,6 +105,12 @@ const problemes = [
 
   .problem-card {
     padding: 32px;
+  }
+
+  .problem-card__emoji {
+    display: inline-flex;
+    font-size: 1.75rem;
+    margin-bottom: 16px;
   }
 
   .problem-card__titre {
