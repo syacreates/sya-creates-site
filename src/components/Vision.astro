@@ -1,8 +1,8 @@
 ---
 const stats = [
-  { valeur: '10 ans', label: "d'expérience produit" },
-  { valeur: 'IA-assisted', label: 'développement accéléré' },
-  { valeur: 'Zéro', label: 'boîte noire' },
+  { emoji: '🕒', valeur: '10 ans', label: "d'expérience produit" },
+  { emoji: '🤖', valeur: 'IA-assisted', label: 'développement accéléré' },
+  { emoji: '🔓', valeur: 'Zéro', label: 'boîte noire' },
 ];
 
 const tags = [
@@ -46,8 +46,9 @@ const tags = [
 
     <div class="vision__stats">
       {
-        stats.map((stat) => (
-          <div class="vision-stat">
+        stats.map((stat, index) => (
+          <div class="vision-stat reveal-item" style={`--i: ${index}`}>
+            <span class="vision-stat__emoji emoji-live" aria-hidden="true">{stat.emoji}</span>
             <span class="vision-stat__valeur">{stat.valeur}</span>
             <span class="vision-stat__label">{stat.label}</span>
           </div>
@@ -132,16 +133,46 @@ const tags = [
     display: flex;
     flex-direction: column;
     gap: 8px;
+    padding: 20px;
+    margin: -20px;
+    border-radius: var(--radius-card-sm);
+    transition: background-color 0.3s ease;
+  }
+
+  .vision-stat:hover {
+    background: var(--color-glass-strong);
+  }
+
+  .vision-stat:hover .emoji-live {
+    animation: emoji-wiggle 0.6s ease;
+  }
+
+  .vision-stat__emoji {
+    font-size: 1.5rem;
+    margin-bottom: 2px;
   }
 
   .vision-stat__valeur {
     font-family: var(--font-display);
     font-size: clamp(1.5rem, 1.2rem + 1vw, 2.125rem);
     font-weight: 600;
-    background: var(--gradient-accent);
+    background: linear-gradient(
+      90deg,
+      var(--color-accent),
+      var(--color-accent-2),
+      var(--color-accent)
+    );
+    background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    animation: shimmer 4s linear infinite;
+  }
+
+  @keyframes shimmer {
+    to {
+      background-position: -200% center;
+    }
   }
 
   .vision-stat__label {

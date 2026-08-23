@@ -5,8 +5,10 @@
   <span class="blob blob--about" aria-hidden="true"></span>
 
   <div class="about__grid">
-    <div class="about__photo glass-card">
-      <img src="/images/sya-creates-photo.jpg" alt="Portrait de Sya Creates" />
+    <div class="about__photo">
+      <div class="about__photo-inner">
+        <img src="/images/sya-creates-photo.jpg" alt="Portrait de Sya Creates" />
+      </div>
     </div>
 
     <div class="about__content">
@@ -64,18 +66,33 @@
     margin: 0 auto;
   }
 
+  /* Cadre vert — dégradé de l'accent du site en bordure, avec un halo
+     lumineux autour, pour raccorder la photo à l'identité du site. */
   .about__photo {
     position: relative;
     aspect-ratio: 4 / 5;
-    overflow: hidden;
-    padding: 0;
+    padding: 4px;
+    border-radius: var(--radius-card);
+    background: var(--gradient-accent);
+    box-shadow: 0 0 0 1px rgba(31, 61, 46, 0.15), 0 30px 60px -24px rgba(31, 61, 46, 0.55),
+      0 0 60px -8px rgba(76, 140, 99, 0.6);
+    transition: box-shadow 0.4s var(--ease-spring);
   }
 
   .about__photo:hover {
-    transform: none;
+    box-shadow: 0 0 0 1px rgba(31, 61, 46, 0.2), 0 34px 64px -22px rgba(31, 61, 46, 0.55),
+      0 0 80px -6px rgba(76, 140, 99, 0.75);
   }
 
-  .about__photo img {
+  .about__photo-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: calc(var(--radius-card) - 4px);
+  }
+
+  .about__photo-inner img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -86,7 +103,7 @@
 
   /* Vignette — assombrit surtout les bords/le fond, pour le rendre moins
      identifiable, sans trop assombrir le visage au centre. */
-  .about__photo::before {
+  .about__photo-inner::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -96,7 +113,7 @@
   }
 
   /* Teinte duotone — superpose l'encre du site sur la photo en noir et blanc */
-  .about__photo::after {
+  .about__photo-inner::after {
     content: '';
     position: absolute;
     inset: 0;
