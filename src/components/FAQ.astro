@@ -145,7 +145,7 @@ const tabs = [
   }
 
   .faq__inner {
-    max-width: 820px;
+    max-width: 980px;
     margin: 0 auto;
   }
 
@@ -198,7 +198,15 @@ const tabs = [
 
   .faq__list {
     margin-top: 32px;
+    padding-top: 1px;
     border-top: 1px solid var(--color-line);
+    column-count: 2;
+    column-gap: 48px;
+  }
+
+  .faq__list .accordion-item {
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
   }
 
   @keyframes emoji-idle-bob {
@@ -227,6 +235,10 @@ const tabs = [
     .faq__tab {
       width: 100%;
       text-align: center;
+    }
+
+    .faq__list {
+      column-count: 1;
     }
   }
 </style>
