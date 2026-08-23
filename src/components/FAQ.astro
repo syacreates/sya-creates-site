@@ -1,0 +1,99 @@
+---
+const email = 'sya.creates@gmail.com';
+
+const questions = [
+  {
+    q: 'Comment se déroule une mission avec toi ?',
+    r: "On part toujours d'un cadrage pour clarifier l'objectif et le périmètre, puis on enchaîne design UX, design UI, développement assisté par IA et livraison — chaque étape est validée avec toi avant de passer à la suivante.",
+  },
+  {
+    q: 'Tu interviens en remote ou sur site ?',
+    r: 'Je travaille principalement à distance, avec des points réguliers en visio. Une intervention ponctuelle sur site est possible selon le projet.',
+  },
+  {
+    q: 'Le développement assisté par IA, c\'est fiable ?',
+    r: "Oui : l'IA accélère l'écriture du code, mais chaque interface reste passée en revue et testée avant livraison. La qualité ne dépend jamais uniquement de l'outil.",
+  },
+  {
+    q: "Est-ce adapté si je n'ai pas encore de produit ?",
+    r: "Tout à fait — l'offre de diagnostic peut aussi servir à cadrer un besoin avant même qu'une ligne de code soit écrite.",
+  },
+  {
+    q: 'Quel est le délai moyen pour un projet ?',
+    r: 'Ça dépend du périmètre : un diagnostic se rend généralement en une à deux semaines, un accompagnement complet se cadre ensemble selon tes contraintes.',
+  },
+  {
+    q: 'Comment se passe le premier échange ?',
+    r: "Un appel découverte de 20 minutes, sans engagement, pour comprendre ton besoin et voir si on est faits pour travailler ensemble.",
+  },
+];
+---
+
+<section class="faq" id="faq">
+  <div class="faq__inner">
+    <span class="eyebrow-pill">
+      <span class="eyebrow-pill__dot"></span>
+      FAQ
+    </span>
+
+    <h2 class="faq__title">Questions fréquentes</h2>
+
+    <p class="faq__intro">
+      Tout ce qu'on me demande avant de démarrer une collaboration. Une autre question ?
+      Écris-moi directement à <a href={`mailto:${email}`} class="link-underline">{email}</a>.
+    </p>
+
+    <div class="faq__list">
+      {
+        questions.map((item) => (
+          <details class="accordion-item">
+            <summary>
+              <span>{item.q}</span>
+              <span class="accordion-item__icon" aria-hidden="true">+</span>
+            </summary>
+            <p class="accordion-item__answer">{item.r}</p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq {
+    position: relative;
+    padding: 96px 24px;
+  }
+
+  .faq__inner {
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  .faq__title {
+    margin-top: 20px;
+    font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.5rem);
+    line-height: 1.2;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .faq__intro {
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin-top: 20px;
+  }
+
+  .faq__list {
+    margin-top: 48px;
+    border-top: 1px solid var(--color-line);
+  }
+
+  @media (max-width: 860px) {
+    .faq {
+      padding: 64px 20px;
+    }
+  }
+</style>

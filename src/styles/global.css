@@ -265,6 +265,83 @@ button {
   }
 }
 
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Pastille "tag" — utilisée dans le bandeau défilant de la section Ma vision */
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+/* Accordéon FAQ — construit sur <details>/<summary>, sans JS */
+.accordion-item {
+  border-bottom: 1px solid var(--color-line);
+}
+
+.accordion-item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 4px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1.0625rem;
+  color: var(--color-ink);
+  cursor: pointer;
+  list-style: none;
+}
+
+.accordion-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.accordion-item__icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-bg-alt);
+  color: var(--color-ink);
+  font-size: 1.125rem;
+  transition: transform 0.3s var(--ease-spring), background-color 0.3s ease;
+}
+
+.accordion-item[open] .accordion-item__icon {
+  transform: rotate(45deg);
+  background: var(--gradient-accent);
+  color: #ffffff;
+}
+
+.accordion-item__answer {
+  padding: 0 4px 22px;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  max-width: 68ch;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -1,0 +1,232 @@
+---
+const offres = [
+  {
+    titre: 'Le diagnostic UX/UI',
+    sousTitre: 'Sur devis',
+    texte:
+      "Je passe en revue ton produit pour identifier précisément ce qui freine l'expérience utilisateur, et tu repars avec un plan d'action clair.",
+    points: [
+      "Audit complet de l'expérience existante (parcours, UI, accessibilité)",
+      'Diagnostic priorisé : quick wins vs chantiers de fond',
+      'Recommandations actionnables, sans jargon',
+      'Une session de restitution pour répondre à tes questions',
+      "Un support (Notion ou PDF) reprenant l'ensemble des retours",
+    ],
+  },
+  {
+    titre: "L'accompagnement sur-mesure",
+    sousTitre: 'Sur devis',
+    texte:
+      'Une collaboration dans la durée pour concevoir, designer et développer ton produit — du cadrage à la mise en ligne.',
+    points: [
+      'Co-construction du parcours et de l\'interface avec ton équipe',
+      "Design UX puis UI, jusqu'au design system si besoin",
+      'Développement assisté par IA pour livrer plus vite',
+      'Points réguliers pour ajuster en continu',
+      'Support après livraison pour faire évoluer le produit',
+    ],
+  },
+];
+---
+
+<section class="accompaniment" id="accompagnement">
+  <span class="blob blob--accompaniment" aria-hidden="true"></span>
+
+  <div class="accompaniment__inner">
+    <span class="eyebrow-pill">
+      <span class="eyebrow-pill__dot"></span>
+      Accompagnement
+    </span>
+
+    <h2 class="accompaniment__title">
+      Deux façons de <em>travailler ensemble.</em>
+    </h2>
+
+    <p class="accompaniment__intro">
+      Que tu aies besoin d'un diagnostic clair ou d'une collaboration dans la durée, il y a une
+      offre adaptée à ton étape.
+    </p>
+
+    <div class="accompaniment__grid">
+      {
+        offres.map((offre, index) => (
+          <div class="offer glass-card reveal-item" style={`--i: ${index}`}>
+            <div class="offer__header">
+              <h3 class="offer__titre">{offre.titre}</h3>
+              <span class="offer__sous-titre">{offre.sousTitre}</span>
+            </div>
+
+            <p class="offer__texte">{offre.texte}</p>
+
+            <ul class="offer__points">
+              {offre.points.map((point) => (
+                <li>
+                  <span class="offer__check" aria-hidden="true">✓</span>
+                  {point}
+                </li>
+              ))}
+            </ul>
+
+            <a href="#contact" class="btn btn--primary offer__cta">Réserver un appel découverte</a>
+            <span class="offer__note">Visio de 20 min, sans engagement</span>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .accompaniment {
+    position: relative;
+    padding: 96px 24px;
+    overflow: hidden;
+  }
+
+  .blob--accompaniment {
+    width: 420px;
+    height: 420px;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: radial-gradient(circle, rgba(31, 61, 46, 0.1), transparent 70%);
+  }
+
+  .accompaniment__inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  .accompaniment__title {
+    margin-top: 20px;
+    font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.5rem);
+    line-height: 1.2;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .accompaniment__title em {
+    font-style: italic;
+    font-weight: 500;
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .accompaniment__intro {
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    max-width: 62ch;
+    margin-top: 24px;
+  }
+
+  .accompaniment__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-top: 56px;
+  }
+
+  .offer {
+    display: flex;
+    flex-direction: column;
+    padding: 40px;
+  }
+
+  .offer__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .offer__titre {
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .offer__sous-titre {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .offer__texte {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin-top: 16px;
+  }
+
+  .offer__points {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    list-style: none;
+    margin: 28px 0 0;
+    padding: 0;
+    flex-grow: 1;
+  }
+
+  .offer__points li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--color-ink);
+  }
+
+  .offer__check {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--gradient-accent);
+    color: #ffffff;
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  .offer__cta {
+    margin-top: 32px;
+    width: 100%;
+  }
+
+  .offer__note {
+    margin-top: 12px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  @media (max-width: 860px) {
+    .accompaniment {
+      padding: 64px 20px;
+    }
+
+    .accompaniment__grid {
+      grid-template-columns: 1fr;
+      margin-top: 40px;
+    }
+
+    .offer {
+      padding: 28px;
+    }
+  }
+</style>

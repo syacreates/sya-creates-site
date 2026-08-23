@@ -12,11 +12,11 @@
     <div class="about__content">
       <span class="eyebrow-pill">
         <span class="eyebrow-pill__dot"></span>
-        À propos
+        Qui suis-je ?
       </span>
 
       <h2 class="about__title">
-        Dix ans à concevoir des produits, avant de les concevoir pour vous.
+        Dix ans à concevoir des produits, avant de les concevoir pour toi.
       </h2>
 
       <p class="about__paragraph">
@@ -65,6 +65,7 @@
   }
 
   .about__photo {
+    position: relative;
     aspect-ratio: 4 / 5;
     overflow: hidden;
     padding: 0;
@@ -80,6 +81,18 @@
     object-fit: cover;
     object-position: center 30%;
     display: block;
+    filter: grayscale(1) contrast(1.1) brightness(1.05);
+  }
+
+  /* Teinte duotone — superpose l'encre du site sur la photo en noir et blanc */
+  .about__photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--color-ink);
+    mix-blend-mode: color;
+    opacity: 0.4;
+    pointer-events: none;
   }
 
   .about__content {
