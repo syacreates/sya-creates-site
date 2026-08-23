@@ -48,7 +48,9 @@ const problemes = [
       {
         problemes.map((probleme, index) => (
           <div class="problem-card glass-card reveal-item" style={`--i: ${index}`}>
-            <span class="problem-card__emoji emoji-live" aria-hidden="true">{probleme.emoji}</span>
+            <span class="problem-card__icon">
+              <span class="emoji-live" aria-hidden="true">{probleme.emoji}</span>
+            </span>
             <h3 class="problem-card__titre">{probleme.titre}</h3>
             <p class="problem-card__texte">{probleme.texte}</p>
           </div>
@@ -107,10 +109,23 @@ const problemes = [
     padding: 32px;
   }
 
-  .problem-card__emoji {
+  .problem-card__icon {
     display: inline-flex;
-    font-size: 1.75rem;
-    margin-bottom: 16px;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 18px;
+    border-radius: 50%;
+    background: var(--color-bg-alt);
+    border: 1px solid var(--color-line);
+    font-size: 1.1875rem;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+  }
+
+  .glass-card:hover .problem-card__icon {
+    background: var(--color-surface);
+    border-color: var(--color-accent-2);
   }
 
   .problem-card__titre {

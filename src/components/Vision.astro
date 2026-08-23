@@ -48,7 +48,9 @@ const tags = [
       {
         stats.map((stat, index) => (
           <div class="vision-stat reveal-item" style={`--i: ${index}`}>
-            <span class="vision-stat__emoji emoji-live" aria-hidden="true">{stat.emoji}</span>
+            <span class="vision-stat__icon">
+              <span class="emoji-live" aria-hidden="true">{stat.emoji}</span>
+            </span>
             <span class="vision-stat__valeur">{stat.valeur}</span>
             <span class="vision-stat__label">{stat.label}</span>
           </div>
@@ -147,9 +149,23 @@ const tags = [
     animation: emoji-wiggle 0.6s ease;
   }
 
-  .vision-stat__emoji {
-    font-size: 1.5rem;
-    margin-bottom: 2px;
+  .vision-stat__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 4px;
+    border-radius: 50%;
+    background: var(--color-bg-alt);
+    border: 1px solid var(--color-line);
+    font-size: 1.1875rem;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+  }
+
+  .vision-stat:hover .vision-stat__icon {
+    background: var(--color-surface);
+    border-color: var(--color-accent-2);
   }
 
   .vision-stat__valeur {
