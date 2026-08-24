@@ -1,4 +1,10 @@
 ---
+const pitch = [
+  { emoji: '🔍', titre: 'Diagnostic UX/UI', texte: 'Identifier ce qui bloque tes utilisateurs' },
+  { emoji: '🤝', titre: 'Accompagnement complet', texte: 'Du cadrage à la mise en ligne' },
+  { emoji: '⚡', titre: 'Dev IA-assisted', texte: 'Une interface fonctionnelle, vite' },
+];
+
 const stars = [
   { top: '4%', left: '18%', size: 10, delay: '0s' },
   { top: '10%', left: '52%', size: 7, delay: '0.6s' },
@@ -38,6 +44,18 @@ const stars = [
       Moi c'est Aïda. Designer UX/UI qui a fait de l'IA une alliée, pas une menace. Je prends tes
       projets de A à Z, et je livre vite.
     </p>
+
+    <div class="hero__pitch">
+      {
+        pitch.map((item) => (
+          <div class="hero__pitch-item">
+            <span class="hero__pitch-emoji emoji-live" aria-hidden="true">{item.emoji}</span>
+            <span class="hero__pitch-titre">{item.titre}</span>
+            <span class="hero__pitch-texte">{item.texte}</span>
+          </div>
+        ))
+      }
+    </div>
 
     <div class="hero__ctas">
       <a href="#contact" class="btn btn--primary">Réserver un appel découverte</a>
@@ -149,6 +167,48 @@ const stars = [
     line-height: 1.6;
     color: var(--color-text-secondary);
     max-width: 52ch;
+  }
+
+  /* Rangée "ce que je fais concrètement" — répond dès le premier regard à
+     quoi/comment/quoi-concrètement, avant même le CTA. */
+  .hero__pitch {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .hero__pitch-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 172px;
+    padding: 16px 14px;
+    background: var(--color-glass-strong);
+    border: 1px solid var(--color-glass-border);
+    border-radius: var(--radius-card-sm);
+    box-shadow: var(--shadow-card);
+  }
+
+  .hero__pitch-emoji {
+    font-size: 1.25rem;
+    margin-bottom: 2px;
+  }
+
+  .hero__pitch-titre {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    color: var(--color-ink);
+  }
+
+  .hero__pitch-texte {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--color-text-secondary);
   }
 
   .hero__ctas {
@@ -407,6 +467,10 @@ const stars = [
 
     .hero__ctas {
       gap: 20px;
+    }
+
+    .hero__pitch-item {
+      width: calc(50% - 6px);
     }
   }
 </style>
