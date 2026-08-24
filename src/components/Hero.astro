@@ -1,4 +1,9 @@
 ---
+const titleLine1 = "Je débloque ton produit,";
+const titleLine2 = "et j'élimine tes frictions UX.";
+const words1 = titleLine1.split(' ');
+const words2 = titleLine2.split(' ');
+
 const pitch = [
   { emoji: '🔍', titre: 'Diagnostic UX/UI', texte: 'Identifier ce qui bloque tes utilisateurs' },
   { emoji: '🤝', titre: 'Accompagnement complet', texte: 'Du cadrage à la mise en ligne' },
@@ -36,8 +41,16 @@ const stars = [
     </span>
 
     <h1 class="hero__title">
-      Un design qui inspire confiance,
-      <span class="hero__title-accent">une exécution qui va plus vite.</span>
+      <span class="hero__title-line">
+        {words1.map((w, i) => (
+          <span class="word-mask"><span class="word-inner" style={`--i: ${i}`}>{w}&nbsp;</span></span>
+        ))}
+      </span>
+      <span class="hero__title-line hero__title-accent">
+        {words2.map((w, i) => (
+          <span class="word-mask"><span class="word-inner" style={`--i: ${i + words1.length}`}>{w}&nbsp;</span></span>
+        ))}
+      </span>
     </h1>
 
     <p class="hero__subtitle">
@@ -151,14 +164,48 @@ const stars = [
     color: var(--color-ink);
   }
 
-  .hero__title-accent {
+  .hero__title-line {
     display: block;
+  }
+
+  .hero__title-accent {
     font-style: italic;
     font-weight: 500;
+  }
+
+  /* Apparition mot par mot au chargement — chaque mot glisse depuis son
+     propre masque, façon titre animé du site de référence. */
+  .word-mask {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    padding-bottom: 0.12em;
+  }
+
+  .word-inner {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(110%);
+    animation: word-reveal 0.75s var(--ease-spring) both;
+    animation-delay: calc(var(--i, 0) * 65ms + 0.15s);
+  }
+
+  .hero__title-accent .word-inner {
     background: var(--gradient-accent);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+
+  @keyframes word-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(110%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .hero__subtitle {
