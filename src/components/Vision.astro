@@ -5,6 +5,47 @@ const stats = [
   { emoji: '🔓', valeur: 'Zéro', label: 'boîte noire' },
 ];
 
+const etapes = [
+  {
+    emoji: '🔍',
+    titre: 'Comprendre',
+    texte: "Observer les utilisateurs, leurs besoins et leurs blocages avant de dessiner quoi que ce soit.",
+  },
+  {
+    emoji: '🧭',
+    titre: 'Structurer (UX)',
+    texte: "Organiser l'information et les parcours pour que tout se trouve sans effort.",
+  },
+  {
+    emoji: '🎨',
+    titre: 'Habiller (UI)',
+    texte: 'Donner une forme visuelle cohérente à cette structure, jusqu\'au moindre détail.',
+  },
+];
+
+const apports = [
+  {
+    emoji: '🧲',
+    titre: 'Rétention',
+    texte: 'Des utilisateurs qui comprennent le produit du premier coup, et qui restent.',
+  },
+  {
+    emoji: '🤝',
+    titre: 'Confiance',
+    texte: 'Une interface soignée qui rassure avant même la première interaction.',
+  },
+  {
+    emoji: '🛠️',
+    titre: 'Moins de rework',
+    texte: 'Des choix validés en amont, pour ne pas redévelopper trois fois la même chose.',
+  },
+  {
+    emoji: '📈',
+    titre: 'Conversion',
+    texte: "Des parcours pensés pour l'objectif business, pas juste pour être jolis.",
+  },
+];
+
 const tags = [
   'Discovery',
   'UX Research',
@@ -42,6 +83,47 @@ const tags = [
         étape, celle qui transforme une maquette validée en interface réellement utilisable,
         sans attendre des mois.
       </p>
+    </div>
+
+    <div class="vision__block">
+      <h3 class="vision__block-title">C'est quoi, concrètement, l'UX/UI Design ?</h3>
+
+      <div class="vision-flow">
+        {
+          etapes.map((etape, index) => (
+            <>
+              <div class="vision-flow__step glass-card reveal-item" style={`--i: ${index}`}>
+                <span class="vision-flow__icon">
+                  <span class="emoji-live" aria-hidden="true">{etape.emoji}</span>
+                </span>
+                <h4 class="vision-flow__titre">{etape.titre}</h4>
+                <p class="vision-flow__texte">{etape.texte}</p>
+              </div>
+              {index < etapes.length - 1 && (
+                <span class="vision-flow__arrow" aria-hidden="true">→</span>
+              )}
+            </>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="vision__block">
+      <h3 class="vision__block-title">Ce que ça change sur un projet</h3>
+
+      <div class="vision-benefits">
+        {
+          apports.map((apport, index) => (
+            <div class="vision-benefit glass-card reveal-item" style={`--i: ${index}`}>
+              <span class="vision-benefit__icon">
+                <span class="emoji-live" aria-hidden="true">{apport.emoji}</span>
+              </span>
+              <h4 class="vision-benefit__titre">{apport.titre}</h4>
+              <p class="vision-benefit__texte">{apport.texte}</p>
+            </div>
+          ))
+        }
+      </div>
     </div>
 
     <div class="vision__stats">
@@ -199,6 +281,111 @@ const tags = [
     color: var(--color-text-secondary);
   }
 
+  .vision__block {
+    margin-top: 64px;
+  }
+
+  .vision__block-title {
+    font-size: clamp(1.1875rem, 1rem + 0.6vw, 1.5rem);
+    font-weight: 600;
+    color: var(--color-ink);
+    max-width: 32ch;
+  }
+
+  /* Visuel 1 — le flux compréhension → structure → habillage, relié par
+     des flèches pour rendre le déroulé visible en un coup d'œil. */
+  .vision-flow {
+    display: grid;
+    grid-template-columns: 1fr 32px 1fr 32px 1fr;
+    align-items: center;
+    gap: 8px;
+    margin-top: 32px;
+  }
+
+  .vision-flow__step {
+    padding: 28px;
+    height: 100%;
+  }
+
+  .vision-flow__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 16px;
+    border-radius: 50%;
+    background: var(--color-bg-alt);
+    border: 1px solid var(--color-line);
+    font-size: 1.1875rem;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+  }
+
+  .glass-card:hover .vision-flow__icon {
+    background: var(--color-surface);
+    border-color: var(--color-accent-2);
+  }
+
+  .vision-flow__titre {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 8px;
+  }
+
+  .vision-flow__texte {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+  }
+
+  .vision-flow__arrow {
+    text-align: center;
+    font-size: 1.375rem;
+    color: var(--color-accent-2);
+    animation: emoji-float 3s ease-in-out infinite;
+  }
+
+  /* Visuel 2 — quatre bénéfices concrets, même grammaire visuelle que les
+     problématiques mais tournée vers l'apport plutôt que le manque. */
+  .vision-benefits {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .vision-benefit {
+    padding: 26px;
+  }
+
+  .vision-benefit__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 14px;
+    border-radius: 50%;
+    background: var(--gradient-accent);
+    font-size: 1.0625rem;
+  }
+
+  .vision-benefit__titre {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 6px;
+  }
+
+  .vision-benefit__texte {
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+  }
+
   .vision__marquee {
     margin-top: 56px;
     overflow: hidden;
@@ -227,6 +414,29 @@ const tags = [
       grid-template-columns: 1fr;
       gap: 24px;
       margin-top: 48px;
+    }
+
+    .vision__block {
+      margin-top: 48px;
+    }
+
+    .vision-flow {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .vision-flow__arrow {
+      display: none;
+    }
+
+    .vision-benefits {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .vision-benefits {
+      grid-template-columns: 1fr;
     }
   }
 </style>
