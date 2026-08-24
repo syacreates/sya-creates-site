@@ -10,16 +10,19 @@ const etapes = [
     emoji: '🔍',
     titre: 'Comprendre',
     texte: "Observer les utilisateurs, leurs besoins et leurs blocages avant de dessiner quoi que ce soit.",
+    methodes: ['Interviews utilisateurs', 'Personas', "Cartes d'empathie"],
   },
   {
     emoji: '🧭',
     titre: 'Structurer (UX)',
     texte: "Organiser l'information et les parcours pour que tout se trouve sans effort.",
+    methodes: ["Architecture de l'information", 'Tri de cartes', 'Wireframes'],
   },
   {
     emoji: '🎨',
     titre: 'Habiller (UI)',
     texte: 'Donner une forme visuelle cohérente à cette structure, jusqu\'au moindre détail.',
+    methodes: ['Design system', 'Prototypes', "Tests d'utilisabilité"],
   },
 ];
 
@@ -98,6 +101,9 @@ const tags = [
                 </span>
                 <h4 class="vision-flow__titre">{etape.titre}</h4>
                 <p class="vision-flow__texte">{etape.texte}</p>
+                <ul class="vision-flow__methodes">
+                  {etape.methodes.map((methode) => <li>{methode}</li>)}
+                </ul>
               </div>
               {index < etapes.length - 1 && (
                 <span class="vision-flow__arrow" aria-hidden="true">→</span>
@@ -338,6 +344,35 @@ const tags = [
     font-size: 0.875rem;
     line-height: 1.55;
     color: var(--color-text-secondary);
+  }
+
+  .vision-flow__methodes {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 14px 0 0;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .vision-flow__methodes li {
+    position: relative;
+    padding-left: 14px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+  }
+
+  .vision-flow__methodes li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-accent-2);
   }
 
   .vision-flow__arrow {
