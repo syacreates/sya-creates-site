@@ -15,16 +15,13 @@ const pitch = [
   <span class="blob blob--1" aria-hidden="true"></span>
   <span class="blob blob--2" aria-hidden="true"></span>
 
-  <!-- Cubes chromés (voir <script>) : deux canvases plein-hero, pour que
-       la chute parte du haut de la page. 5 cubes = les 5 étapes de la
-       section Méthode, elles tombent dans l'ordre et se posent de
-       gauche à droite ; le cube or (dernier) reprend l'accent visuel
-       que la section Méthode donne déjà à sa dernière étape. Certains
-       cubes sont rendus sur un calque flouté à l'arrière-plan (profondeur,
-       façon elevenses-product.com), les autres sur un calque net posé
-       au-dessus du texte, qu'ils débordent légèrement en tombant. -->
-  <canvas id="hero-cubes-back" class="hero__cubes hero__cubes--back" aria-hidden="true"></canvas>
-  <canvas id="hero-cubes" class="hero__cubes hero__cubes--front" aria-hidden="true"></canvas>
+  <!-- Cubes chromés (voir <script>) : un canvas plein-hero, pour que la
+       chute parte du haut de la page. Elles tombent dans l'ordre et se
+       posent de gauche à droite ; le cube or (dernier) reprend l'accent
+       visuel que la section Méthode donne déjà à sa dernière étape. Le
+       canvas est posé au-dessus du texte, qu'il déborde légèrement en
+       tombant, façon elevenses-product.com. -->
+  <canvas id="hero-cubes" class="hero__cubes" aria-hidden="true"></canvas>
 
   <div class="hero__inner">
     <span class="eyebrow-pill">
@@ -90,39 +87,30 @@ const pitch = [
   import * as CANNON from 'cannon-es';
 
   const canvas = document.getElementById('hero-cubes') as HTMLCanvasElement | null;
-  const canvasBack = document.getElementById('hero-cubes-back') as HTMLCanvasElement | null;
   const field = canvas?.parentElement;
   const orbfield = document.querySelector('.hero__orbfield') as HTMLElement | null;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if (canvas && canvasBack && field && orbfield && !prefersReduced) {
+  if (canvas && field && orbfield && !prefersReduced) {
     let width = field.clientWidth;
     let height = field.clientHeight;
 
-    // --- Deux calques Three.js (même caméra ortho 1:1px) : un net,
-    // au-dessus du texte, et un flouté en arrière-plan pour la profondeur.
-    function makeLayer(canvasEl: HTMLCanvasElement) {
-      const scene = new THREE.Scene();
-      const camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, 1, 2000);
-      camera.position.z = 700;
+    // --- Three.js scene, orthographic so 1 unit = 1px ---
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, 1, 2000);
+    camera.position.z = 700;
 
-      const renderer = new THREE.WebGLRenderer({ canvas: canvasEl, alpha: true, antialias: true });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.setSize(width, height, false);
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(width, height, false);
 
-      const pmrem = new THREE.PMREMGenerator(renderer);
-      scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-      const ambient = new THREE.AmbientLight(0xffffff, 0.6);
-      const key = new THREE.DirectionalLight(0xffffff, 1.4);
-      key.position.set(120, 220, 260);
-      scene.add(ambient, key);
-
-      return { scene, camera, renderer };
-    }
-
-    const layerFront = makeLayer(canvas);
-    const layerBack = makeLayer(canvasBack);
+    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+    const key = new THREE.DirectionalLight(0xffffff, 1.4);
+    key.position.set(120, 220, 260);
+    scene.add(ambient, key);
 
     // --- cannon-es world, same pixel-scale units ---
     // Gravité adoucie : la chute part maintenant du haut de la page, donc
@@ -164,33 +152,36 @@ const pitch = [
       depth = Math.min(width, height) * 0.5;
 
       const big = 4000;
+      // Murs latéraux volontairement bas (pas "big") : la pile peut monter
+      // jusqu'à cette hauteur, puis les cubes en trop perdent l'équilibre
+      // et basculent par-dessus au lieu d'être contenus indéfiniment.
+      const wallFillHeight = 420;
+      const wallCenterY = floorWorldY + wallFillHeight / 2;
       if (floor) [floor, left, right, front, back].forEach((b) => world.removeBody(b));
       floor = makeWall((laneLeftX + laneRightX) / 2, floorWorldY - 10, 0, (laneRightX - laneLeftX) / 2 + 30, 20, big);
-      left = makeWall(laneLeftX - 10, 0, 0, 20, big, big);
-      right = makeWall(laneRightX + 10, 0, 0, 20, big, big);
+      left = makeWall(laneLeftX - 10, wallCenterY, 0, 20, wallFillHeight / 2, big);
+      right = makeWall(laneRightX + 10, wallCenterY, 0, 20, wallFillHeight / 2, big);
       front = makeWall(0, 0, depth / 2, big, big, 20);
       back = makeWall(0, 0, -depth / 2, big, big, 20);
     }
     layoutWalls();
 
-    // --- Cubes : un par étape de la section Méthode (5), dans l'ordre —
-    // elles tombent et se posent de gauche à droite comme les 5 étapes
-    // numérotées "01 → 05". Le cube or, dernier, reprend l'accent que la
-    // section Méthode donne déjà à sa toute dernière étape. Plus gros
-    // qu'avant, et répartis entre calque net (devant, déborde sur le
-    // texte) et calque flouté (derrière), façon elevenses-product.com.
+    // --- Cubes : quelques étapes-clés de la section Méthode, dans l'ordre
+    // — elles tombent et se posent de gauche à droite. Le cube or,
+    // dernier, reprend l'accent que la section Méthode donne déjà à sa
+    // toute dernière étape. Canvas posé au-dessus du texte, qu'il déborde
+    // légèrement en tombant, façon elevenses-product.com.
     const palette = [
-      { size: 118, color: 0x3f7a58, layer: 'front' as const }, // 01 Cadrage
-      { size: 88, color: 0x1f3d2e, layer: 'back' as const }, // 02 Design
-      { size: 100, color: 0x4c8c63, layer: 'front' as const }, // 03 Développement IA-assisted
-      { size: 82, color: 0x2c5240, layer: 'back' as const }, // 04 Livraison
-      { size: 72, color: 0xd9a854, layer: 'front' as const }, // 05 Suivi — accent
+      { size: 118, color: 0x3f7a58 }, // 01 Cadrage
+      { size: 100, color: 0x4c8c63 }, // 03 Développement IA-assisted
+      { size: 72, color: 0xd9a854 }, // 05 Suivi — accent
     ];
 
-    type CubeRig = { mesh: THREE.Mesh; body: CANNON.Body; size: number; layer: 'front' | 'back' };
+    type CubeRig = { mesh: THREE.Mesh; body: CANNON.Body; size: number };
     const cubes: CubeRig[] = [];
+    let spawnCount = 0;
 
-    palette.forEach((spec, i) => {
+    function spawnCube(spec: { size: number; color: number }, targetX: number) {
       const geo = new RoundedBoxGeometry(spec.size, spec.size, spec.size, 4, spec.size * 0.14);
       const mat = new THREE.MeshStandardMaterial({
         color: spec.color,
@@ -199,11 +190,7 @@ const pitch = [
         envMapIntensity: 1.3,
       });
       const mesh = new THREE.Mesh(geo, mat);
-      const targetLayer = spec.layer === 'front' ? layerFront : layerBack;
-      targetLayer.scene.add(mesh);
-
-      const t = palette.length > 1 ? i / (palette.length - 1) : 0.5;
-      const targetX = laneLeftX + t * (laneRightX - laneLeftX);
+      scene.add(mesh);
 
       const half = spec.size / 2;
       const body = new CANNON.Body({
@@ -215,19 +202,31 @@ const pitch = [
       });
       // Départ près du haut du canvas (= haut de la page) plutôt que loin
       // au-dessus, invisible — la chute doit se voir depuis le sommet.
-      body.position.set(targetX, height / 2 - 40 - i * 60, (Math.random() - 0.5) * depth * 0.3);
+      body.position.set(targetX, height / 2 - 40 - (spawnCount % 6) * 60, (Math.random() - 0.5) * depth * 0.3);
       body.quaternion.setFromEuler((Math.random() - 0.5) * Math.PI, (Math.random() - 0.5) * Math.PI, (Math.random() - 0.5) * Math.PI);
       body.angularVelocity.set((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2);
-      cubes.push({ mesh, body, size: spec.size, layer: spec.layer });
-    });
+      spawnCount++;
 
-    cubes.forEach((c, i) => {
+      const rig: CubeRig = { mesh, body, size: spec.size };
+      cubes.push(rig);
+      return rig;
+    }
+
+    palette.forEach((spec, i) => {
+      const t = palette.length > 1 ? i / (palette.length - 1) : 0.5;
+      const targetX = laneLeftX + t * (laneRightX - laneLeftX);
+      const rig = spawnCube(spec, targetX);
       // Chute séquentielle, une étape après l'autre — comme le process.
-      setTimeout(() => world.addBody(c.body), i * 320);
+      setTimeout(() => world.addBody(rig.body), i * 320);
     });
 
-    // --- Drag to throw — uniquement les cubes du calque net (devant) ---
-    const draggableCubes = cubes.filter((c) => c.layer === 'front');
+    // La pile continue de s'alimenter : un nouveau cube tombe régulièrement
+    // et vient s'empiler, jusqu'à ce que le tas devienne trop haut pour les
+    // murs (voir layoutWalls) et que les cubes en trop basculent et tombent.
+    let spawnTimer = 0;
+    const SPAWN_INTERVAL = 3.2;
+
+    // --- Drag to throw ---
     const raycaster = new THREE.Raycaster();
     const pointerNDC = new THREE.Vector2();
     let dragging: CubeRig | null = null;
@@ -243,7 +242,7 @@ const pitch = [
     }
 
     function worldOnPlane(z: number) {
-      raycaster.setFromCamera(pointerNDC, layerFront.camera);
+      raycaster.setFromCamera(pointerNDC, camera);
       const dir = raycaster.ray.direction;
       const origin = raycaster.ray.origin;
       const t = (z - origin.z) / dir.z;
@@ -252,10 +251,10 @@ const pitch = [
 
     canvas.addEventListener('pointerdown', (e) => {
       toNDC(e);
-      raycaster.setFromCamera(pointerNDC, layerFront.camera);
-      const hit = raycaster.intersectObjects(draggableCubes.map((c) => c.mesh))[0];
+      raycaster.setFromCamera(pointerNDC, camera);
+      const hit = raycaster.intersectObjects(cubes.map((c) => c.mesh))[0];
       if (!hit) return;
-      dragging = draggableCubes.find((c) => c.mesh === hit.object) || null;
+      dragging = cubes.find((c) => c.mesh === hit.object) || null;
       if (!dragging) return;
       canvas.setPointerCapture(e.pointerId);
       dragPlaneZ = dragging.body.position.z;
@@ -302,12 +301,22 @@ const pitch = [
       prevTime = now;
 
       world.step(1 / 60, dt, 6);
-      for (const c of cubes) {
-        // Filet de sécurité : un contact multi-corps un peu chaotique
-        // (plusieurs cubes qui se tassent en même temps) peut, rarement,
-        // envoyer un corps à une vitesse aberrante — on la borne, et si
-        // un cube se retrouve quand même hors du champ, on le repose
-        // proprement au-dessus de la pile plutôt que de le laisser filer.
+
+      // Nourrit la pile en continu tant que le hero est visible.
+      spawnTimer += dt;
+      if (spawnTimer > SPAWN_INTERVAL) {
+        spawnTimer = 0;
+        const spec = palette[spawnCount % palette.length];
+        const targetX = laneLeftX + Math.random() * (laneRightX - laneLeftX);
+        const rig = spawnCube(spec, targetX);
+        world.addBody(rig.body);
+      }
+
+      for (let i = cubes.length - 1; i >= 0; i--) {
+        const c = cubes[i];
+        // Vitesse plafonnée pour éviter qu'un contact multi-corps un peu
+        // chaotique (plusieurs cubes qui se tassent en même temps) n'envoie
+        // un corps à une vitesse aberrante.
         const v = c.body.velocity;
         const speed = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
         const maxSpeed = 1400;
@@ -316,25 +325,25 @@ const pitch = [
         const aSpeed = Math.sqrt(av.x * av.x + av.y * av.y + av.z * av.z);
         if (aSpeed > 12) av.scale(12 / aSpeed, av);
 
+        // Un cube qui a basculé par-dessus les murs (pile trop haute) finit
+        // par sortir du champ visible — on le retire alors proprement.
         if (
-          c.body.position.y < floorWorldY - 400 ||
-          c.body.position.x < laneLeftX - 300 ||
-          c.body.position.x > laneRightX + 300
+          c.body.position.y < floorWorldY - 900 ||
+          c.body.position.x < laneLeftX - 700 ||
+          c.body.position.x > laneRightX + 700
         ) {
-          c.body.position.set(
-            Math.max(laneLeftX + c.size, Math.min(laneRightX - c.size, c.body.position.x)),
-            height / 2 - 20,
-            0
-          );
-          c.body.velocity.set(0, 0, 0);
-          c.body.angularVelocity.set(0, 0, 0);
+          world.removeBody(c.body);
+          scene.remove(c.mesh);
+          c.mesh.geometry.dispose();
+          (c.mesh.material as THREE.Material).dispose();
+          cubes.splice(i, 1);
+          continue;
         }
 
         c.mesh.position.copy(c.body.position as unknown as THREE.Vector3);
         c.mesh.quaternion.set(c.body.quaternion.x, c.body.quaternion.y, c.body.quaternion.z, c.body.quaternion.w);
       }
-      layerBack.renderer.render(layerBack.scene, layerBack.camera);
-      layerFront.renderer.render(layerFront.scene, layerFront.camera);
+      renderer.render(scene, camera);
     }
 
     const observer = new IntersectionObserver(
@@ -357,14 +366,12 @@ const pitch = [
     window.addEventListener('resize', () => {
       width = field.clientWidth;
       height = field.clientHeight;
-      for (const layer of [layerFront, layerBack]) {
-        layer.camera.left = -width / 2;
-        layer.camera.right = width / 2;
-        layer.camera.top = height / 2;
-        layer.camera.bottom = -height / 2;
-        layer.camera.updateProjectionMatrix();
-        layer.renderer.setSize(width, height, false);
-      }
+      camera.left = -width / 2;
+      camera.right = width / 2;
+      camera.top = height / 2;
+      camera.bottom = -height / 2;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height, false);
       layoutWalls();
     });
   }
@@ -568,36 +575,23 @@ const pitch = [
   }
 
   /* Cubes chromés — scène WebGL (Three.js + cannon-es), voir le <script>
-     plus bas. Les canvases couvrent tout le hero (chute depuis le haut de
-     la page) ; le sol physique est calé en JS sur le bas de
-     .hero__orbfield, pour que les cubes atterrissent visuellement dans
-     le champ d'orbes. */
+     plus bas. Le canvas couvre tout le hero (chute depuis le haut de la
+     page) ; le sol physique est calé en JS sur le bas de .hero__orbfield,
+     pour que les cubes atterrissent visuellement dans le champ d'orbes.
+     Posé au-dessus du texte, qu'il déborde légèrement en tombant/en
+     atterrissant, façon elevenses-product.com. */
   .hero__cubes {
     position: absolute;
     inset: 0;
+    z-index: 2;
     width: 100%;
     height: 100%;
-  }
-
-  /* Calque net, posé au-dessus du texte (il déborde dessus en tombant,
-     façon elevenses-product.com) — seul celui-ci est interactif. */
-  .hero__cubes--front {
-    z-index: 2;
     touch-action: none;
     cursor: grab;
   }
 
-  .hero__cubes--front:active {
+  .hero__cubes:active {
     cursor: grabbing;
-  }
-
-  /* Calque flouté, en arrière-plan derrière le texte — donne une
-     profondeur de champ sans vraie caméra 3D. */
-  .hero__cubes--back {
-    z-index: 0;
-    filter: blur(7px);
-    opacity: 0.9;
-    pointer-events: none;
   }
 
   .hero__chip {
