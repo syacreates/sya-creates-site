@@ -15,6 +15,13 @@ const pitch = [
   <span class="blob blob--1" aria-hidden="true"></span>
   <span class="blob blob--2" aria-hidden="true"></span>
 
+  <!-- Cubes chromés (voir <script>) : un canvas plein-hero, pour que la
+       chute parte du haut de la page. 5 cubes = les 5 étapes de la
+       section Méthode, elles tombent dans l'ordre et se posent de
+       gauche à droite ; le cube or (dernier) reprend l'accent visuel
+       que la section Méthode donne déjà à sa dernière étape. -->
+  <canvas id="hero-cubes" class="hero__cubes" aria-hidden="true"></canvas>
+
   <div class="hero__inner">
     <span class="eyebrow-pill">
       <span class="eyebrow-pill__dot"></span>
@@ -61,8 +68,6 @@ const pitch = [
     <div class="hero__orbfield" aria-hidden="true">
       <span class="hero__nebula"></span>
 
-      <canvas id="hero-cubes" class="hero__cubes"></canvas>
-
       <span class="hero__chip hero__chip--1">🔍 Discovery</span>
       <span class="hero__chip hero__chip--2">✏️ UX</span>
       <span class="hero__chip hero__chip--3">🎨 UI</span>
@@ -82,9 +87,10 @@ const pitch = [
 
   const canvas = document.getElementById('hero-cubes') as HTMLCanvasElement | null;
   const field = canvas?.parentElement;
+  const orbfield = document.querySelector('.hero__orbfield') as HTMLElement | null;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if (canvas && field && !prefersReduced) {
+  if (canvas && field && orbfield && !prefersReduced) {
     let width = field.clientWidth;
     let height = field.clientHeight;
 
@@ -106,7 +112,10 @@ const pitch = [
     scene.add(ambient, key);
 
     // --- cannon-es world, same pixel-scale units ---
-    const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -900, 0) });
+    // Gravité adoucie : la chute part maintenant du haut de la page, donc
+    // beaucoup plus longue qu'avant — une gravité trop forte rendrait
+    // l'atterrissage brutal.
+    const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -680, 0) });
     world.broadphase = new CANNON.SAPBroadphase(world);
 
     const cubeMat = new CANNON.Material('cube');
@@ -114,7 +123,7 @@ const pitch = [
     world.addContactMaterial(new CANNON.ContactMaterial(cubeMat, wallMat, { friction: 0.4, restitution: 0.18 }));
     world.addContactMaterial(new CANNON.ContactMaterial(cubeMat, cubeMat, { friction: 0.35, restitution: 0.15 }));
 
-    const depth = Math.min(width, height) * 0.5;
+    let depth = Math.min(width, height) * 0.5;
 
     function makeWall(px: number, py: number, pz: number, hx: number, hy: number, hz: number) {
       const body = new CANNON.Body({ mass: 0, material: wallMat, shape: new CANNON.Box(new CANNON.Vec3(hx, hy, hz)) });
@@ -125,24 +134,42 @@ const pitch = [
 
     let floor: CANNON.Body, left: CANNON.Body, right: CANNON.Body, front: CANNON.Body, back: CANNON.Body;
 
+    // Le sol et les murs latéraux sont calés sur la position réelle de
+    // .hero__orbfield (le champ d'orbes/chips) — les cubes tombent sur
+    // toute la hauteur du hero mais atterrissent pile dans cette zone.
+    let laneLeftX = -width / 2;
+    let laneRightX = width / 2;
+    let floorWorldY = -height / 2;
+
     function layoutWalls() {
+      const heroRect = field!.getBoundingClientRect();
+      const orbRect = orbfield!.getBoundingClientRect();
+      const centerX = heroRect.left + heroRect.width / 2;
+      laneLeftX = orbRect.left - centerX;
+      laneRightX = orbRect.right - centerX;
+      floorWorldY = height / 2 - (orbRect.bottom - heroRect.top);
+      depth = Math.min(width, height) * 0.5;
+
       const big = 4000;
       if (floor) [floor, left, right, front, back].forEach((b) => world.removeBody(b));
-      floor = makeWall(0, -height / 2, 0, big, 20, big);
-      left = makeWall(-width / 2, 0, 0, 20, big, big);
-      right = makeWall(width / 2, 0, 0, 20, big, big);
+      floor = makeWall((laneLeftX + laneRightX) / 2, floorWorldY - 10, 0, (laneRightX - laneLeftX) / 2 + 30, 20, big);
+      left = makeWall(laneLeftX - 10, 0, 0, 20, big, big);
+      right = makeWall(laneRightX + 10, 0, 0, 20, big, big);
       front = makeWall(0, 0, depth / 2, big, big, 20);
       back = makeWall(0, 0, -depth / 2, big, big, 20);
     }
     layoutWalls();
 
-    // --- Cubes: mostly forest green, one gold accent — palette from the site ---
+    // --- Cubes : un par étape de la section Méthode (5), dans l'ordre —
+    // elles tombent et se posent de gauche à droite comme les 5 étapes
+    // numérotées "01 → 05". Le cube or, dernier, reprend l'accent que la
+    // section Méthode donne déjà à sa toute dernière étape.
     const palette = [
-      { size: 84, color: 0x3f7a58 },
-      { size: 62, color: 0x1f3d2e },
-      { size: 70, color: 0x4c8c63 },
-      { size: 50, color: 0xd9a854 },
-      { size: 58, color: 0x2c5240 },
+      { size: 84, color: 0x3f7a58 }, // 01 Cadrage
+      { size: 62, color: 0x1f3d2e }, // 02 Design
+      { size: 70, color: 0x4c8c63 }, // 03 Développement IA-assisted
+      { size: 58, color: 0x2c5240 }, // 04 Livraison
+      { size: 50, color: 0xd9a854 }, // 05 Suivi — accent
     ];
 
     type CubeRig = { mesh: THREE.Mesh; body: CANNON.Body; size: number };
@@ -159,6 +186,9 @@ const pitch = [
       const mesh = new THREE.Mesh(geo, mat);
       scene.add(mesh);
 
+      const t = palette.length > 1 ? i / (palette.length - 1) : 0.5;
+      const targetX = laneLeftX + t * (laneRightX - laneLeftX);
+
       const half = spec.size / 2;
       const body = new CANNON.Body({
         mass: 1,
@@ -167,15 +197,17 @@ const pitch = [
         linearDamping: 0.5,
         angularDamping: 0.6,
       });
-      body.position.set((Math.random() - 0.5) * width * 0.6, height + 200 + i * 90, (Math.random() - 0.5) * depth * 0.4);
+      // Départ près du haut du canvas (= haut de la page) plutôt que loin
+      // au-dessus, invisible — la chute doit se voir depuis le sommet.
+      body.position.set(targetX, height / 2 - 40 - i * 60, (Math.random() - 0.5) * depth * 0.3);
       body.quaternion.setFromEuler((Math.random() - 0.5) * Math.PI, (Math.random() - 0.5) * Math.PI, (Math.random() - 0.5) * Math.PI);
       body.angularVelocity.set((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2);
-      // Dropped in staggered by physics-world sleep until its turn — simplest: just delay adding to world.
       cubes.push({ mesh, body, size: spec.size });
     });
 
     cubes.forEach((c, i) => {
-      setTimeout(() => world.addBody(c.body), i * 220);
+      // Chute séquentielle, une étape après l'autre — comme le process.
+      setTimeout(() => world.addBody(c.body), i * 320);
     });
 
     // --- Drag to throw ---
@@ -254,6 +286,33 @@ const pitch = [
 
       world.step(1 / 60, dt, 6);
       for (const c of cubes) {
+        // Filet de sécurité : un contact multi-corps un peu chaotique
+        // (plusieurs cubes qui se tassent en même temps) peut, rarement,
+        // envoyer un corps à une vitesse aberrante — on la borne, et si
+        // un cube se retrouve quand même hors du champ, on le repose
+        // proprement au-dessus de la pile plutôt que de le laisser filer.
+        const v = c.body.velocity;
+        const speed = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+        const maxSpeed = 1400;
+        if (speed > maxSpeed) v.scale(maxSpeed / speed, v);
+        const av = c.body.angularVelocity;
+        const aSpeed = Math.sqrt(av.x * av.x + av.y * av.y + av.z * av.z);
+        if (aSpeed > 12) av.scale(12 / aSpeed, av);
+
+        if (
+          c.body.position.y < floorWorldY - 400 ||
+          c.body.position.x < laneLeftX - 300 ||
+          c.body.position.x > laneRightX + 300
+        ) {
+          c.body.position.set(
+            Math.max(laneLeftX + c.size, Math.min(laneRightX - c.size, c.body.position.x)),
+            height / 2 - 20,
+            0
+          );
+          c.body.velocity.set(0, 0, 0);
+          c.body.angularVelocity.set(0, 0, 0);
+        }
+
         c.mesh.position.copy(c.body.position as unknown as THREE.Vector3);
         c.mesh.quaternion.set(c.body.quaternion.x, c.body.quaternion.y, c.body.quaternion.z, c.body.quaternion.w);
       }
@@ -489,11 +548,13 @@ const pitch = [
   }
 
   /* Cubes chromés — scène WebGL (Three.js + cannon-es), voir le <script>
-     plus bas. Le canvas occupe la même zone que l'ancien champ d'orbes. */
+     plus bas. Le canvas couvre tout le hero (chute depuis le haut de la
+     page) ; le sol physique est calé en JS sur le bas de .hero__orbfield,
+     pour que les cubes atterrissent visuellement dans le champ d'orbes. */
   .hero__cubes {
     position: absolute;
     inset: 0;
-    z-index: 1;
+    z-index: 0;
     width: 100%;
     height: 100%;
     touch-action: none;
