@@ -66,6 +66,7 @@
       pageY: number;
       size: number;
       squash: number;
+      pulse: number;
     };
 
     const drifters: Drifter[] = [];
@@ -80,7 +81,7 @@
     }
 
     function respawn(d: Drifter, initial = false) {
-      d.size = 30 + Math.random() * 34;
+      d.size = 52 + Math.random() * 46;
       d.baseX = laneX(d.side);
       d.swayAmp = 14 + Math.random() * 18;
       d.swayFreq = 0.15 + Math.random() * 0.15;
@@ -90,6 +91,7 @@
       d.spin.set((Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 0.4);
       d.pageY = initial ? Math.random() * docHeight : -d.size - Math.random() * 400;
       d.squash = 0;
+      d.pulse = 0;
 
       if (d.mesh.geometry) d.mesh.geometry.dispose();
       d.mesh.geometry = new RoundedBoxGeometry(d.size, d.size, d.size, 4, d.size * 0.15);
@@ -115,6 +117,7 @@
         pageY: 0,
         size: 40,
         squash: 0,
+        pulse: 0,
       };
       respawn(d, true);
       drifters.push(d);
@@ -138,6 +141,7 @@
       // en miroir entre le rail gauche et le rail droit.
       const scrollDelta = scrollY - lastScrollY;
       lastScrollY = scrollY;
+      const scrollPulse = Math.min(Math.abs(scrollDelta) * 0.03, 1);
 
       for (const d of drifters) {
         const prevPageY = d.pageY;
@@ -165,15 +169,24 @@
         d.mesh.rotation.y += d.spin.y * dt + d.side * scrollDelta * 0.015;
         d.mesh.rotation.z += d.spin.z * dt;
 
+        // La rotation au scroll fait aussi respirer le cube : il grossit
+        // avec l'énergie du scroll puis revient à sa taille au repos.
+        d.pulse = Math.max(d.pulse - dt * 2.2, scrollPulse);
+        const pulseScale = 1 + d.pulse * 0.55;
+
         if (d.squash > 0) {
           d.squash = Math.max(d.squash - dt * 3.4, 0);
           // Aplatissement en Y, léger élargissement en X/Z, avec un
           // petit rebond élastique en fin de course (overshoot).
           const t = 1 - d.squash;
           const bounce = Math.sin(t * Math.PI) * d.squash;
-          d.mesh.scale.set(1 + bounce * 0.32, 1 - bounce * 0.45, 1 + bounce * 0.32);
+          d.mesh.scale.set(
+            (1 + bounce * 0.32) * pulseScale,
+            (1 - bounce * 0.45) * pulseScale,
+            (1 + bounce * 0.32) * pulseScale
+          );
         } else {
-          d.mesh.scale.set(1, 1, 1);
+          d.mesh.scale.set(pulseScale, pulseScale, pulseScale);
         }
       }
 
