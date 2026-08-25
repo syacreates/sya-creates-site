@@ -283,6 +283,7 @@ const stars = [
     max-width: 680px;
     height: 400px;
     margin-top: 24px;
+    perspective: 1200px;
     animation: hero-reveal 0.7s ease 0.12s both;
   }
 
@@ -354,11 +355,50 @@ const stars = [
     }
   }
 
+  /* Chute avec rebond à l'arrivée, façon objet 3D qui tombe sous l'effet de
+     la gravité — puis un tumbling continu à trois axes une fois posé. */
+  @keyframes orb-drop {
+    0% {
+      opacity: 0;
+      transform: translateY(-160px) rotateX(-50deg) rotateY(30deg) scale(0.7);
+    }
+    55% {
+      opacity: 1;
+      transform: translateY(18px) rotateX(14deg) rotateY(-10deg) scale(1.05);
+    }
+    75% {
+      transform: translateY(-8px) rotateX(-6deg) rotateY(4deg) scale(0.98);
+    }
+    90% {
+      transform: translateY(3px) rotateX(2deg) rotateY(-2deg) scale(1.01);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) rotateX(0deg) rotateY(0deg) scale(1);
+    }
+  }
+
+  @keyframes orb-tumble {
+    0%, 100% {
+      transform: translateY(0) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+    }
+    25% {
+      transform: translateY(-14px) rotateX(14deg) rotateY(-20deg) rotateZ(6deg);
+    }
+    50% {
+      transform: translateY(6px) rotateX(-10deg) rotateY(16deg) rotateZ(-5deg);
+    }
+    75% {
+      transform: translateY(-9px) rotateX(18deg) rotateY(-12deg) rotateZ(8deg);
+    }
+  }
+
   .hero__orb {
     position: absolute;
     z-index: 1;
     border-radius: 50%;
-    animation: float-blob 8s ease-in-out infinite;
+    transform-style: preserve-3d;
+    animation: orb-drop 0.9s var(--ease-pop) both, orb-tumble 9s ease-in-out 0.9s infinite;
   }
 
   .hero__orb--1 {
@@ -389,8 +429,8 @@ const stars = [
       #c99a4f 100%
     );
     box-shadow: inset 0 -10px 20px rgba(22, 36, 28, 0.18), 0 20px 38px -16px rgba(22, 36, 28, 0.35);
-    animation-duration: 10s;
-    animation-delay: -3s;
+    animation-duration: 0.9s, 10s;
+    animation-delay: 0.15s, 1.05s;
   }
 
   .hero__orb--3 {
@@ -406,8 +446,8 @@ const stars = [
       var(--color-ink) 100%
     );
     box-shadow: inset 0 -8px 16px rgba(22, 36, 28, 0.2), 0 16px 30px -14px rgba(22, 36, 28, 0.35);
-    animation-duration: 7s;
-    animation-delay: -1.5s;
+    animation-duration: 0.9s, 7s;
+    animation-delay: 0.3s, 1.2s;
   }
 
   .hero__chip {
