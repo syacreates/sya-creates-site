@@ -20,7 +20,8 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
     </p>
 
     <div class="contact__channels">
-      <div class="channel-card glass-card reveal-item" style="--i: 0">
+      <div class="channel-card channel-card--primary glass-card reveal-item" style="--i: 0">
+        <span class="channel-card__rank" aria-hidden="true">Le plus direct</span>
         <span class="channel-card__symbol" aria-hidden="true">→</span>
         <h3 class="channel-card__titre">Prendre rendez-vous</h3>
         <p class="channel-card__texte">Réserve un créneau directement dans mon agenda.</p>
@@ -36,6 +37,17 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
       </div>
 
       <div class="channel-card glass-card reveal-item" style="--i: 1">
+        <span class="channel-card__symbol" aria-hidden="true">✎</span>
+        <h3 class="channel-card__titre">Formulaire de cadrage</h3>
+        <p class="channel-card__texte">
+          Décris ton besoin en quelques minutes, je reviens vers toi avec une proposition.
+        </p>
+        <a href="#formulaire-cadrage" class="btn btn--ghost channel-card__cta">
+          Remplir le formulaire ↓
+        </a>
+      </div>
+
+      <div class="channel-card glass-card reveal-item" style="--i: 2">
         <span class="channel-card__symbol" aria-hidden="true">@</span>
         <h3 class="channel-card__titre">Email direct</h3>
         <p class="channel-card__texte">Pour une question rapide ou un premier contact informel.</p>
@@ -47,17 +59,6 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
           <a href={`mailto:${email}`} class="link-underline">Envoyer un email</a>
         </div>
       </div>
-
-      <div class="channel-card glass-card reveal-item" style="--i: 2">
-        <span class="channel-card__symbol" aria-hidden="true">✎</span>
-        <h3 class="channel-card__titre">Formulaire de cadrage</h3>
-        <p class="channel-card__texte">
-          Décris ton besoin en quelques minutes, je reviens vers toi avec une proposition.
-        </p>
-        <a href="#formulaire-cadrage" class="link-underline channel-card__cta">
-          Remplir le formulaire ↓
-        </a>
-      </div>
     </div>
 
     <div class="contact__form-wrap glass-panel" id="formulaire-cadrage">
@@ -66,17 +67,19 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
         Quelques questions courtes pour comprendre ton besoin avant notre échange.
       </p>
 
-      <form class="contact-form" id="cadrage-form">
+      <form class="contact-form" id="cadrage-form" novalidate>
         <input type="hidden" name="access_key" value={web3formsAccessKey} />
 
         <div class="contact-form__field">
           <label for="nom">Prénom et nom</label>
-          <input type="text" id="nom" name="nom" required />
+          <input type="text" id="nom" name="nom" required aria-describedby="nom-error" />
+          <span class="field-error" id="nom-error" role="alert"></span>
         </div>
 
         <div class="contact-form__field">
           <label for="email">Email</label>
-          <input type="email" id="email" name="email" required />
+          <input type="email" id="email" name="email" required aria-describedby="email-error" />
+          <span class="field-error" id="email-error" role="alert"></span>
         </div>
 
         <div class="contact-form__field contact-form__field--full">
@@ -86,7 +89,7 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
 
         <div class="contact-form__field">
           <label for="besoin">Besoin principal</label>
-          <select id="besoin" name="besoin" required>
+          <select id="besoin" name="besoin" required aria-describedby="besoin-error">
             <option value="">Sélectionner…</option>
             <option>Discovery</option>
             <option>UX Design</option>
@@ -97,6 +100,7 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
             <option>Ongoing Support</option>
             <option>Je ne sais pas encore</option>
           </select>
+          <span class="field-error" id="besoin-error" role="alert"></span>
         </div>
 
         <div class="contact-form__field">
@@ -166,9 +170,46 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
   const successMessage = document.getElementById('cadrage-success');
   const errorMessage = document.getElementById('cadrage-error');
 
+  // Validation par champ — messages inline plutôt qu'un seul message
+  // générique en cas d'échec d'envoi.
+  const requiredFieldMessages: Record<string, string> = {
+    nom: 'Merci de renseigner ton prénom et nom.',
+    email: 'Adresse email invalide.',
+    besoin: 'Merci de choisir une option.',
+  };
+
+  function validateField(id: string) {
+    const field = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
+    const errorEl = document.getElementById(`${id}-error`);
+    if (!field || !errorEl) return true;
+
+    const valid = field.checkValidity();
+    field.closest('.contact-form__field')?.classList.toggle('contact-form__field--invalid', !valid);
+    field.setAttribute('aria-invalid', String(!valid));
+    errorEl.textContent = valid ? '' : requiredFieldMessages[id] || 'Champ requis.';
+    return valid;
+  }
+
+  Object.keys(requiredFieldMessages).forEach((id) => {
+    const field = document.getElementById(id);
+    field?.addEventListener('blur', () => validateField(id));
+    field?.addEventListener('input', () => {
+      if (field.getAttribute('aria-invalid') === 'true') validateField(id);
+    });
+  });
+
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
     errorMessage?.classList.remove('contact-form__error--visible');
+
+    const fieldsValid = Object.keys(requiredFieldMessages)
+      .map((id) => validateField(id))
+      .every(Boolean);
+    if (!fieldsValid) {
+      document.querySelector('.contact-form__field--invalid input, .contact-form__field--invalid select')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
 
     const formData = new FormData(form);
     formData.append('subject', 'Nouvelle demande de cadrage — Sya Creates');
@@ -255,6 +296,27 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
     flex-direction: column;
     align-items: flex-start;
     padding: 28px;
+  }
+
+  /* Hiérarchie visuelle entre les 3 canaux : le rendez-vous (le plus
+     direct) ressort avec un contour dégradé et une étiquette dédiée ;
+     le formulaire garde un CTA plein poids (bouton ghost) ; l'email reste
+     le plus léger (liens texte seuls). */
+  .channel-card--primary {
+    border: 1px solid transparent;
+    background:
+      linear-gradient(var(--color-glass-strong), var(--color-glass-strong)) padding-box,
+      var(--gradient-accent) border-box;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .channel-card__rank {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent-2);
+    margin-bottom: 12px;
   }
 
   .channel-card__symbol {
@@ -359,6 +421,20 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
     grid-column: 1 / -1;
   }
 
+  .field-error {
+    display: block;
+    min-height: 1em;
+    margin-top: 6px;
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    color: var(--color-error);
+  }
+
+  .contact-form__field--invalid input,
+  .contact-form__field--invalid select {
+    border-color: var(--color-error);
+  }
+
   .contact-form__field label {
     font-family: var(--font-mono);
     font-size: 11px;
@@ -440,7 +516,7 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
     grid-column: 1 / -1;
     font-family: var(--font-body);
     font-size: 0.9375rem;
-    color: var(--color-accent-2);
+    color: var(--color-error);
     margin-top: -8px;
   }
 

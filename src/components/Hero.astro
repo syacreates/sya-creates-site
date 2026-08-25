@@ -173,6 +173,35 @@ const pitch = [
     }
     layoutWalls();
 
+    // --- Bornes invisibles sur les chips flottants ("Strategy",
+    // "AI-assisted"...) et sur le CTA principal : empêche un cube de se
+    // poser dessus et de masquer durablement un label ou une action pendant
+    // que la pile s'accumule.
+    const chipEls = Array.from(
+      document.querySelectorAll('.hero__chip, .hero__ctas .btn--primary')
+    ) as HTMLElement[];
+    const chipBumpers = chipEls.map((el) => {
+      const r = el.getBoundingClientRect();
+      const body = new CANNON.Body({
+        mass: 0,
+        material: wallMat,
+        shape: new CANNON.Box(new CANNON.Vec3(r.width / 2 + 6, r.height / 2 + 6, 40)),
+      });
+      world.addBody(body);
+      return { el, body };
+    });
+
+    function updateChipBumpers() {
+      const heroRect = field!.getBoundingClientRect();
+      const centerX = heroRect.left + heroRect.width / 2;
+      for (const { el, body } of chipBumpers) {
+        const r = el.getBoundingClientRect();
+        const x = r.left + r.width / 2 - centerX;
+        const screenTopY = r.top + r.height / 2 - heroRect.top;
+        body.position.set(x, height / 2 - screenTopY, 0);
+      }
+    }
+
     // --- Cubes : quelques étapes-clés de la section Méthode, dans l'ordre
     // — elles tombent et se posent de gauche à droite. Le cube or,
     // dernier, reprend l'accent que la section Méthode donne déjà à sa
@@ -309,6 +338,7 @@ const pitch = [
       const dt = Math.min((now - prevTime) / 1000, 1 / 30);
       prevTime = now;
 
+      updateChipBumpers();
       world.step(1 / 60, dt, 6);
 
       // Nourrit la pile en continu tant que le hero est visible.

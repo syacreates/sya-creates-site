@@ -13,6 +13,8 @@
   --color-glass: rgba(255, 252, 244, 0.6);
   --color-glass-strong: rgba(255, 252, 244, 0.8);
   --color-glass-border: rgba(255, 255, 255, 0.7);
+  /* Sémantique d'erreur — distincte de l'accent (vert = positif/marque) */
+  --color-error: #a8432f;
 
   --gradient-accent: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
   --shadow-soft: 0 20px 45px -20px rgba(31, 61, 46, 0.35);

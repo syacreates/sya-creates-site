@@ -13,6 +13,7 @@ const offres = [
       'Une session de restitution pour répondre à tes questions',
       "Un support (Notion ou PDF) reprenant l'ensemble des retours",
     ],
+    ctaLabel: 'Réserver mon diagnostic',
   },
   {
     emoji: '🤝',
@@ -27,6 +28,7 @@ const offres = [
       'Points réguliers pour ajuster en continu',
       'Support après livraison pour faire évoluer le produit',
     ],
+    ctaLabel: "Démarrer l'accompagnement",
   },
 ];
 ---
@@ -72,7 +74,7 @@ const offres = [
               ))}
             </ul>
 
-            <a href="#contact" class="btn btn--primary offer__cta">Réserver un appel découverte</a>
+            <a href="#contact" class="btn btn--primary offer__cta">{offre.ctaLabel}</a>
             <span class="offer__note">Visio de 20 min, sans engagement</span>
           </div>
         ))
