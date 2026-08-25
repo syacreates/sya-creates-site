@@ -134,13 +134,13 @@ const stars = [
     scene.add(ambient, key);
 
     // --- cannon-es world, same pixel-scale units ---
-    const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -2200, 0) });
+    const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -900, 0) });
     world.broadphase = new CANNON.SAPBroadphase(world);
 
     const cubeMat = new CANNON.Material('cube');
     const wallMat = new CANNON.Material('wall');
-    world.addContactMaterial(new CANNON.ContactMaterial(cubeMat, wallMat, { friction: 0.35, restitution: 0.32 }));
-    world.addContactMaterial(new CANNON.ContactMaterial(cubeMat, cubeMat, { friction: 0.3, restitution: 0.28 }));
+    world.addContactMaterial(new CANNON.ContactMaterial(cubeMat, wallMat, { friction: 0.4, restitution: 0.18 }));
+    world.addContactMaterial(new CANNON.ContactMaterial(cubeMat, cubeMat, { friction: 0.35, restitution: 0.15 }));
 
     const depth = Math.min(width, height) * 0.5;
 
@@ -192,18 +192,18 @@ const stars = [
         mass: 1,
         material: cubeMat,
         shape: new CANNON.Box(new CANNON.Vec3(half, half, half)),
-        linearDamping: 0.35,
-        angularDamping: 0.45,
+        linearDamping: 0.5,
+        angularDamping: 0.6,
       });
       body.position.set((Math.random() - 0.5) * width * 0.6, height + 200 + i * 90, (Math.random() - 0.5) * depth * 0.4);
       body.quaternion.setFromEuler((Math.random() - 0.5) * Math.PI, (Math.random() - 0.5) * Math.PI, (Math.random() - 0.5) * Math.PI);
-      body.angularVelocity.set((Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4);
+      body.angularVelocity.set((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2);
       // Dropped in staggered by physics-world sleep until its turn — simplest: just delay adding to world.
       cubes.push({ mesh, body, size: spec.size });
     });
 
     cubes.forEach((c, i) => {
-      setTimeout(() => world.addBody(c.body), i * 140);
+      setTimeout(() => world.addBody(c.body), i * 220);
     });
 
     // --- Drag to throw ---
