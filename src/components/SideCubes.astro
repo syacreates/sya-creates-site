@@ -124,6 +124,7 @@
     let rafId = 0;
     let prevTime = performance.now();
     let elapsed = 0;
+    let lastScrollY = scrollY;
 
     function tick() {
       rafId = requestAnimationFrame(tick);
@@ -131,6 +132,12 @@
       const dt = Math.min((now - prevTime) / 1000, 1 / 30);
       prevTime = now;
       elapsed += dt;
+
+      // Rotation "sur le côté" pilotée par le scroll — chaque pixel
+      // défilé fait tourner les cubes autour de leur axe vertical,
+      // en miroir entre le rail gauche et le rail droit.
+      const scrollDelta = scrollY - lastScrollY;
+      lastScrollY = scrollY;
 
       for (const d of drifters) {
         const prevPageY = d.pageY;
@@ -155,7 +162,7 @@
         const x = d.baseX + Math.sin(elapsed * d.swayFreq + d.swayPhase) * d.swayAmp;
         d.mesh.position.set(x, worldY, d.side * 40);
         d.mesh.rotation.x += d.spin.x * dt;
-        d.mesh.rotation.y += d.spin.y * dt;
+        d.mesh.rotation.y += d.spin.y * dt + d.side * scrollDelta * 0.015;
         d.mesh.rotation.z += d.spin.z * dt;
 
         if (d.squash > 0) {
