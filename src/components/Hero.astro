@@ -185,7 +185,9 @@ const pitch = [
       const body = new CANNON.Body({
         mass: 0,
         material: wallMat,
-        shape: new CANNON.Box(new CANNON.Vec3(r.width / 2 + 6, r.height / 2 + 6, 40)),
+        // Marge généreuse : un cube en rotation a une silhouette 2D plus
+        // large que sa boîte alignée aux axes (jusqu'à ×1.4 en diagonale).
+        shape: new CANNON.Box(new CANNON.Vec3(r.width / 2 + 28, r.height / 2 + 28, 60)),
       });
       world.addBody(body);
       return { el, body };
@@ -680,9 +682,12 @@ const pitch = [
     animation-delay: -1s;
   }
 
+  /* Chips 4/6/7 : repositionnées hors de la zone d'atterrissage/empilement
+     des cubes (repère bas de .hero__orbfield) — elles y étaient à l'origine
+     et se faisaient couvrir dès que la pile grossissait un peu. */
   .hero__chip--4 {
-    bottom: 4%;
-    right: 32%;
+    top: 20%;
+    left: 8%;
     animation-duration: 6s;
     animation-delay: -3.5s;
   }
@@ -695,15 +700,15 @@ const pitch = [
   }
 
   .hero__chip--6 {
-    top: 78%;
-    left: 26%;
+    top: 14%;
+    left: 66%;
     animation-duration: 7s;
     animation-delay: -1.8s;
   }
 
   .hero__chip--7 {
-    top: 76%;
-    left: 4%;
+    top: 6%;
+    left: 30%;
     animation-duration: 8s;
     animation-delay: -4.4s;
   }
@@ -726,6 +731,13 @@ const pitch = [
     .hero__chip {
       font-size: 0.75rem;
       padding: 8px 14px;
+    }
+
+    /* Les % de desktop se compressent trop sur une largeur étroite —
+       "Strategy" chevauchait "Discovery". Repositionné pour cette largeur. */
+    .hero__chip--7 {
+      top: 22%;
+      left: 50%;
     }
 
     .hero__ctas {
