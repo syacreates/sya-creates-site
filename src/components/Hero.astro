@@ -20,7 +20,10 @@ const pitch = [
        posent de gauche à droite ; le cube or (dernier) reprend l'accent
        visuel que la section Méthode donne déjà à sa dernière étape. Le
        canvas est posé au-dessus du texte, qu'il déborde légèrement en
-       tombant, façon elevenses-product.com. -->
+       tombant, façon elevenses-product.com.
+       Décoratif (aria-hidden) même si "draggable" : aucun contenu ni
+       fonctionnalité essentiels n'y sont exclusivement disponibles, et il
+       n'a pas de tabindex donc n'entre pas dans l'ordre de tabulation. -->
   <canvas id="hero-cubes" class="hero__cubes" aria-hidden="true"></canvas>
 
   <div class="hero__inner">
@@ -177,7 +180,7 @@ const pitch = [
       { size: 72, color: 0xd9a854 }, // 05 Suivi — accent
     ];
 
-    type CubeRig = { mesh: THREE.Mesh; body: CANNON.Body; size: number };
+    type CubeRig = { mesh: THREE.Mesh; body: CANNON.Body; size: number; age: number };
     const cubes: CubeRig[] = [];
     let spawnCount = 0;
 
@@ -188,6 +191,8 @@ const pitch = [
         metalness: 1,
         roughness: 0.22,
         envMapIntensity: 1.3,
+        transparent: true,
+        opacity: 0,
       });
       const mesh = new THREE.Mesh(geo, mat);
       scene.add(mesh);
@@ -207,7 +212,7 @@ const pitch = [
       body.angularVelocity.set((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2);
       spawnCount++;
 
-      const rig: CubeRig = { mesh, body, size: spec.size };
+      const rig: CubeRig = { mesh, body, size: spec.size, age: 0 };
       cubes.push(rig);
       return rig;
     }
@@ -342,6 +347,11 @@ const pitch = [
 
         c.mesh.position.copy(c.body.position as unknown as THREE.Vector3);
         c.mesh.quaternion.set(c.body.quaternion.x, c.body.quaternion.y, c.body.quaternion.z, c.body.quaternion.w);
+
+        // Fondu d'apparition — le cube arrive progressivement plutôt que de
+        // recouvrir brutalement un label (chip, texte) qu'il traverse.
+        c.age += dt;
+        (c.mesh.material as THREE.MeshStandardMaterial).opacity = Math.min(c.age / 0.4, 1);
       }
       renderer.render(scene, camera);
     }
@@ -586,7 +596,10 @@ const pitch = [
     z-index: 2;
     width: 100%;
     height: 100%;
-    touch-action: none;
+    /* pan-y (pas none) : le canvas couvre tout le hero, donc "none"
+       empêcherait le scroll vertical natif dès qu'on touche cette zone
+       sur mobile. Le drag-to-throw reste utilisable, le scroll passe. */
+    touch-action: pan-y;
     cursor: grab;
   }
 

@@ -80,6 +80,21 @@ button {
   font-family: var(--font-body);
 }
 
+/* État focus clavier visible — appliqué globalement à tout élément
+   interactif (CTA, liens de nav, accordéons FAQ, etc.), pour ne pas
+   dépendre de chaque composant pour le redéfinir. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-accent-2);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
 /* Pastille "eyebrow" — utilisée en tête de chaque section, comme un badge de statut */
 .eyebrow-pill {
   display: inline-flex;
