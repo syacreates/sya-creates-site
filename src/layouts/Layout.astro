@@ -24,6 +24,15 @@ const ogImageURL = new URL(ogImage, Astro.site);
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonicalURL} />
 
+    <!-- Preconnect + <link> plutôt qu'un @import CSS (bloquant le rendu,
+         ~2,25 s de pénalité mesurés au Lighthouse en prod). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
     <title>{title}</title>
     <meta name="description" content={description} />
 

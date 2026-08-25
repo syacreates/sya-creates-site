@@ -128,7 +128,14 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
           <textarea id="message" name="message" rows="4"></textarea>
         </div>
 
-        <input type="checkbox" name="botcheck" class="contact-form__honeypot" tabindex="-1" autocomplete="off" />
+        <input
+          type="checkbox"
+          name="botcheck"
+          class="contact-form__honeypot"
+          tabindex="-1"
+          autocomplete="off"
+          aria-hidden="true"
+        />
 
         <div class="contact-form__field contact-form__field--full contact-form__submit-row">
           <button type="submit" class="btn btn--primary" id="cadrage-submit">
@@ -356,7 +363,6 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
     font-family: var(--font-mono);
     font-size: 10px;
     color: var(--color-text-secondary);
-    opacity: 0.7;
     margin-top: 8px;
   }
 
