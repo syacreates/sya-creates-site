@@ -47,12 +47,25 @@ const problemes = [
     <div class="problems__grid">
       {
         problemes.map((probleme, index) => (
-          <div class="problem-card glass-card reveal-item" style={`--i: ${index}`}>
-            <span class="problem-card__icon">
-              <span class="emoji-live" aria-hidden="true">{probleme.emoji}</span>
-            </span>
-            <h3 class="problem-card__titre">{probleme.titre}</h3>
-            <p class="problem-card__texte">{probleme.texte}</p>
+          <div
+            class="problem-card glass-card reveal-item flip-card"
+            style={`--i: ${index}`}
+            tabindex="0"
+            role="button"
+            aria-expanded="false"
+            aria-label={`${probleme.titre} — appuie pour voir le détail`}
+          >
+            <div class="flip-card__inner">
+              <div class="flip-card__front">
+                <span class="problem-card__icon">
+                  <span class="emoji-live" aria-hidden="true">{probleme.emoji}</span>
+                </span>
+                <h3 class="problem-card__titre">{probleme.titre}</h3>
+              </div>
+              <div class="flip-card__back">
+                <p>{probleme.texte}</p>
+              </div>
+            </div>
           </div>
         ))
       }
@@ -106,7 +119,19 @@ const problemes = [
   }
 
   .problem-card {
+    min-height: 220px;
+  }
+
+  .problem-card .flip-card__front {
     padding: 32px;
+  }
+
+  .problem-card .flip-card__back {
+    padding: 32px;
+  }
+
+  .problem-card .flip-card__back p {
+    font-size: 0.9375rem;
   }
 
   .problem-card__icon {
@@ -133,13 +158,6 @@ const problemes = [
     font-weight: 600;
     color: var(--color-ink);
     margin-bottom: 12px;
-  }
-
-  .problem-card__texte {
-    font-family: var(--font-body);
-    font-size: 0.9375rem;
-    line-height: 1.6;
-    color: var(--color-text-secondary);
   }
 
   @media (max-width: 860px) {

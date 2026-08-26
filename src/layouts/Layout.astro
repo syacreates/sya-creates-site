@@ -76,4 +76,23 @@ const ogImageURL = new URL(ogImage, Astro.site);
       observer.observe(section);
     });
   }
+
+  // Cartes "flip" — clic/tap ou Entrée/Espace retourne la carte vers sa
+  // face arrière (explication), un second déclenchement la referme.
+  // "click" (pas pointerdown/touchstart) : les navigateurs ne synthétisent
+  // pas de click après un tap qui a scrollé la page, donc rien à gérer en plus.
+  document.querySelectorAll('.flip-card').forEach((card) => {
+    const toggle = () => {
+      const flipped = card.classList.toggle('is-flipped');
+      card.setAttribute('aria-expanded', String(flipped));
+    };
+
+    card.addEventListener('click', toggle);
+    card.addEventListener('keydown', (event) => {
+      const e = event as KeyboardEvent;
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      toggle();
+    });
+  });
 </script>

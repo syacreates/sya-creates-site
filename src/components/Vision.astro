@@ -95,15 +95,28 @@ const tags = [
         {
           etapes.map((etape, index) => (
             <>
-              <div class="vision-flow__step glass-card reveal-item" style={`--i: ${index}`}>
-                <span class="vision-flow__icon">
-                  <span class="emoji-live" aria-hidden="true">{etape.emoji}</span>
-                </span>
-                <h4 class="vision-flow__titre">{etape.titre}</h4>
-                <p class="vision-flow__texte">{etape.texte}</p>
-                <ul class="vision-flow__methodes">
-                  {etape.methodes.map((methode) => <li>{methode}</li>)}
-                </ul>
+              <div
+                class="vision-flow__step glass-card reveal-item flip-card"
+                style={`--i: ${index}`}
+                tabindex="0"
+                role="button"
+                aria-expanded="false"
+                aria-label={`${etape.titre} — appuie pour voir le détail`}
+              >
+                <div class="flip-card__inner">
+                  <div class="flip-card__front">
+                    <span class="vision-flow__icon">
+                      <span class="emoji-live" aria-hidden="true">{etape.emoji}</span>
+                    </span>
+                    <h4 class="vision-flow__titre">{etape.titre}</h4>
+                  </div>
+                  <div class="flip-card__back">
+                    <p>{etape.texte}</p>
+                    <ul class="vision-flow__methodes">
+                      {etape.methodes.map((methode) => <li>{methode}</li>)}
+                    </ul>
+                  </div>
+                </div>
               </div>
               {index < etapes.length - 1 && (
                 <span class="vision-flow__arrow" aria-hidden="true">→</span>
@@ -309,8 +322,21 @@ const tags = [
   }
 
   .vision-flow__step {
-    padding: 28px;
     height: 100%;
+    min-height: 300px;
+  }
+
+  .vision-flow__step .flip-card__front {
+    padding: 28px;
+    justify-content: center;
+  }
+
+  .vision-flow__step .flip-card__back {
+    padding: 26px;
+  }
+
+  .vision-flow__step .flip-card__back p {
+    font-size: 0.875rem;
   }
 
   .vision-flow__icon {
@@ -339,13 +365,6 @@ const tags = [
     margin-bottom: 8px;
   }
 
-  .vision-flow__texte {
-    font-family: var(--font-body);
-    font-size: 0.875rem;
-    line-height: 1.55;
-    color: var(--color-text-secondary);
-  }
-
   .vision-flow__methodes {
     display: flex;
     flex-direction: column;
@@ -353,7 +372,7 @@ const tags = [
     list-style: none;
     margin: 16px 0 0;
     padding: 14px 0 0;
-    border-top: 1px solid var(--color-line);
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
   }
 
   .vision-flow__methodes li {
@@ -361,7 +380,7 @@ const tags = [
     padding-left: 14px;
     font-family: var(--font-mono);
     font-size: 0.75rem;
-    color: var(--color-text-secondary);
+    color: rgba(255, 255, 255, 0.85);
   }
 
   .vision-flow__methodes li::before {
@@ -372,7 +391,7 @@ const tags = [
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: var(--color-accent-2);
+    background: #ffffff;
   }
 
   .vision-flow__arrow {

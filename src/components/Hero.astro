@@ -58,10 +58,22 @@ const pitch = [
     <div class="hero__pitch">
       {
         pitch.map((item) => (
-          <div class="hero__pitch-item">
-            <span class="hero__pitch-emoji emoji-live" aria-hidden="true">{item.emoji}</span>
-            <span class="hero__pitch-titre">{item.titre}</span>
-            <span class="hero__pitch-texte">{item.texte}</span>
+          <div
+            class="hero__pitch-item flip-card"
+            tabindex="0"
+            role="button"
+            aria-expanded="false"
+            aria-label={`${item.titre} — appuie pour voir le détail`}
+          >
+            <div class="flip-card__inner">
+              <div class="flip-card__front">
+                <span class="hero__pitch-emoji emoji-live" aria-hidden="true">{item.emoji}</span>
+                <span class="hero__pitch-titre">{item.titre}</span>
+              </div>
+              <div class="flip-card__back">
+                <p>{item.texte}</p>
+              </div>
+            </div>
           </div>
         ))
       }
@@ -299,7 +311,16 @@ const pitch = [
       toNDC(e);
       raycaster.setFromCamera(pointerNDC, camera);
       const hit = raycaster.intersectObjects(cubes.map((c) => c.mesh))[0];
-      if (!hit) return;
+      if (!hit) {
+        // Le canvas couvre tout le hero (z-index au-dessus du texte) : sans
+        // ce relais, aucun clic sur le CTA, les liens ou les cartes flip
+        // en dessous n'atteint jamais sa cible réelle.
+        canvas!.style.pointerEvents = 'none';
+        const under = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+        canvas!.style.pointerEvents = '';
+        under?.click();
+        return;
+      }
       dragging = cubes.find((c) => c.mesh === hit.object) || null;
       if (!dragging) return;
       canvas.setPointerCapture(e.pointerId);
@@ -611,16 +632,23 @@ const pitch = [
   }
 
   .hero__pitch-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
     width: 172px;
-    padding: 16px 14px;
+    min-height: 104px;
     background: var(--color-glass-strong);
     border: 1px solid var(--color-glass-border);
     border-radius: var(--radius-card-sm);
     box-shadow: var(--shadow-card);
+  }
+
+  .hero__pitch-item .flip-card__front {
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 16px 14px;
+  }
+
+  .hero__pitch-item .flip-card__back {
+    padding: 14px;
   }
 
   .hero__pitch-emoji {
@@ -633,13 +661,11 @@ const pitch = [
     font-weight: 600;
     font-size: 0.8125rem;
     color: var(--color-ink);
+    text-align: center;
   }
 
-  .hero__pitch-texte {
-    font-family: var(--font-body);
+  .hero__pitch-item .flip-card__back p {
     font-size: 0.75rem;
-    line-height: 1.4;
-    color: var(--color-text-secondary);
   }
 
   .hero__ctas {

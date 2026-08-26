@@ -45,13 +45,26 @@ const piliers = [
     <div class="positioning__pillars">
       {
         piliers.map((pilier, index) => (
-          <div class="pillar glass-card reveal-item" style={`--i: ${index}`}>
-            <div class="pillar__header">
-              <span class="pillar__numero">{pilier.numero}</span>
-              <span class="pillar__emoji emoji-live" aria-hidden="true">{pilier.emoji}</span>
+          <div
+            class="pillar glass-card reveal-item flip-card"
+            style={`--i: ${index}`}
+            tabindex="0"
+            role="button"
+            aria-expanded="false"
+            aria-label={`${pilier.titre} — appuie pour voir le détail`}
+          >
+            <div class="flip-card__inner">
+              <div class="flip-card__front">
+                <div class="pillar__header">
+                  <span class="pillar__numero">{pilier.numero}</span>
+                  <span class="pillar__emoji emoji-live" aria-hidden="true">{pilier.emoji}</span>
+                </div>
+                <h3 class="pillar__titre">{pilier.titre}</h3>
+              </div>
+              <div class="flip-card__back">
+                <p>{pilier.texte}</p>
+              </div>
             </div>
-            <h3 class="pillar__titre">{pilier.titre}</h3>
-            <p class="pillar__texte">{pilier.texte}</p>
           </div>
         ))
       }
@@ -105,7 +118,19 @@ const piliers = [
   }
 
   .pillar {
+    min-height: 240px;
+  }
+
+  .pillar .flip-card__front {
     padding: 32px;
+  }
+
+  .pillar .flip-card__back {
+    padding: 28px;
+  }
+
+  .pillar .flip-card__back p {
+    font-size: 0.875rem;
   }
 
   .pillar__header {
@@ -139,12 +164,6 @@ const piliers = [
     margin-bottom: 12px;
   }
 
-  .pillar__texte {
-    font-family: var(--font-body);
-    font-size: 0.9375rem;
-    line-height: 1.6;
-    color: var(--color-text-secondary);
-  }
 
   @media (max-width: 860px) {
     .positioning {
