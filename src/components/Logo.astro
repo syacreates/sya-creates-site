@@ -9,11 +9,14 @@ const { variant = 'on-light', class: className = '' } = Astro.props;
 
 <a href="/" class={`logo logo--${variant} ${className}`} aria-label="Sya Creates — accueil">
   <svg class="logo__mark" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <path d="M2 13 V2 H13" fill="none" stroke="currentColor" stroke-width="1.5" />
-    <path d="M31 2 H42 V13" fill="none" stroke="currentColor" stroke-width="1.5" />
-    <path d="M42 31 V42 H31" fill="none" stroke="currentColor" stroke-width="1.5" />
-    <path d="M13 42 H2 V31" fill="none" stroke="currentColor" stroke-width="1.5" />
-    <text x="22" y="29" text-anchor="middle" class="logo__initial">S</text>
+    <!-- Cube isométrique — une seule teinte à 3 opacités (100/80/55%) pour
+         les 3 faces, comme les 3 étapes de la méthode (comprendre,
+         structurer, habiller). Couleur pilotée par le variant on-light/
+         on-dark ci-dessous, pas par currentColor (le cube garde toujours
+         la teinte de marque, indépendamment du wordmark). -->
+    <path class="logo__face logo__face--top" d="M22 4 L38 13 L22 22 L6 13 Z" />
+    <path class="logo__face logo__face--left" d="M6 13 L22 22 L22 40 L6 31 Z" />
+    <path class="logo__face logo__face--right" d="M38 13 L38 31 L22 40 L22 22 Z" />
   </svg>
   <span class="logo__wordmark">Sya<span class="logo__dot">.</span>Creates</span>
 </a>
@@ -35,14 +38,37 @@ const { variant = 'on-light', class: className = '' } = Astro.props;
     width: 32px;
     height: 32px;
     flex-shrink: 0;
-    color: currentColor;
   }
 
-  .logo__initial {
-    font-family: var(--font-display);
-    font-size: 20px;
-    font-weight: 600;
-    fill: currentColor;
+  /* Une seule teinte de marque par variant, à 3 opacités — jamais le
+     currentColor du wordmark : le cube garde sa couleur de marque même
+     quand le texte change (ink en clair, crème en sombre). */
+  .logo--on-light .logo__face--top {
+    fill: #1a4733;
+  }
+
+  .logo--on-light .logo__face--left {
+    fill: #1a4733;
+    opacity: 0.8;
+  }
+
+  .logo--on-light .logo__face--right {
+    fill: #1a4733;
+    opacity: 0.55;
+  }
+
+  .logo--on-dark .logo__face--top {
+    fill: #f4f1e7;
+  }
+
+  .logo--on-dark .logo__face--left {
+    fill: #f4f1e7;
+    opacity: 0.8;
+  }
+
+  .logo--on-dark .logo__face--right {
+    fill: #f4f1e7;
+    opacity: 0.55;
   }
 
   .logo__wordmark {
