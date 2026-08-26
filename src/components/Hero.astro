@@ -9,6 +9,16 @@ const pitch = [
   { emoji: '🤝', titre: 'Accompagnement complet', texte: 'Du cadrage à la mise en ligne' },
   { emoji: '⚡', titre: 'Dev IA-assisted', texte: 'Une interface fonctionnelle, vite' },
 ];
+
+const tags = [
+  'Discovery',
+  'UX Research',
+  'UI Design',
+  'Design System',
+  'AI-assisted Dev',
+  'Fast Shipping',
+  'Suivi produit',
+];
 ---
 
 <section class="hero" id="hero">
@@ -86,16 +96,15 @@ const pitch = [
 
     <p class="hero__note">On en discute autour d'un café virtuel ? <span class="emoji-live">☕️</span></p>
 
+    <div class="hero__marquee" role="presentation">
+      <div class="hero__marquee-track">
+        {tags.map((tag) => <span class="tag-pill">{tag}</span>)}
+        {tags.map((tag) => <span class="tag-pill" aria-hidden="true">{tag}</span>)}
+      </div>
+    </div>
+
     <div class="hero__orbfield" aria-hidden="true">
       <span class="hero__nebula"></span>
-
-      <span class="hero__chip hero__chip--1">🔍 Discovery</span>
-      <span class="hero__chip hero__chip--2">✏️ UX</span>
-      <span class="hero__chip hero__chip--3">🎨 UI</span>
-      <span class="hero__chip hero__chip--4 hero__chip--active">🚀 Ship</span>
-      <span class="hero__chip hero__chip--5">🧩 Design System</span>
-      <span class="hero__chip hero__chip--6">🤖 AI-assisted</span>
-      <span class="hero__chip hero__chip--7">📈 Strategy</span>
     </div>
   </div>
 </section>
@@ -190,14 +199,12 @@ const pitch = [
     }
     layoutWalls();
 
-    // --- Bornes invisibles sur les chips flottants ("Strategy",
-    // "AI-assisted"...) et sur le CTA principal : empêche un cube de se
-    // poser dessus et de masquer durablement un label ou une action pendant
-    // que la pile s'accumule.
-    const chipEls = Array.from(
-      document.querySelectorAll('.hero__chip, .hero__ctas .btn--primary')
-    ) as HTMLElement[];
-    const chipBumpers = chipEls.map((el) => {
+    // --- Borne invisible sur le CTA principal : empêche un cube de se
+    // poser dessus et de masquer durablement l'action pendant que la pile
+    // s'accumule. (Les chips flottantes ont été retirées du hero — plus de
+    // label à protéger de ce côté-là.)
+    const protectedEls = Array.from(document.querySelectorAll('.hero__ctas .btn--primary')) as HTMLElement[];
+    const uiBumpers = protectedEls.map((el) => {
       const r = el.getBoundingClientRect();
       const body = new CANNON.Body({
         mass: 0,
@@ -210,10 +217,10 @@ const pitch = [
       return { el, body };
     });
 
-    function updateChipBumpers() {
+    function updateUiBumpers() {
       const heroRect = field!.getBoundingClientRect();
       const centerX = heroRect.left + heroRect.width / 2;
-      for (const { el, body } of chipBumpers) {
+      for (const { el, body } of uiBumpers) {
         const r = el.getBoundingClientRect();
         const x = r.left + r.width / 2 - centerX;
         const screenTopY = r.top + r.height / 2 - heroRect.top;
@@ -420,7 +427,7 @@ const pitch = [
       const dt = Math.min((now - prevTime) / 1000, 1 / 30);
       prevTime = now;
 
-      updateChipBumpers();
+      updateUiBumpers();
       world.step(1 / 60, dt, 6);
 
       // Wobble idle : uniquement si personne ne survole/manipule le tas.
@@ -734,80 +741,22 @@ const pitch = [
     cursor: grabbing;
   }
 
-  .hero__chip {
-    position: absolute;
-    z-index: 2;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 16px;
-    font-family: var(--font-body);
-    font-weight: 600;
-    font-size: 0.8125rem;
-    color: var(--color-ink);
-    background: var(--color-glass-strong);
-    border: 1px solid var(--color-glass-border);
-    border-radius: var(--radius-pill);
-    box-shadow: var(--shadow-card);
-    animation: float-blob 6.5s ease-in-out infinite;
-    white-space: nowrap;
+  /* Bandeau de mots-clés — repris de l'ancienne section Vision, déplacé
+     ici sous la note "café virtuel", avant le champ de cubes. */
+  .hero__marquee {
+    width: 100%;
+    max-width: 480px;
+    margin-top: 4px;
+    overflow: hidden;
+    mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
   }
 
-  .hero__chip--1 {
-    top: 2%;
-    left: 40%;
-    animation-delay: -2s;
-  }
-
-  .hero__chip--2 {
-    top: 50%;
-    left: 2%;
-    animation-duration: 7.5s;
-    animation-delay: -4s;
-  }
-
-  .hero__chip--3 {
-    top: 4%;
-    right: 6%;
-    animation-duration: 8.5s;
-    animation-delay: -1s;
-  }
-
-  /* Chips 4/6/7 : repositionnées hors de la zone d'atterrissage/empilement
-     des cubes (repère bas de .hero__orbfield) — elles y étaient à l'origine
-     et se faisaient couvrir dès que la pile grossissait un peu. */
-  .hero__chip--4 {
-    top: 20%;
-    left: 8%;
-    animation-duration: 6s;
-    animation-delay: -3.5s;
-  }
-
-  .hero__chip--5 {
-    top: 32%;
-    right: 2%;
-    animation-duration: 9s;
-    animation-delay: -2.6s;
-  }
-
-  .hero__chip--6 {
-    top: 14%;
-    left: 66%;
-    animation-duration: 7s;
-    animation-delay: -1.8s;
-  }
-
-  .hero__chip--7 {
-    top: 6%;
-    left: 30%;
-    animation-duration: 8s;
-    animation-delay: -4.4s;
-  }
-
-  .hero__chip--active {
-    background: var(--gradient-accent);
-    color: #ffffff;
-    border-color: transparent;
+  .hero__marquee-track {
+    display: flex;
+    gap: 12px;
+    width: max-content;
+    animation: marquee 26s linear infinite;
   }
 
   @media (max-width: 860px) {
@@ -819,16 +768,8 @@ const pitch = [
       height: 360px;
     }
 
-    .hero__chip {
-      font-size: 0.75rem;
-      padding: 8px 14px;
-    }
-
-    /* Les % de desktop se compressent trop sur une largeur étroite —
-       "Strategy" chevauchait "Discovery". Repositionné pour cette largeur. */
-    .hero__chip--7 {
-      top: 22%;
-      left: 50%;
+    .hero__marquee {
+      max-width: 100%;
     }
 
     .hero__ctas {
