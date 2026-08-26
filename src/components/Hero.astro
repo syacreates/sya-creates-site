@@ -21,10 +21,15 @@ const pitch = [
        visuel que la section Méthode donne déjà à sa dernière étape. Le
        canvas est posé au-dessus du texte, qu'il déborde légèrement en
        tombant, façon elevenses-product.com.
-       Décoratif (aria-hidden) même si "draggable" : aucun contenu ni
-       fonctionnalité essentiels n'y sont exclusivement disponibles, et il
-       n'a pas de tabindex donc n'entre pas dans l'ordre de tabulation. -->
-  <canvas id="hero-cubes" class="hero__cubes" aria-hidden="true"></canvas>
+       Interactif au clavier (tabindex + Entrée/Espace relance la pile) :
+       affordance réelle plutôt que décorative, donc pas d'aria-hidden. -->
+  <canvas
+    id="hero-cubes"
+    class="hero__cubes"
+    tabindex="0"
+    role="button"
+    aria-label="Cubes chromés interactifs — appuie sur Entrée pour les relancer"
+  ></canvas>
 
   <div class="hero__inner">
     <span class="eyebrow-pill">
@@ -290,6 +295,7 @@ const pitch = [
     }
 
     canvas.addEventListener('pointerdown', (e) => {
+      registerInteraction();
       toNDC(e);
       raycaster.setFromCamera(pointerNDC, camera);
       const hit = raycaster.intersectObjects(cubes.map((c) => c.mesh))[0];
@@ -329,6 +335,59 @@ const pitch = [
     canvas.addEventListener('pointerup', releaseDrag);
     canvas.addEventListener('pointercancel', releaseDrag);
 
+    // --- Affordance : personne ne devine spontanément qu'un tas de cubes
+    // stabilisé se manipule. Un léger wobble périodique le suggère, sans
+    // ajouter le moindre bouton/texte visible en permanence. ---
+    let isHovering = false;
+    let lastInteraction = performance.now();
+    let nextWobbleAt = lastInteraction + 6000 + Math.random() * 2000;
+
+    function registerInteraction() {
+      lastInteraction = performance.now();
+      nextWobbleAt = lastInteraction + 6000 + Math.random() * 2000;
+    }
+
+    canvas.addEventListener('pointerenter', () => {
+      isHovering = true;
+    });
+    canvas.addEventListener('pointerleave', () => {
+      isHovering = false;
+      registerInteraction();
+    });
+
+    function wobbleRandomCube() {
+      const settled = cubes.filter((c) => {
+        const v = c.body.velocity;
+        return Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z) < 8;
+      });
+      if (settled.length === 0) return;
+      const target = settled[Math.floor(Math.random() * settled.length)];
+      // Petite secousse angulaire — la friction/l'amortissement existants
+      // la font naturellement retomber en 400-600ms, sans script dédié.
+      target.body.angularVelocity.set(
+        (Math.random() - 0.5) * 3,
+        (Math.random() - 0.5) * 1,
+        (Math.random() - 0.5) * 3
+      );
+    }
+
+    // --- Clavier : le canvas est un vrai contrôle (tabindex + role="button"),
+    // Entrée/Espace reproduit "faire retomber/relancer" le tas — équivalent
+    // clavier de l'interaction souris, pas juste une case cochée pour la forme.
+    canvas.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      registerInteraction();
+      for (const c of cubes) {
+        c.body.velocity.set((Math.random() - 0.5) * 260, 260 + Math.random() * 160, (Math.random() - 0.5) * 120);
+        c.body.angularVelocity.set(
+          (Math.random() - 0.5) * 6,
+          (Math.random() - 0.5) * 6,
+          (Math.random() - 0.5) * 6
+        );
+      }
+    });
+
     // --- Render loop, paused while offscreen ---
     let running = true;
     let rafId = 0;
@@ -342,6 +401,12 @@ const pitch = [
 
       updateChipBumpers();
       world.step(1 / 60, dt, 6);
+
+      // Wobble idle : uniquement si personne ne survole/manipule le tas.
+      if (!isHovering && now >= nextWobbleAt) {
+        wobbleRandomCube();
+        nextWobbleAt = now + 6000 + Math.random() * 2000;
+      }
 
       // Nourrit la pile en continu tant que le hero est visible.
       spawnTimer += dt;
