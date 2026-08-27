@@ -476,19 +476,20 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
      sur l'étape mise en avant (tournée automatique ou clic). transform-box
      recentre le scale sur le cube lui-même plutôt que sur l'origine du
      SVG. */
+  /* Le survol ne change plus jamais la géométrie du cube (plus de
+     transform:scale) : un cercle de halo invisible mais 50% plus large que
+     le cube (voir CUBE_HALF+12 dans le markup) reste dans la zone de
+     survol du <g> même à opacité 0, donc scaler le groupe au survol
+     déplaçait sa propre limite de survol sous le curseur — d'où le
+     clignotement en boucle en déplaçant la souris. Le feedback passe
+     maintenant uniquement par l'opacité du halo (jamais par sa géométrie),
+     et le halo est exclu du hit-test (pointer-events: none). */
   .method-cube {
     cursor: pointer;
-    /* Origine fixée en coordonnées locales (22,22 = centre du cube, voir
-       CUBE_HALF) plutôt que transform-box:fill-box — ce dernier, combiné à
-       l'enfant .method-cube-glow qui a lui-même un transform, provoquait un
-       calcul de boîte englobante instable : le cube tremblait et
-       disparaissait brièvement au survol dans certains navigateurs. */
-    transform-origin: 22px 22px;
-    transition: transform 0.3s var(--ease-spring);
   }
 
-  .method-cube:hover {
-    transform: scale(1.08);
+  .method-cube:hover .method-cube-glow {
+    opacity: 0.3;
   }
 
   .method-cube:focus-visible {
@@ -497,14 +498,10 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
     border-radius: 4px;
   }
 
-  .method-cube.is-active {
-    transform: scale(1.12);
-  }
-
   .method-cube-glow {
     fill: #d9a854;
     opacity: 0;
-    transform-origin: 22px 22px;
+    pointer-events: none;
     transition: opacity 0.3s ease;
   }
 
@@ -588,7 +585,6 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
       filter: none;
     }
 
-    .method-cube,
     .method-cube-glow,
     .method-detail__body {
       transition: none;
