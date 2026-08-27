@@ -31,7 +31,14 @@ const etapes = [
 // une seule fois ici, pour que le curseur (SMIL <animateMotion>) et les faces des
 // cubes coïncident exactement avec le tracé, sans jamais dupliquer des coordonnées
 // à la main entre le SVG et le CSS.
-const CUBE_HALF = 22; // demi-taille de la face isométrique (viewBox du cube : 0–44)
+const CUBE_HALF = 22; // demi-taille locale du cube (viewBox du dessin : 0–44)
+// Les tracés des faces sont fixés dans ce repère 0–44 : CUBE_HALF ne sert
+// qu'au centrage, pas à la taille réellement affichée. CUBE_SCALE agrandit
+// le cube pour de bon (rendu visiblement plus grand que le curseur, dont
+// le rayon reste fixe) — CUBE_WORLD_HALF est son demi-encombrement une
+// fois agrandi, utilisé pour replacer le libellé juste en dessous.
+const CUBE_SCALE = 1.3;
+const CUBE_WORLD_HALF = CUBE_HALF * CUBE_SCALE;
 const LABEL_W = 152;
 const LABEL_GAP = 14;
 
@@ -150,7 +157,7 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
           desktopPoints.map((p, i) => (
             <g
               class="method-cube"
-              transform={`translate(${p.x - CUBE_HALF} ${p.y - CUBE_HALF})`}
+              transform={`translate(${p.x} ${p.y}) scale(${CUBE_SCALE}) translate(${-CUBE_HALF} ${-CUBE_HALF})`}
               role="button"
               tabindex="0"
               aria-pressed="false"
@@ -178,7 +185,7 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
         </circle>
         {
           desktopPoints.map((p) => (
-            <foreignObject x={p.x - LABEL_W / 2} y={p.y + CUBE_HALF + LABEL_GAP} width={LABEL_W} height="60">
+            <foreignObject x={p.x - LABEL_W / 2} y={p.y + CUBE_WORLD_HALF + LABEL_GAP} width={LABEL_W} height="60">
               <div xmlns="http://www.w3.org/1999/xhtml" class="method-path__label">
                 {p.titre}
               </div>
@@ -202,7 +209,7 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
           mobilePoints.map((p, i) => (
             <g
               class="method-cube"
-              transform={`translate(${p.x - CUBE_HALF} ${p.y - CUBE_HALF})`}
+              transform={`translate(${p.x} ${p.y}) scale(${CUBE_SCALE}) translate(${-CUBE_HALF} ${-CUBE_HALF})`}
               role="button"
               tabindex="0"
               aria-pressed="false"
@@ -230,7 +237,7 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
         </circle>
         {
           mobilePoints.map((p) => (
-            <foreignObject x={p.x - LABEL_W / 2} y={p.y + CUBE_HALF + LABEL_GAP} width={LABEL_W} height="60">
+            <foreignObject x={p.x - LABEL_W / 2} y={p.y + CUBE_WORLD_HALF + LABEL_GAP} width={LABEL_W} height="60">
               <div xmlns="http://www.w3.org/1999/xhtml" class="method-path__label">
                 {p.titre}
               </div>
