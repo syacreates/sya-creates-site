@@ -1,25 +1,21 @@
 ---
 const problemes = [
   {
-    emoji: '📉',
     titre: 'Une interface qui ne convertit pas',
     texte:
       "Le produit fonctionne, mais les utilisateurs abandonnent avant l'étape clé — sans qu'on sache précisément où, ni pourquoi.",
   },
   {
-    emoji: '🔀',
     titre: 'Design et développement désynchronisés',
     texte:
       'Les maquettes prennent des semaines à devenir une interface réelle, et le résultat livré finit par trahir ce qui avait été validé.',
   },
   {
-    emoji: '🎲',
     titre: 'Des décisions produit prises à vue',
     texte:
       "Sans parcours utilisateur clairement cadré, chaque nouvelle fonctionnalité rouvre le débat au lieu de s'appuyer sur une base solide.",
   },
   {
-    emoji: '🕰️',
     titre: 'Un design qui vieillit mal',
     texte:
       'Une interface bricolée au fil des besoins finit par perdre en cohérence — et en crédibilité aux yeux de tes utilisateurs.',
@@ -61,14 +57,7 @@ const problemes = [
           >
             <div class="flip-card__inner">
               <div class="flip-card__front">
-                <span class="problem-card__icon">
-                  <span class="emoji-live" aria-hidden="true">{probleme.emoji}</span>
-                </span>
-                <div class="problem-card__titre-wrap">
-                  <span class="problem-card__line" aria-hidden="true" />
-                  <h3 class="problem-card__titre">{probleme.titre}</h3>
-                  <span class="problem-card__line problem-card__line--right" aria-hidden="true" />
-                </div>
+                <h3 class="problem-card__titre">{probleme.titre}</h3>
               </div>
               <div class="flip-card__back">
                 <p>{probleme.texte}</p>
@@ -146,44 +135,6 @@ const problemes = [
 
   .problem-card .flip-card__back p {
     font-size: 0.875rem;
-  }
-
-  .problem-card__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    margin-bottom: 12px;
-    border-radius: 50%;
-    background: var(--color-bg-alt);
-    border: 1px solid var(--color-line);
-    font-size: 1rem;
-    transition: border-color 0.3s ease, background-color 0.3s ease;
-  }
-
-  .glass-card:hover .problem-card__icon {
-    background: var(--color-surface);
-    border-color: var(--color-accent-2);
-  }
-
-  /* Titre encadré de deux traits dorés qui s'estompent vers l'extérieur —
-     signature typographique plutôt qu'un simple texte centré. */
-  .problem-card__titre-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-  }
-
-  .problem-card__line {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(to left, #d9a854, transparent);
-  }
-
-  .problem-card__line--right {
-    background: linear-gradient(to right, #d9a854, transparent);
   }
 
   .problem-card__titre {

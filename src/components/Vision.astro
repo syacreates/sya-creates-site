@@ -22,22 +22,18 @@ const etapes = [
 
 const apports = [
   {
-    emoji: '🧲',
     titre: 'Rétention',
     texte: 'Des utilisateurs qui comprennent le produit du premier coup, et qui restent.',
   },
   {
-    emoji: '🤝',
     titre: 'Confiance',
     texte: 'Une interface soignée qui rassure avant même la première interaction.',
   },
   {
-    emoji: '🛠️',
     titre: 'Moins de rework',
     texte: 'Des choix validés en amont, pour ne pas redévelopper trois fois la même chose.',
   },
   {
-    emoji: '📈',
     titre: 'Conversion',
     texte: "Des parcours pensés pour l'objectif business, pas juste pour être jolis.",
   },
@@ -123,9 +119,6 @@ const apports = [
         {
           apports.map((apport, index) => (
             <div class="vision-benefit glass-card reveal-item" style={`--i: ${index}`}>
-              <span class="vision-benefit__icon">
-                <span class="emoji-live" aria-hidden="true">{apport.emoji}</span>
-              </span>
               <h4 class="vision-benefit__titre">{apport.titre}</h4>
               <p class="vision-benefit__texte">{apport.texte}</p>
             </div>
@@ -308,18 +301,6 @@ const apports = [
 
   .vision-benefit {
     padding: 26px;
-  }
-
-  .vision-benefit__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    margin-bottom: 14px;
-    border-radius: 50%;
-    background: var(--gradient-accent);
-    font-size: 1.0625rem;
   }
 
   .vision-benefit__titre {

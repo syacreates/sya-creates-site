@@ -478,8 +478,12 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
      SVG. */
   .method-cube {
     cursor: pointer;
-    transform-box: fill-box;
-    transform-origin: center;
+    /* Origine fixée en coordonnées locales (22,22 = centre du cube, voir
+       CUBE_HALF) plutôt que transform-box:fill-box — ce dernier, combiné à
+       l'enfant .method-cube-glow qui a lui-même un transform, provoquait un
+       calcul de boîte englobante instable : le cube tremblait et
+       disparaissait brièvement au survol dans certains navigateurs. */
+    transform-origin: 22px 22px;
     transition: transform 0.3s var(--ease-spring);
   }
 
@@ -500,8 +504,7 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
   .method-cube-glow {
     fill: #d9a854;
     opacity: 0;
-    transform-box: fill-box;
-    transform-origin: center;
+    transform-origin: 22px 22px;
     transition: opacity 0.3s ease;
   }
 

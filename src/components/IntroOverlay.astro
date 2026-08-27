@@ -17,6 +17,7 @@
         <path class="intro-overlay__cta-face intro-overlay__cta-face--right" d="M38 13 L38 31 L22 40 L22 22 Z" />
       </svg>
     </span>
+    <span class="intro-overlay__cta-wordmark" aria-hidden="true">Sya<span class="intro-overlay__cta-dot">.</span>Creates</span>
   </button>
 </div>
 
@@ -143,10 +144,14 @@
     // Grille pleine : les cubes couvrent tout l'écran, bord à bord, du sol
     // au plafond du viewport — pas une pyramide qui laisse des coins vides.
     function buildGrid(originX: number, originY: number) {
+      // Bande centrée, pas toute la hauteur de l'écran : une zone plus
+      // courte, plus dense visuellement à l'endroit où le regard se porte,
+      // plutôt qu'une grille qui s'étire jusqu'aux bords haut/bas.
+      const gridHeight = height * 0.55;
       const cols = Math.ceil(width / cubeSize);
-      const rows = Math.ceil(height / cubeSize);
+      const rows = Math.ceil(gridHeight / cubeSize);
       const startX = -width / 2 + cubeSize / 2;
-      const startY = -height / 2 + cubeSize / 2;
+      const startY = -gridHeight / 2 + cubeSize / 2;
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
           spawnCube(startX + c * cubeSize, startY + r * cubeSize, originX, originY);
@@ -264,16 +269,17 @@
     display: block;
   }
 
-  /* Seul repère visuel de l'écran d'intro : un unique cube doré qui tourne
-     sur lui-même, au centre — pas de bouton, pas de texte. Toute la
-     surface de l'overlay reste cliquable (voir le script), ce cube ne
-     fait qu'indiquer où regarder. */
+  /* Seul repère visuel de l'écran d'intro : le logo (cube + "Sya.Creates"),
+     pas de texte d'instruction ("cliquer pour...") — le cube qui tourne et
+     le halo qui pulse suffisent à inviter le clic. Toute la surface de
+     l'overlay reste cliquable (voir le script). */
   .intro-overlay__cta {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 96px;
-    height: 96px;
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
     padding: 0;
     border: none;
     background: none;
@@ -284,20 +290,23 @@
   }
 
   .intro-overlay__cta:hover {
-    transform: translate(-50%, -50%) scale(1.08);
+    transform: translate(-50%, -50%) scale(1.06);
   }
 
   .intro-overlay__cta:active {
-    transform: translate(-50%, -50%) scale(0.94);
+    transform: translate(-50%, -50%) scale(0.95);
     transition-duration: 0.1s;
   }
 
   .intro-overlay__cta-icon {
     display: block;
-    width: 100%;
-    height: 100%;
-    animation: intro-cta-spin 4.5s linear infinite;
-    filter: drop-shadow(0 0 20px rgba(217, 168, 84, 0.6));
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    /* Rotation continue + halo qui respire : deux propriétés différentes
+       (transform / filter) pour que ça n'entre jamais en conflit avec le
+       scale appliqué au survol sur le bouton parent. */
+    animation: intro-cta-spin 4.5s linear infinite, intro-cta-glow 2.2s ease-in-out infinite;
   }
 
   .intro-overlay__cta-icon svg {
@@ -317,6 +326,18 @@
     opacity: 0.52;
   }
 
+  .intro-overlay__cta-wordmark {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #f4f1e7;
+    white-space: nowrap;
+  }
+
+  .intro-overlay__cta-dot {
+    color: #d9a854;
+  }
+
   @keyframes intro-cta-spin {
     from {
       transform: rotateY(0deg);
@@ -326,14 +347,32 @@
     }
   }
 
+  @keyframes intro-cta-glow {
+    0%,
+    100% {
+      filter: drop-shadow(0 0 8px rgba(217, 168, 84, 0.4));
+    }
+    50% {
+      filter: drop-shadow(0 0 22px rgba(217, 168, 84, 0.9));
+    }
+  }
+
   .intro-overlay.is-falling .intro-overlay__cta {
     opacity: 0;
   }
 
   @media (max-width: 640px) {
     .intro-overlay__cta {
-      width: 76px;
-      height: 76px;
+      gap: 10px;
+    }
+
+    .intro-overlay__cta-icon {
+      width: 44px;
+      height: 44px;
+    }
+
+    .intro-overlay__cta-wordmark {
+      font-size: 1.125rem;
     }
   }
 </style>
