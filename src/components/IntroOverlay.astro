@@ -9,7 +9,14 @@
      — pas de mémorisation de session. -->
 <div id="intro-overlay" class="intro-overlay" aria-hidden="true">
   <canvas id="intro-overlay-canvas" class="intro-overlay__canvas"></canvas>
-  <button type="button" id="intro-overlay-cta" class="btn btn--primary intro-overlay__cta">
+  <button type="button" id="intro-overlay-cta" class="intro-overlay__cta">
+    <span class="intro-overlay__cta-icon" aria-hidden="true">
+      <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+        <path class="intro-overlay__cta-face intro-overlay__cta-face--top" d="M22 4 L38 13 L22 22 L6 13 Z" />
+        <path class="intro-overlay__cta-face intro-overlay__cta-face--left" d="M6 13 L22 22 L22 40 L6 31 Z" />
+        <path class="intro-overlay__cta-face intro-overlay__cta-face--right" d="M38 13 L38 31 L22 40 L22 22 Z" />
+      </svg>
+    </span>
     Découvrir le site
   </button>
 </div>
@@ -81,9 +88,9 @@
     const cubes: CubeRig[] = [];
 
     // Le cube visuel est légèrement plus petit que la maille de la grille :
-    // un mince interstice laisse apparaître le fond beige sable entre les
-    // cubes plutôt qu'une surface 100% verte qui masquerait entièrement la
-    // couleur de page voulue.
+    // un mince interstice laisse respirer le fond entre les cubes plutôt
+    // qu'une surface 100% pleine, et évite tout chevauchement de coins une
+    // fois les cubes en rotation pendant la chute.
     const visualSize = cubeSize * 0.9;
 
     // Les cubes n'existent pas avant le clic — rien à construire au
@@ -205,7 +212,7 @@
     position: fixed;
     inset: 0;
     z-index: 9999;
-    background: var(--color-bg-alt);
+    background: var(--color-accent);
     overflow: hidden;
     /* Le fond opaque disparaît vite au clic : on doit voir la page
        d'accueil derrière les cubes pendant qu'ils tombent, pas seulement
@@ -228,13 +235,86 @@
     display: block;
   }
 
+  /* CTA sur mesure — dégradé or (pas le vert des boutons du site) pour
+     trancher nettement sur le fond vert de l'overlay, avec le cube
+     isométrique de la marque comme icône plutôt qu'un bouton texte nu.
+     Halo qui respire + cube qui tourne doucement en continu : signale que
+     ce n'est pas un CTA comme les autres, sans le dire par du texte. */
   .intro-overlay__cta {
     position: absolute;
     top: 48px;
     left: 50%;
-    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 30px 14px 18px;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(135deg, #f0cf8f, #d9a854);
+    color: var(--color-accent);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
     z-index: 2;
-    transition: opacity 0.3s ease;
+    box-shadow: 0 0 0 0 rgba(217, 168, 84, 0.5), 0 12px 30px -14px rgba(0, 0, 0, 0.5);
+    transform: translateX(-50%);
+    transition: opacity 0.3s ease, transform 0.35s var(--ease-spring), box-shadow 0.35s var(--ease-spring),
+      filter 0.2s ease;
+    animation: intro-cta-breathe 2.6s ease-in-out infinite;
+  }
+
+  .intro-overlay__cta:hover {
+    transform: translateX(-50%) translateY(-2px) scale(1.04);
+    filter: brightness(1.05);
+  }
+
+  .intro-overlay__cta:active {
+    transform: translateX(-50%) scale(0.97);
+    transition-duration: 0.1s;
+  }
+
+  .intro-overlay__cta-icon {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+    animation: intro-cta-spin 4.5s linear infinite;
+  }
+
+  .intro-overlay__cta-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .intro-overlay__cta-face {
+    fill: var(--color-accent);
+  }
+
+  .intro-overlay__cta-face--left {
+    opacity: 0.72;
+  }
+
+  .intro-overlay__cta-face--right {
+    opacity: 0.48;
+  }
+
+  @keyframes intro-cta-breathe {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(217, 168, 84, 0.45), 0 12px 30px -14px rgba(0, 0, 0, 0.5);
+    }
+    50% {
+      box-shadow: 0 0 0 12px rgba(217, 168, 84, 0), 0 16px 34px -12px rgba(0, 0, 0, 0.55);
+    }
+  }
+
+  @keyframes intro-cta-spin {
+    from {
+      transform: rotateY(0deg);
+    }
+    to {
+      transform: rotateY(360deg);
+    }
   }
 
   .intro-overlay.is-falling .intro-overlay__cta {
