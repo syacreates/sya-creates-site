@@ -76,39 +76,106 @@ const apports = [
     <div class="vision__block">
       <h3 class="vision__block-title">C'est quoi, concrètement, l'UX/UI Design ?</h3>
 
-      <div class="vision-flow">
-        {
-          etapes.map((etape, index) => (
-            <>
-              <div
-                class="vision-flow__step glass-card reveal-item flip-card"
+      <div class="cocoon">
+        <div class="cocoon__visual" data-stage="0">
+          <svg class="cocoon__svg" viewBox="0 0 240 220" aria-hidden="true">
+            <path class="cocoon__branch-line" d="M30,24 Q120,4 210,24" fill="none" />
+            <path class="cocoon__leaf" d="M74,21 C63,10 46,12 40,23 C46,32 65,31 74,21 Z" />
+            <path class="cocoon__leaf" d="M166,21 C177,10 194,12 200,23 C194,32 175,31 166,21 Z" />
+            <line class="cocoon__thread" x1="120" y1="24" x2="120" y2="58" />
+
+            <g class="cocoon__swing">
+              <g class="cocoon__shell">
+                <path
+                  class="cocoon__shell-fill"
+                  d="M120,58 C142,64 150,88 150,110 C150,136 137,157 120,160 C103,157 90,136 90,110 C90,88 98,64 120,58 Z"
+                />
+                <path class="cocoon__band" d="M96,82 Q120,89 144,82" />
+                <path class="cocoon__band" d="M93,102 Q120,110 147,102" />
+                <path class="cocoon__band" d="M94,124 Q120,132 146,124" />
+                <path class="cocoon__band" d="M98,143 Q120,149 142,143" />
+              </g>
+
+              <ellipse class="cocoon__glow" cx="120" cy="112" rx="46" ry="56" />
+              <g class="cocoon__veins">
+                <path d="M118,66 Q94,88 91,118 Q91,140 106,156" />
+                <path d="M122,66 Q146,88 149,118 Q149,140 134,156" />
+              </g>
+
+              <g class="cocoon__butterfly" aria-hidden="true">
+                <g class="cocoon__wing cocoon__wing--lower-left">
+                  <path
+                    class="cocoon__wing-fill"
+                    d="M117,120 C102,130 78,138 67,163 C60,180 65,196 80,190 L74,211 L94,186 C107,172 115,146 119,124 Z"
+                  />
+                </g>
+                <g class="cocoon__wing cocoon__wing--lower-right">
+                  <path
+                    class="cocoon__wing-fill"
+                    d="M123,120 C138,130 162,138 173,163 C180,180 175,196 160,190 L166,211 L146,186 C133,172 125,146 121,124 Z"
+                  />
+                </g>
+                <g class="cocoon__wing cocoon__wing--upper-left">
+                  <path
+                    class="cocoon__wing-fill"
+                    d="M118,100 C90,62 50,56 34,80 C18,105 33,136 70,141 C97,144 113,120 118,100 Z"
+                  />
+                  <circle class="cocoon__ocelle" cx="66" cy="98" r="7" />
+                </g>
+                <g class="cocoon__wing cocoon__wing--upper-right">
+                  <path
+                    class="cocoon__wing-fill"
+                    d="M122,100 C150,62 190,56 206,80 C222,105 207,136 170,141 C143,144 127,120 122,100 Z"
+                  />
+                  <circle class="cocoon__ocelle" cx="174" cy="98" r="7" />
+                </g>
+                <g class="cocoon__body">
+                  <path class="cocoon__antenna" d="M117,72 Q107,54 98,48" />
+                  <path class="cocoon__antenna" d="M123,72 Q133,54 142,48" />
+                  <ellipse cx="120" cy="77" rx="5" ry="6" />
+                  <ellipse cx="120" cy="92" rx="6" ry="8" />
+                  <ellipse cx="120" cy="109" rx="6.5" ry="9" />
+                  <ellipse cx="120" cy="126" rx="5.5" ry="8" />
+                  <ellipse cx="120" cy="140" rx="4.5" ry="6" />
+                </g>
+                <g class="cocoon__sparkles">
+                  <path class="cocoon__spark" d="M0,-6 L1.6,-1.6 L6,0 L1.6,1.6 L0,6 L-1.6,1.6 L-6,0 L-1.6,-1.6 Z" transform="translate(48,64)" />
+                  <circle class="cocoon__spark" cx="192" cy="70" r="2.4" />
+                  <path class="cocoon__spark" d="M0,-5 L1.3,-1.3 L5,0 L1.3,1.3 L0,5 L-1.3,1.3 L-5,0 L-1.3,-1.3 Z" transform="translate(200,120)" />
+                  <circle class="cocoon__spark" cx="38" cy="130" r="2" />
+                  <path class="cocoon__spark" d="M0,-5 L1.3,-1.3 L5,0 L1.3,1.3 L0,5 L-1.3,1.3 L-5,0 L-1.3,-1.3 Z" transform="translate(120,30)" />
+                </g>
+              </g>
+            </g>
+          </svg>
+
+          <p class="cocoon__label" aria-hidden="true">{etapes[0].titre}</p>
+
+          <div class="cocoon__dots" aria-hidden="true">
+            {etapes.map((_, index) => <span class="cocoon__dot" data-dot={index} />)}
+          </div>
+        </div>
+
+        <div class="cocoon__steps">
+          {
+            etapes.map((etape, index) => (
+              <button
+                type="button"
+                class="cocoon__step reveal-item"
                 style={`--i: ${index}`}
-                tabindex="0"
-                role="button"
-                aria-expanded="false"
-                aria-label={`${etape.titre} — appuie pour voir le détail`}
+                data-stage-trigger={index}
+                aria-pressed="false"
               >
-                <div class="flip-card__inner">
-                  <div class="flip-card__front">
-                    <span class="vision-flow__icon">
-                      <span class="emoji-live" aria-hidden="true">{etape.emoji}</span>
-                    </span>
-                    <h4 class="vision-flow__titre">{etape.titre}</h4>
-                  </div>
-                  <div class="flip-card__back">
-                    <p>{etape.texte}</p>
-                    <ul class="vision-flow__methodes">
-                      {etape.methodes.map((methode) => <li>{methode}</li>)}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              {index < etapes.length - 1 && (
-                <span class="vision-flow__arrow" aria-hidden="true">→</span>
-              )}
-            </>
-          ))
-        }
+                <span class="cocoon__step-num">0{index + 1}</span>
+                <h4 class="cocoon__step-titre">{etape.titre}</h4>
+                <p class="cocoon__step-texte">{etape.texte}</p>
+                <ul class="cocoon__step-methodes">
+                  {etape.methodes.map((methode) => <li>{methode}</li>)}
+                </ul>
+              </button>
+            ))
+          }
+        </div>
       </div>
     </div>
 
@@ -128,6 +195,102 @@ const apports = [
     </div>
   </div>
 </section>
+
+<script>
+  const visual = document.querySelector('.cocoon__visual') as HTMLElement | null;
+  const butterfly = document.querySelector('.cocoon__butterfly') as SVGGElement | null;
+  const label = document.querySelector('.cocoon__label') as HTMLElement | null;
+  const dots = Array.from(document.querySelectorAll('.cocoon__dot')) as HTMLElement[];
+  const stepButtons = Array.from(document.querySelectorAll('.cocoon__step')) as HTMLButtonElement[];
+
+  if (visual && butterfly && label && dots.length === stepButtons.length && stepButtons.length > 0) {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const STAGE_MS = 7000 / stepButtons.length;
+    const LAST = stepButtons.length - 1;
+    const titles = stepButtons.map((btn) => btn.querySelector('.cocoon__step-titre')?.textContent ?? '');
+
+    let stage = 0;
+    let timer = 0;
+    let flying = false;
+
+    function render() {
+      visual!.dataset.stage = String(stage);
+      label!.textContent = titles[stage];
+      dots.forEach((dot, i) => dot.classList.toggle('is-active', i === stage));
+      stepButtons.forEach((btn, i) => {
+        btn.classList.toggle('is-active', i === stage);
+        btn.setAttribute('aria-pressed', String(i === stage));
+      });
+    }
+
+    function goToStage(i: number) {
+      stage = i;
+      render();
+    }
+
+    function scheduleNext() {
+      clearTimeout(timer);
+      if (prefersReduced) return;
+      timer = window.setTimeout(() => {
+        if (!flying) {
+          goToStage((stage + 1) % stepButtons.length);
+        }
+        scheduleNext();
+      }, STAGE_MS);
+    }
+
+    function jumpTo(i: number) {
+      if (flying) return;
+      clearTimeout(timer);
+      goToStage(i);
+      scheduleNext();
+    }
+
+    // Bonus ponctuel : le papillon s'envole hors du cadre, puis le cycle
+    // repart de "Comprendre" après un court délai — sans transition
+    // inversée visible (on coupe la transition le temps de repositionner).
+    function flyAway() {
+      if (flying || prefersReduced) return;
+      flying = true;
+      clearTimeout(timer);
+      butterfly!.classList.add('is-flying');
+      window.setTimeout(() => {
+        butterfly!.classList.add('cocoon__butterfly--no-transition');
+        butterfly!.classList.remove('is-flying');
+        goToStage(0);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            butterfly!.classList.remove('cocoon__butterfly--no-transition');
+            flying = false;
+            scheduleNext();
+          });
+        });
+      }, 1900);
+    }
+
+    stepButtons.forEach((btn, i) => {
+      btn.addEventListener('click', () => {
+        if (i === LAST) {
+          jumpTo(LAST);
+          flyAway();
+        } else {
+          jumpTo(i);
+        }
+      });
+    });
+
+    // Le papillon reste cliquable à la souris pour l'envol, mais pas dans
+    // l'ordre de tabulation : l'ensemble du visuel est aria-hidden, et le
+    // bouton "Habiller" ci-dessous offre déjà le même déclenchement au
+    // clavier.
+    butterfly.addEventListener('click', () => {
+      if (stage === LAST) flyAway();
+    });
+
+    goToStage(prefersReduced ? LAST : 0);
+    scheduleNext();
+  }
+</script>
 
 <style>
   .vision {
@@ -198,81 +361,338 @@ const apports = [
     max-width: 32ch;
   }
 
-  /* Visuel 1 — le flux compréhension → structure → habillage, relié par
-     des flèches pour rendre le déroulé visible en un coup d'œil. */
-  .vision-flow {
-    display: grid;
-    grid-template-columns: 1fr 32px 1fr 32px 1fr;
+  /* Visuel 1 — cocon qui devient papillon, illustrant Comprendre →
+     Structurer → Habiller. Palette strictement vert + doré (celui déjà
+     utilisé pour les cubes), aucune couleur nouvelle. */
+  .cocoon {
+    display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 48px;
     margin-top: 32px;
   }
 
-  .vision-flow__step {
-    height: 100%;
-    min-height: 300px;
-  }
-
-  .vision-flow__step .flip-card__front {
-    padding: 28px;
+  .cocoon__visual {
+    flex-shrink: 0;
+    width: 260px;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    text-align: center;
   }
 
-  .vision-flow__step .flip-card__back {
-    padding: 26px;
+  .cocoon__svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
   }
 
-  .vision-flow__step .flip-card__back p {
-    font-size: 0.875rem;
+  .cocoon__branch-line {
+    stroke: var(--color-accent-2);
+    stroke-width: 2;
+    stroke-linecap: round;
   }
 
-  .vision-flow__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    margin-bottom: 16px;
+  .cocoon__leaf {
+    fill: var(--color-accent-2);
+    opacity: 0.8;
+  }
+
+  .cocoon__thread {
+    stroke: var(--color-line);
+    stroke-width: 1.5;
+    transition: opacity 0.5s ease;
+  }
+
+  .cocoon__swing {
+    transform-origin: 120px 24px;
+    animation: cocoon-swing 4.5s ease-in-out infinite;
+  }
+
+  .cocoon__shell-fill {
+    fill: var(--color-accent-2);
+  }
+
+  .cocoon__band {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 1.5;
+    opacity: 0.55;
+  }
+
+  .cocoon__shell {
+    transition: opacity 0.6s ease;
+  }
+
+  .cocoon__glow {
+    fill: #d9a854;
+    opacity: 0;
+    filter: blur(10px);
+    transition: opacity 0.6s ease;
+  }
+
+  .cocoon__veins {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .cocoon__veins path {
+    fill: none;
+    stroke: #d9a854;
+    stroke-width: 1.4;
+    stroke-dasharray: 4 4;
+  }
+
+  .cocoon__butterfly {
+    opacity: 0;
+    cursor: default;
+    pointer-events: none;
+    transform-origin: 120px 110px;
+    transition: opacity 0.6s ease, transform 1.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cocoon__butterfly--no-transition {
+    transition: none !important;
+  }
+
+  .cocoon__wing-fill {
+    fill: var(--color-accent-2);
+    stroke: #d9a854;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+  }
+
+  .cocoon__ocelle {
+    fill: #d9a854;
+  }
+
+  .cocoon__wing--upper-left,
+  .cocoon__wing--lower-left {
+    transform-origin: 118px 108px;
+    animation: cocoon-flap-left 1.15s ease-in-out infinite;
+  }
+
+  .cocoon__wing--upper-right,
+  .cocoon__wing--lower-right {
+    transform-origin: 122px 108px;
+    animation: cocoon-flap-right 1.15s ease-in-out infinite;
+  }
+
+  .cocoon__body ellipse {
+    fill: var(--color-accent);
+  }
+
+  .cocoon__antenna {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+
+  .cocoon__spark {
+    fill: #d9a854;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: cocoon-twinkle 1.8s ease-in-out infinite;
+  }
+
+  .cocoon__sparkles .cocoon__spark:nth-child(1) {
+    animation-delay: 0s;
+  }
+  .cocoon__sparkles .cocoon__spark:nth-child(2) {
+    animation-delay: 0.35s;
+  }
+  .cocoon__sparkles .cocoon__spark:nth-child(3) {
+    animation-delay: 0.7s;
+  }
+  .cocoon__sparkles .cocoon__spark:nth-child(4) {
+    animation-delay: 1.05s;
+  }
+  .cocoon__sparkles .cocoon__spark:nth-child(5) {
+    animation-delay: 1.4s;
+  }
+
+  .cocoon__visual[data-stage='1'] .cocoon__shell {
+    opacity: 0.4;
+  }
+
+  .cocoon__visual[data-stage='1'] .cocoon__glow {
+    opacity: 1;
+    animation: cocoon-glow-pulse 2s ease-in-out infinite;
+  }
+
+  .cocoon__visual[data-stage='1'] .cocoon__veins {
+    opacity: 1;
+  }
+
+  .cocoon__visual[data-stage='2'] .cocoon__shell,
+  .cocoon__visual[data-stage='2'] .cocoon__glow,
+  .cocoon__visual[data-stage='2'] .cocoon__veins,
+  .cocoon__visual[data-stage='2'] .cocoon__thread {
+    opacity: 0;
+  }
+
+  .cocoon__visual[data-stage='2'] .cocoon__butterfly {
+    opacity: 1;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .cocoon__visual[data-stage='2'] .cocoon__swing {
+    animation: none;
+    transform: none;
+  }
+
+  .cocoon__butterfly.is-flying {
+    transform: translate(70px, -150px) rotate(20deg) scale(0.35);
+    opacity: 0;
+  }
+
+  @keyframes cocoon-swing {
+    0%,
+    100% {
+      transform: rotate(-4deg);
+    }
+    50% {
+      transform: rotate(4deg);
+    }
+  }
+
+  @keyframes cocoon-glow-pulse {
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 0.9;
+    }
+  }
+
+  @keyframes cocoon-flap-left {
+    0%,
+    100% {
+      transform: scaleX(1);
+    }
+    50% {
+      transform: scaleX(0.8);
+    }
+  }
+
+  @keyframes cocoon-flap-right {
+    0%,
+    100% {
+      transform: scaleX(1);
+    }
+    50% {
+      transform: scaleX(0.8);
+    }
+  }
+
+  @keyframes cocoon-twinkle {
+    0%,
+    100% {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .cocoon__label {
+    margin-top: 8px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--color-ink);
+  }
+
+  .cocoon__dots {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .cocoon__dot {
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: var(--color-bg-alt);
-    border: 1px solid var(--color-line);
-    font-size: 1.1875rem;
-    transition: border-color 0.3s ease, background-color 0.3s ease;
+    background: var(--color-line);
+    transition: background-color 0.3s ease, transform 0.3s ease;
   }
 
-  .glass-card:hover .vision-flow__icon {
-    background: var(--color-surface);
+  .cocoon__dot.is-active {
+    background: #d9a854;
+    transform: scale(1.3);
+  }
+
+  .cocoon__steps {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+  }
+
+  .cocoon__step {
+    display: block;
+    width: 100%;
+    padding: 18px 20px;
+    background: var(--color-glass);
+    border: 1px solid var(--color-glass-border);
+    border-radius: var(--radius-card-sm);
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .cocoon__step:hover,
+  .cocoon__step.is-active {
+    background: var(--color-glass-strong);
     border-color: var(--color-accent-2);
   }
 
-  .vision-flow__titre {
+  .cocoon__step-num {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: #d9a854;
+  }
+
+  .cocoon__step-titre {
     font-size: 1.0625rem;
     font-weight: 600;
     color: var(--color-ink);
-    margin-bottom: 8px;
+    margin: 4px 0 6px;
   }
 
-  .vision-flow__methodes {
+  .cocoon__step-texte {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  .cocoon__step-methodes {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    flex-wrap: wrap;
+    gap: 6px 10px;
     list-style: none;
-    margin: 16px 0 0;
-    padding: 14px 0 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    margin: 12px 0 0;
+    padding: 12px 0 0;
+    border-top: 1px solid var(--color-line);
   }
 
-  .vision-flow__methodes li {
+  .cocoon__step-methodes li {
     position: relative;
     padding-left: 14px;
     font-family: var(--font-mono);
     font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--color-text-secondary);
   }
 
-  .vision-flow__methodes li::before {
+  .cocoon__step-methodes li::before {
     content: '';
     position: absolute;
     left: 0;
@@ -280,14 +700,23 @@ const apports = [
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: #ffffff;
+    background: var(--color-accent-2);
   }
 
-  .vision-flow__arrow {
-    text-align: center;
-    font-size: 1.375rem;
-    color: var(--color-accent-2);
-    animation: emoji-float 3s ease-in-out infinite;
+  @media (prefers-reduced-motion: reduce) {
+    .cocoon__swing,
+    .cocoon__wing,
+    .cocoon__spark,
+    .cocoon__glow {
+      animation: none !important;
+    }
+
+    .cocoon__butterfly,
+    .cocoon__shell,
+    .cocoon__veins,
+    .cocoon__thread {
+      transition: none !important;
+    }
   }
 
   /* Visuel 2 — quatre bénéfices concrets, même grammaire visuelle que les
@@ -331,13 +760,13 @@ const apports = [
       margin-top: 48px;
     }
 
-    .vision-flow {
-      grid-template-columns: 1fr;
-      gap: 16px;
+    .cocoon {
+      flex-direction: column;
+      gap: 24px;
     }
 
-    .vision-flow__arrow {
-      display: none;
+    .cocoon__visual {
+      width: 200px;
     }
 
     .vision-benefits {
