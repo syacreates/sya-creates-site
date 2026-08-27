@@ -76,7 +76,11 @@ const columns = [
       FAQ
     </span>
 
-    <h2 class="faq__title">Questions fréquentes</h2>
+    <div class="title-flanked">
+      <span class="title-flanked__line" aria-hidden="true" />
+      <h2 class="faq__title">Questions fréquentes</h2>
+      <span class="title-flanked__line title-flanked__line--right" aria-hidden="true" />
+    </div>
 
     <p class="faq__intro">
       Tout ce qu'on me demande avant de démarrer une collaboration.
@@ -120,11 +124,14 @@ const columns = [
   }
 
   .faq__title {
-    margin-top: 20px;
     font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.5rem);
     line-height: 1.2;
     font-weight: 600;
     color: var(--color-ink);
+  }
+
+  .faq .title-flanked {
+    margin-top: 20px;
   }
 
   .faq__intro {

@@ -12,7 +12,11 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
       Contact
     </span>
 
-    <h2 class="contact__title">Trois façons simples de démarrer la conversation.</h2>
+    <div class="title-flanked">
+      <span class="title-flanked__line" aria-hidden="true" />
+      <h2 class="contact__title">Trois façons simples de démarrer la conversation.</h2>
+      <span class="title-flanked__line title-flanked__line--right" aria-hidden="true" />
+    </div>
 
     <p class="contact__intro">
       Choisis ce qui te convient le mieux — un créneau dans l'agenda, un email direct, ou
@@ -274,12 +278,15 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
   }
 
   .contact__title {
-    margin-top: 20px;
     font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.5rem);
     line-height: 1.2;
     font-weight: 600;
     color: var(--color-ink);
     max-width: 30ch;
+  }
+
+  .contact .title-flanked {
+    margin-top: 20px;
   }
 
   .contact__intro {

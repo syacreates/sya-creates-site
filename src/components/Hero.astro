@@ -4,10 +4,13 @@ const titleLine2 = "et j'élimine tes frictions UX.";
 const words1 = titleLine1.split(' ');
 const words2 = titleLine2.split(' ');
 
+// Rotation légère et différente par carte — fixée ici (pas de Math.random
+// côté client) pour un rendu "posé à la main" stable, identique à chaque
+// chargement plutôt que de sauter au premier rendu.
 const pitch = [
-  { emoji: '🔍', titre: 'Diagnostic UX/UI', texte: 'Identifier ce qui bloque tes utilisateurs' },
-  { emoji: '🤝', titre: 'Accompagnement complet', texte: 'Du cadrage à la mise en ligne' },
-  { emoji: '⚡', titre: 'Dev IA-assisted', texte: 'Une interface fonctionnelle, vite' },
+  { titre: 'Diagnostic UX/UI', texte: 'Identifier ce qui bloque tes utilisateurs', rotation: -3 },
+  { titre: 'Accompagnement complet', texte: 'Du cadrage à la mise en ligne', rotation: 2.5 },
+  { titre: 'Dev IA-assisted', texte: 'Une interface fonctionnelle, vite', rotation: -1.5 },
 ];
 
 const tags = [
@@ -47,46 +50,61 @@ const tags = [
       UX/UI Design · AI-assisted development
     </span>
 
-    <h1 class="hero__title">
-      <span class="hero__title-line">
-        {words1.map((w, i) => (
-          <span class="word-mask"><span class="word-inner" style={`--i: ${i}`}>{w}&nbsp;</span></span>
-        ))}
-      </span>
-      <span class="hero__title-line hero__title-accent">
-        {words2.map((w, i) => (
-          <span class="word-mask"><span class="word-inner" style={`--i: ${i + words1.length}`}>{w}&nbsp;</span></span>
-        ))}
-      </span>
-    </h1>
+    <div class="title-flanked title-flanked--hero">
+      <span class="title-flanked__line" aria-hidden="true" />
+      <h1 class="hero__title">
+        <span class="hero__title-line">
+          {words1.map((w, i) => (
+            <span class="word-mask"><span class="word-inner" style={`--i: ${i}`}>{w}&nbsp;</span></span>
+          ))}
+        </span>
+        <span class="hero__title-line hero__title-accent">
+          {words2.map((w, i) => (
+            <span class="word-mask"><span class="word-inner" style={`--i: ${i + words1.length}`}>{w}&nbsp;</span></span>
+          ))}
+        </span>
+      </h1>
+      <span class="title-flanked__line title-flanked__line--right" aria-hidden="true" />
+    </div>
 
     <p class="hero__subtitle">
       Moi c'est Aïda. Designer UX/UI qui a fait de l'IA une alliée, pas une menace. Je prends tes
       projets de A à Z, et je livre vite.
     </p>
 
+    <!-- Notes "papier + trombone" : vraiment empilées (chevauchement fort,
+         seul le titre de chaque note en dessous dépasse). Le clic fait
+         glisser LA note elle-même sur le côté, qui s'agrandit pour montrer
+         son explication — pas de panneau séparé. Remplace entièrement le
+         système flip-card pour ces 3 cartes du hero (inchangé ailleurs). -->
     <div class="hero__pitch">
-      {
-        pitch.map((item) => (
-          <div
-            class="hero__pitch-item flip-card"
-            tabindex="0"
-            role="button"
-            aria-expanded="false"
-            aria-label={`${item.titre} — appuie pour voir le détail`}
-          >
-            <div class="flip-card__inner">
-              <div class="flip-card__front">
-                <span class="hero__pitch-emoji emoji-live" aria-hidden="true">{item.emoji}</span>
-                <span class="hero__pitch-titre">{item.titre}</span>
-              </div>
-              <div class="flip-card__back">
-                <p>{item.texte}</p>
-              </div>
-            </div>
-          </div>
-        ))
-      }
+      <div class="hero__pitch-stack">
+        {
+          pitch.map((item, index) => (
+            <button
+              type="button"
+              class="hero__pitch-note"
+              style={`--rot: ${item.rotation}deg; --i: ${index}`}
+              aria-expanded="false"
+            >
+              <svg
+                class="hero__pitch-note__clip"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+              </svg>
+              <span class="hero__pitch-note__titre">{item.titre}</span>
+              <span class="hero__pitch-note__texte">{item.texte}</span>
+            </button>
+          ))
+        }
+      </div>
     </div>
 
     <div class="hero__ctas">
@@ -532,6 +550,39 @@ const tags = [
   }
 </script>
 
+<script>
+  // Notes "papier + trombone" — indépendant du système de cubes ci-dessus
+  // (doit fonctionner même quand les cubes sont désactivés sous 700px ou
+  // en prefers-reduced-motion). Le clic fait glisser la note elle-même sur
+  // le côté et révèle son explication ; un second clic la range dans la
+  // pile.
+  const notes = Array.from(document.querySelectorAll('.hero__pitch-note')) as HTMLButtonElement[];
+  let activeNote: HTMLButtonElement | null = null;
+
+  function closeNote(note: HTMLButtonElement) {
+    note.setAttribute('aria-expanded', 'false');
+    note.classList.remove('is-active');
+    if (activeNote === note) activeNote = null;
+  }
+
+  function openNote(note: HTMLButtonElement) {
+    if (activeNote && activeNote !== note) closeNote(activeNote);
+    activeNote = note;
+    note.setAttribute('aria-expanded', 'true');
+    note.classList.add('is-active');
+  }
+
+  notes.forEach((note) => {
+    note.addEventListener('click', () => {
+      if (note.classList.contains('is-active')) {
+        closeNote(note);
+      } else {
+        openNote(note);
+      }
+    });
+  });
+</script>
+
 <style>
   .hero {
     position: relative;
@@ -601,6 +652,25 @@ const tags = [
     font-weight: 500;
   }
 
+  /* Traits volontairement courts : le titre du hero occupe déjà toute la
+     largeur utile de .hero__inner (780px) — des traits plus longs lui
+     voleraient assez de place pour casser sa mise en ligne habituelle
+     ("Je débloque ton produit," passerait sur deux lignes). */
+  .title-flanked--hero {
+    gap: 16px;
+    align-items: center;
+  }
+
+  .title-flanked--hero .title-flanked__line {
+    width: 32px;
+  }
+
+  @media (max-width: 640px) {
+    .title-flanked--hero .title-flanked__line {
+      width: 18px;
+    }
+  }
+
   /* Apparition mot par mot au chargement — chaque mot glisse depuis son
      propre masque, façon titre animé du site de référence. */
   .word-mask {
@@ -645,50 +715,104 @@ const tags = [
   }
 
   /* Rangée "ce que je fais concrètement" — répond dès le premier regard à
-     quoi/comment/quoi-concrètement, avant même le CTA. */
+     quoi/comment/quoi-concrètement, avant même le CTA. Notes de papier
+     empilées + trombone : le clic révèle l'explication dans le panneau à
+     côté (jamais sur la carte), remplaçant ici le système flip-card. */
   .hero__pitch {
     display: flex;
-    gap: 12px;
-    margin-top: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .hero__pitch-item {
-    width: 172px;
-    min-height: 104px;
-    background: var(--color-glass-strong);
-    border: 1px solid var(--color-glass-border);
-    border-radius: var(--radius-card-sm);
-    box-shadow: var(--shadow-card);
-  }
-
-  .hero__pitch-item .flip-card__front {
     align-items: center;
+    gap: 24px;
+    margin-top: 16px;
     justify-content: center;
-    gap: 4px;
-    padding: 16px 14px;
+    flex-wrap: wrap;
   }
 
-  .hero__pitch-item .flip-card__back {
-    padding: 14px;
+  /* Vraie pile : chaque note est positionnée en absolu, décalée de peu
+     verticalement (var(--i) * peek) — seul le bandeau titre de celles du
+     dessous dépasse derrière la note du dessus. */
+  .hero__pitch-stack {
+    position: relative;
+    width: 216px;
+    height: 128px;
   }
 
-  .hero__pitch-emoji {
-    font-size: 1.25rem;
-    margin-bottom: 2px;
+  .hero__pitch-note {
+    position: absolute;
+    top: calc(var(--i, 0) * 24px);
+    left: 50%;
+    width: 196px;
+    padding: 16px 18px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    /* Coins légèrement inégaux — effet "feuille" plutôt que carte parfaite. */
+    border-radius: 3px 11px 6px 9px;
+    box-shadow: var(--shadow-card);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    z-index: var(--i, 0);
+    transform: translateX(-50%) rotate(var(--rot, 0deg));
+    transition: transform 0.45s var(--ease-spring), box-shadow 0.3s ease, border-color 0.3s ease;
   }
 
-  .hero__pitch-titre {
+  .hero__pitch-note:hover {
+    box-shadow: 0 18px 36px -18px rgba(22, 36, 28, 0.4);
+  }
+
+  .hero__pitch-note.is-active {
+    transform: translateX(calc(-50% + 150px)) rotate(0deg) scale(1.04);
+    box-shadow: 0 26px 46px -16px rgba(22, 36, 28, 0.45);
+    border-color: var(--color-accent-2);
+    z-index: 10;
+  }
+
+  .hero__pitch-note__clip {
+    position: absolute;
+    top: -11px;
+    left: 20px;
+    width: 26px;
+    height: 26px;
+    color: #d9a854;
+    transform: rotate(-18deg);
+    filter: drop-shadow(0 2px 2px rgba(22, 36, 28, 0.25));
+    pointer-events: none;
+  }
+
+  .hero__pitch-note__titre {
+    display: block;
     font-family: var(--font-body);
     font-weight: 600;
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
     color: var(--color-ink);
-    text-align: center;
   }
 
-  .hero__pitch-item .flip-card__back p {
-    font-size: 0.75rem;
+  /* L'explication vit dans la note elle-même, repliée à hauteur nulle tant
+     que la note n'est pas active — elle "s'ouvre" avec la note plutôt que
+     d'apparaître ailleurs. */
+  .hero__pitch-note__texte {
+    display: block;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+    transition: max-height 0.4s var(--ease-spring), opacity 0.3s ease, margin-top 0.3s ease;
+  }
+
+  .hero__pitch-note.is-active .hero__pitch-note__texte {
+    max-height: 180px;
+    opacity: 1;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 640px) {
+    .hero__pitch-note.is-active {
+      /* Pas assez de large sur mobile pour glisser sur le côté : la note
+         se redresse et s'ouvre sur place. */
+      transform: translateX(-50%) translateY(-10px) rotate(0deg) scale(1.03);
+    }
   }
 
   .hero__ctas {
@@ -792,9 +916,6 @@ const tags = [
       gap: 20px;
     }
 
-    .hero__pitch-item {
-      width: calc(50% - 6px);
-    }
   }
 
   /* Doit correspondre au seuil JS (tooNarrow) : sous cette largeur, les

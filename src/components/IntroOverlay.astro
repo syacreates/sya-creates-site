@@ -9,7 +9,7 @@
      — pas de mémorisation de session. -->
 <div id="intro-overlay" class="intro-overlay" aria-hidden="true">
   <canvas id="intro-overlay-canvas" class="intro-overlay__canvas"></canvas>
-  <button type="button" id="intro-overlay-cta" class="intro-overlay__cta">
+  <button type="button" id="intro-overlay-cta" class="intro-overlay__cta" aria-label="Découvrir le site">
     <span class="intro-overlay__cta-icon" aria-hidden="true">
       <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
         <path class="intro-overlay__cta-face intro-overlay__cta-face--top" d="M22 4 L38 13 L22 22 L6 13 Z" />
@@ -17,7 +17,6 @@
         <path class="intro-overlay__cta-face intro-overlay__cta-face--right" d="M38 13 L38 31 L22 40 L22 22 Z" />
       </svg>
     </span>
-    Découvrir le site
   </button>
 </div>
 
@@ -94,9 +93,9 @@
     const visualSize = cubeSize * 0.9;
 
     // Les cubes n'existent pas avant le clic — rien à construire au
-    // chargement, la page reste un simple aplat beige sable jusqu'à ce que
-    // le CTA soit déclenché.
-    function spawnCube(cx: number, cy: number) {
+    // chargement, la page reste un simple aplat avec le cube doré tournant
+    // jusqu'à ce que le clic soit déclenché.
+    function spawnCube(cx: number, cy: number, originX: number, originY: number) {
       const color = palette[Math.floor(Math.random() * palette.length)];
       const geo = new RoundedBoxGeometry(visualSize, visualSize, visualSize, 4, visualSize * 0.06);
       const mat = new THREE.MeshStandardMaterial({ color, metalness: 1, roughness: 0.22, envMapIntensity: 1.3 });
@@ -109,8 +108,8 @@
       scene.add(mesh);
 
       // Corps dynamique dès la création : le cube naît déjà en train de
-      // tomber (vitesse + rotation données par collapse()), pas de temps de
-      // repos figé — c'est le clic qui le fait exister.
+      // tomber, propulsé depuis le point cliqué (vitesse radiale calculée
+      // ci-dessous) — pas de temps de repos figé.
       const half = visualSize / 2;
       const body = new CANNON.Body({
         mass: 1,
@@ -120,8 +119,22 @@
         angularDamping: 0.5,
       });
       body.position.set(cx, cy, (Math.random() - 0.5) * cubeSize * 0.4);
-      body.velocity.set((Math.random() - 0.5) * 220, -Math.random() * 120, (Math.random() - 0.5) * 160);
-      body.angularVelocity.set((Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5);
+
+      // Vitesse radiale : direction du point cliqué vers le cube, pour que
+      // l'explosion parte visuellement de là où l'utilisateur a cliqué
+      // plutôt que d'une chute uniforme.
+      const dx = cx - originX;
+      const dy = cy - originY;
+      const dist = Math.hypot(dx, dy) || 1;
+      const nx = dx / dist;
+      const ny = dy / dist;
+      const speed = 260 + Math.random() * 200;
+      body.velocity.set(
+        nx * speed + (Math.random() - 0.5) * 60,
+        ny * speed + (Math.random() - 0.5) * 60,
+        (Math.random() - 0.5) * 160
+      );
+      body.angularVelocity.set((Math.random() - 0.5) * 6, (Math.random() - 0.5) * 6, (Math.random() - 0.5) * 6);
       world.addBody(body);
 
       cubes.push({ mesh, body });
@@ -129,14 +142,14 @@
 
     // Grille pleine : les cubes couvrent tout l'écran, bord à bord, du sol
     // au plafond du viewport — pas une pyramide qui laisse des coins vides.
-    function buildGrid() {
+    function buildGrid(originX: number, originY: number) {
       const cols = Math.ceil(width / cubeSize);
       const rows = Math.ceil(height / cubeSize);
       const startX = -width / 2 + cubeSize / 2;
       const startY = -height / 2 + cubeSize / 2;
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
-          spawnCube(startX + c * cubeSize, startY + r * cubeSize);
+          spawnCube(startX + c * cubeSize, startY + r * cubeSize, originX, originY);
         }
       }
     }
@@ -170,29 +183,45 @@
     // et il n'y a rien à faire tourner en continu — juste la page beige.
 
     let collapsed = false;
-    function collapse() {
+    function collapse(clientX?: number, clientY?: number) {
       if (collapsed) return;
       collapsed = true;
       prevTime = performance.now();
       rafId = requestAnimationFrame(tick);
 
+      // Origine de l'explosion : le point cliqué (converti en coordonnées
+      // monde, 1 unité = 1px, origine au centre) — ou le centre de l'écran
+      // par défaut (clavier, timeout de sécurité).
+      const originX = typeof clientX === 'number' ? clientX - width / 2 : 0;
+      const originY = typeof clientY === 'number' ? height / 2 - clientY : 0;
+
       // Gravité douce (pas un lâcher brutal) : les cubes, qui n'existaient
-      // pas jusqu'ici, naissent au même instant déjà en train de tomber
-      // (vitesse + rotation aléatoires données dans spawnCube) — l'effet
-      // 3D n'apparaît donc qu'à partir de ce clic, jamais avant.
+      // pas jusqu'ici, naissent au même instant déjà en train de tomber,
+      // propulsés depuis le point cliqué — l'effet 3D n'apparaît donc qu'à
+      // partir de ce clic, jamais avant.
       world.gravity.set(0, -900, 0);
-      buildGrid();
+      buildGrid(originX, originY);
 
       overlay.classList.add('is-falling');
-      window.removeEventListener('keydown', collapse);
-      cta.removeEventListener('click', collapse);
+      overlay.removeEventListener('click', onOverlayClick);
+      window.removeEventListener('keydown', onKeydown);
       clearTimeout(safetyTimer);
       collapsedAt = performance.now();
     }
 
-    cta.addEventListener('click', collapse);
-    window.addEventListener('keydown', collapse);
-    const safetyTimer = setTimeout(collapse, 4500);
+    // Le clic n'importe où sur l'overlay déclenche l'explosion, pas
+    // seulement le cube doré — celui-ci reste le seul repère visuel, mais
+    // toute la surface est cliquable.
+    function onOverlayClick(e: MouseEvent) {
+      collapse(e.clientX, e.clientY);
+    }
+    function onKeydown() {
+      collapse();
+    }
+
+    overlay.addEventListener('click', onOverlayClick);
+    window.addEventListener('keydown', onKeydown);
+    const safetyTimer = setTimeout(() => collapse(), 4500);
 
     window.addEventListener('resize', () => {
       width = window.innerWidth;
@@ -235,50 +264,40 @@
     display: block;
   }
 
-  /* CTA sur mesure — dégradé or (pas le vert des boutons du site) pour
-     trancher nettement sur le fond vert de l'overlay, avec le cube
-     isométrique de la marque comme icône plutôt qu'un bouton texte nu.
-     Halo qui respire + cube qui tourne doucement en continu : signale que
-     ce n'est pas un CTA comme les autres, sans le dire par du texte. */
+  /* Seul repère visuel de l'écran d'intro : un unique cube doré qui tourne
+     sur lui-même, au centre — pas de bouton, pas de texte. Toute la
+     surface de l'overlay reste cliquable (voir le script), ce cube ne
+     fait qu'indiquer où regarder. */
   .intro-overlay__cta {
     position: absolute;
-    top: 48px;
+    top: 50%;
     left: 50%;
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 30px 14px 18px;
+    width: 96px;
+    height: 96px;
+    padding: 0;
     border: none;
-    border-radius: var(--radius-pill);
-    background: linear-gradient(135deg, #f0cf8f, #d9a854);
-    color: var(--color-accent);
-    font-family: var(--font-body);
-    font-weight: 600;
-    font-size: 0.9375rem;
+    background: none;
     cursor: pointer;
     z-index: 2;
-    box-shadow: 0 0 0 0 rgba(217, 168, 84, 0.5), 0 12px 30px -14px rgba(0, 0, 0, 0.5);
-    transform: translateX(-50%);
-    transition: opacity 0.3s ease, transform 0.35s var(--ease-spring), box-shadow 0.35s var(--ease-spring),
-      filter 0.2s ease;
-    animation: intro-cta-breathe 2.6s ease-in-out infinite;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.3s ease, transform 0.35s var(--ease-spring);
   }
 
   .intro-overlay__cta:hover {
-    transform: translateX(-50%) translateY(-2px) scale(1.04);
-    filter: brightness(1.05);
+    transform: translate(-50%, -50%) scale(1.08);
   }
 
   .intro-overlay__cta:active {
-    transform: translateX(-50%) scale(0.97);
+    transform: translate(-50%, -50%) scale(0.94);
     transition-duration: 0.1s;
   }
 
   .intro-overlay__cta-icon {
-    display: inline-flex;
-    width: 22px;
-    height: 22px;
+    display: block;
+    width: 100%;
+    height: 100%;
     animation: intro-cta-spin 4.5s linear infinite;
+    filter: drop-shadow(0 0 20px rgba(217, 168, 84, 0.6));
   }
 
   .intro-overlay__cta-icon svg {
@@ -287,25 +306,15 @@
   }
 
   .intro-overlay__cta-face {
-    fill: var(--color-accent);
+    fill: #d9a854;
   }
 
   .intro-overlay__cta-face--left {
-    opacity: 0.72;
+    opacity: 0.78;
   }
 
   .intro-overlay__cta-face--right {
-    opacity: 0.48;
-  }
-
-  @keyframes intro-cta-breathe {
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 rgba(217, 168, 84, 0.45), 0 12px 30px -14px rgba(0, 0, 0, 0.5);
-    }
-    50% {
-      box-shadow: 0 0 0 12px rgba(217, 168, 84, 0), 0 16px 34px -12px rgba(0, 0, 0, 0.55);
-    }
+    opacity: 0.52;
   }
 
   @keyframes intro-cta-spin {
@@ -323,7 +332,8 @@
 
   @media (max-width: 640px) {
     .intro-overlay__cta {
-      top: 32px;
+      width: 76px;
+      height: 76px;
     }
   }
 </style>

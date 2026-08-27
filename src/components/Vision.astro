@@ -1,10 +1,4 @@
 ---
-const stats = [
-  { emoji: '🕒', valeur: '10 ans', label: "d'expérience produit" },
-  { emoji: '🤖', valeur: 'IA-assisted', label: 'développement accéléré' },
-  { emoji: '🔓', valeur: 'Zéro', label: 'boîte noire' },
-];
-
 const etapes = [
   {
     emoji: '🔍',
@@ -60,9 +54,13 @@ const apports = [
       Ma vision
     </span>
 
-    <h2 class="vision__title">
-      Le design, ce n'est pas qu'une question <em>d'esthétique.</em>
-    </h2>
+    <div class="title-flanked">
+      <span class="title-flanked__line" aria-hidden="true" />
+      <h2 class="vision__title">
+        Le design, ce n'est pas qu'une question <em>d'esthétique.</em>
+      </h2>
+      <span class="title-flanked__line title-flanked__line--right" aria-hidden="true" />
+    </div>
 
     <div class="vision__grid">
       <p class="vision__paragraph">
@@ -135,20 +133,6 @@ const apports = [
         }
       </div>
     </div>
-
-    <div class="vision__stats">
-      {
-        stats.map((stat, index) => (
-          <div class="vision-stat reveal-item" style={`--i: ${index}`}>
-            <span class="vision-stat__icon">
-              <span class="emoji-live" aria-hidden="true">{stat.emoji}</span>
-            </span>
-            <span class="vision-stat__valeur">{stat.valeur}</span>
-            <span class="vision-stat__label">{stat.label}</span>
-          </div>
-        ))
-      }
-    </div>
   </div>
 </section>
 
@@ -176,12 +160,15 @@ const apports = [
   }
 
   .vision__title {
-    margin-top: 20px;
     font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.5rem);
     line-height: 1.2;
     font-weight: 600;
     color: var(--color-ink);
     max-width: 26ch;
+  }
+
+  .vision .title-flanked {
+    margin-top: 20px;
   }
 
   .vision__title em {
@@ -204,83 +191,6 @@ const apports = [
     font-family: var(--font-body);
     font-size: 1.0625rem;
     line-height: 1.6;
-    color: var(--color-text-secondary);
-  }
-
-  .vision__stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    margin-top: 64px;
-    padding-top: 40px;
-    border-top: 1px solid var(--color-line);
-  }
-
-  .vision-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 20px;
-    margin: -20px;
-    border-radius: var(--radius-card-sm);
-    transition: background-color 0.3s ease;
-  }
-
-  .vision-stat:hover {
-    background: var(--color-glass-strong);
-  }
-
-  .vision-stat:hover .emoji-live {
-    animation: emoji-wiggle 0.6s ease;
-  }
-
-  .vision-stat__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    margin-bottom: 4px;
-    border-radius: 50%;
-    background: var(--color-bg-alt);
-    border: 1px solid var(--color-line);
-    font-size: 1.1875rem;
-    transition: border-color 0.3s ease, background-color 0.3s ease;
-  }
-
-  .vision-stat:hover .vision-stat__icon {
-    background: var(--color-surface);
-    border-color: var(--color-accent-2);
-  }
-
-  .vision-stat__valeur {
-    font-family: var(--font-display);
-    font-size: clamp(1.5rem, 1.2rem + 1vw, 2.125rem);
-    font-weight: 600;
-    background: linear-gradient(
-      90deg,
-      var(--color-accent),
-      var(--color-accent-2),
-      var(--color-accent)
-    );
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: shimmer 4s linear infinite;
-  }
-
-  @keyframes shimmer {
-    to {
-      background-position: -200% center;
-    }
-  }
-
-  .vision-stat__label {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--color-text-secondary);
   }
 
@@ -434,12 +344,6 @@ const apports = [
     .vision__grid {
       grid-template-columns: 1fr;
       gap: 20px;
-    }
-
-    .vision__stats {
-      grid-template-columns: 1fr;
-      gap: 24px;
-      margin-top: 48px;
     }
 
     .vision__block {

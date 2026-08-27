@@ -212,6 +212,35 @@ summary:focus-visible,
   box-shadow: 0 26px 50px -20px rgba(36, 27, 58, 0.3);
 }
 
+/* Titre centré encadré de deux traits dorés — signature typographique
+   partagée par les grands titres de section (voir composants). */
+.title-flanked {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.title-flanked__line {
+  flex-shrink: 0;
+  width: 56px;
+  height: 1px;
+  background: linear-gradient(to left, #d9a854, transparent);
+}
+
+.title-flanked__line--right {
+  background: linear-gradient(to right, #d9a854, transparent);
+}
+
+@media (max-width: 640px) {
+  .title-flanked__line {
+    width: 28px;
+  }
+}
+
 /* Cartes "flip" — plusieurs sections partagent ce même mécanisme : face
    avant (titre, apparence actuelle de la carte), clic/tap pour retourner
    vers une face arrière verte (accent foncé du design system — même
@@ -439,8 +468,26 @@ summary:focus-visible,
 }
 
 /* Accordéon FAQ — construit sur <details>/<summary>, sans JS */
+/* Chaque question encadrée dans son propre bloc (fond légèrement
+   transparent, façon verre) plutôt qu'un simple trait de séparation — les
+   questions se lisent comme des unités distinctes, pas une longue liste. */
 .accordion-item {
-  border-bottom: 1px solid var(--color-line);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-card-sm);
+  background: var(--color-glass);
+  padding: 0 18px;
+  margin-bottom: 12px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.accordion-item:last-child {
+  margin-bottom: 0;
+}
+
+.accordion-item:hover,
+.accordion-item[open] {
+  background: var(--color-glass-strong);
+  border-color: var(--color-accent-2);
 }
 
 .accordion-item summary {

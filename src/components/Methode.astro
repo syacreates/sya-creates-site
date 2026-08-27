@@ -51,6 +51,39 @@ function buildSerpentine(points: { x: number; y: number }[], axis: 'x' | 'y') {
   return d;
 }
 
+// Le curseur doré marque un temps d'arrêt à chaque étape plutôt que de
+// glisser sans jamais s'arrêter : keyTimes/keyPoints construits pour tenir
+// chaque valeur (arrêt) puis glisser vers la suivante (déplacement), en
+// alternance. HOLD_MS/MOVE_MS pilotent aussi le cycle de mise en avant
+// automatique de chaque étape en JS (voir <script> plus bas) — une seule
+// source de vérité pour le minutage des deux animations.
+const HOLD_MS = 1800;
+const MOVE_MS = 700;
+
+function buildHoldTiming(n: number) {
+  const totalMs = n * HOLD_MS + (n - 1) * MOVE_MS;
+  const keyTimes: number[] = [];
+  const keyPoints: number[] = [];
+  let t = 0;
+  for (let i = 0; i < n; i++) {
+    const value = n === 1 ? 0 : i / (n - 1);
+    keyTimes.push(t / totalMs);
+    keyPoints.push(value);
+    t += HOLD_MS;
+    keyTimes.push(t / totalMs);
+    keyPoints.push(value);
+    if (i < n - 1) t += MOVE_MS;
+  }
+  keyTimes[keyTimes.length - 1] = 1;
+  return {
+    keyTimes: keyTimes.map((v) => v.toFixed(4)).join(';'),
+    keyPoints: keyPoints.map((v) => v.toFixed(4)).join(';'),
+    dur: `${(totalMs / 1000).toFixed(2)}s`,
+  };
+}
+
+const holdTiming = buildHoldTiming(etapes.length);
+
 // --- Desktop : tracé horizontal, amplitude verticale alternée ---
 const DW = 1180;
 const DH = 330;
@@ -87,9 +120,13 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
       Méthode
     </span>
 
-    <h2 class="method__title">
-      Une méthode claire, <em>pour savoir toujours où on en est.</em>
-    </h2>
+    <div class="title-flanked">
+      <span class="title-flanked__line" aria-hidden="true" />
+      <h2 class="method__title">
+        Une méthode claire, <em>pour savoir toujours où on en est.</em>
+      </h2>
+      <span class="title-flanked__line title-flanked__line--right" aria-hidden="true" />
+    </div>
 
     <p class="method__intro">
       Pas de boîte noire : chaque étape est cadrée, documentée et validée avant de passer à la
@@ -110,12 +147,17 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
           fill="none"
         />
         {
-          desktopPoints.map((p) => (
+          desktopPoints.map((p, i) => (
             <g
+              class="method-cube"
               transform={`translate(${p.x - CUBE_HALF} ${p.y - CUBE_HALF})`}
-              role="img"
-              aria-label={`Étape ${p.numero} : ${p.titre} — ${p.texte}`}
+              role="button"
+              tabindex="0"
+              aria-pressed="false"
+              aria-label={`Étape ${p.numero} : ${p.titre} — appuie pour voir le détail`}
+              data-step={i}
             >
+              <circle class="method-cube-glow" r={CUBE_HALF + 12} cx={CUBE_HALF} cy={CUBE_HALF} />
               <path class="method-cube-face method-cube-face--top" d="M22 4 L38 13 L22 22 L6 13 Z" />
               <path class="method-cube-face method-cube-face--left" d="M6 13 L22 22 L22 40 L6 31 Z" />
               <path class="method-cube-face method-cube-face--right" d="M38 13 L38 31 L22 40 L22 22 Z" />
@@ -123,7 +165,14 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
           ))
         }
         <circle class="method-path__cursor" r="8">
-          <animateMotion dur="5.5s" repeatCount="indefinite" rotate="0">
+          <animateMotion
+            dur={holdTiming.dur}
+            repeatCount="indefinite"
+            rotate="0"
+            keyTimes={holdTiming.keyTimes}
+            keyPoints={holdTiming.keyPoints}
+            calcMode="linear"
+          >
             <mpath href="#method-curve-desktop" />
           </animateMotion>
         </circle>
@@ -150,12 +199,17 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
           fill="none"
         />
         {
-          mobilePoints.map((p) => (
+          mobilePoints.map((p, i) => (
             <g
+              class="method-cube"
               transform={`translate(${p.x - CUBE_HALF} ${p.y - CUBE_HALF})`}
-              role="img"
-              aria-label={`Étape ${p.numero} : ${p.titre} — ${p.texte}`}
+              role="button"
+              tabindex="0"
+              aria-pressed="false"
+              aria-label={`Étape ${p.numero} : ${p.titre} — appuie pour voir le détail`}
+              data-step={i}
             >
+              <circle class="method-cube-glow" r={CUBE_HALF + 12} cx={CUBE_HALF} cy={CUBE_HALF} />
               <path class="method-cube-face method-cube-face--top" d="M22 4 L38 13 L22 22 L6 13 Z" />
               <path class="method-cube-face method-cube-face--left" d="M6 13 L22 22 L22 40 L6 31 Z" />
               <path class="method-cube-face method-cube-face--right" d="M38 13 L38 31 L22 40 L22 22 Z" />
@@ -163,7 +217,14 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
           ))
         }
         <circle class="method-path__cursor" r="8">
-          <animateMotion dur="5.5s" repeatCount="indefinite" rotate="0">
+          <animateMotion
+            dur={holdTiming.dur}
+            repeatCount="indefinite"
+            rotate="0"
+            keyTimes={holdTiming.keyTimes}
+            keyPoints={holdTiming.keyPoints}
+            calcMode="linear"
+          >
             <mpath href="#method-curve-mobile" />
           </animateMotion>
         </circle>
@@ -178,18 +239,141 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
         }
       </svg>
     </div>
+
+    <!-- Détail de l'étape en cours — mis en avant automatiquement au rythme
+         du curseur (arrêt à chaque étape), ou épinglé manuellement au clic
+         sur un cube. Une seule zone, partagée par les deux tracés
+         (desktop/mobile), plutôt qu'un texte casé dans le SVG. -->
+    <div class="method-detail" id="method-detail" aria-live="polite">
+      <span class="method-detail__accent" aria-hidden="true" />
+      <div class="method-detail__body">
+        <span class="method-detail__numero" id="method-detail-numero" />
+        <p class="method-detail__titre" id="method-detail-titre" />
+        <p class="method-detail__texte" id="method-detail-texte" />
+      </div>
+    </div>
   </div>
+
+  <script type="application/json" id="method-steps-data" set:html={JSON.stringify(etapes)} />
 </section>
 
 <script>
-  // Sous prefers-reduced-motion, le curseur doré reste figé sur la première
-  // étape (Cadrage) plutôt que de boucler indéfiniment — pauseAnimations()
-  // gèle le timeline SMIL à t=0, avant que l'animateMotion n'ait progressé.
+  type Etape = { numero: string; titre: string; texte: string };
+
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (prefersReduced) {
-    document.querySelectorAll('.method-path__svg').forEach((svg) => {
-      (svg as unknown as SVGSVGElement).pauseAnimations();
+  const svgs = Array.from(document.querySelectorAll('.method-path__svg')) as unknown as SVGSVGElement[];
+  const cubesBySvg = svgs.map((svg) => Array.from(svg.querySelectorAll('.method-cube')) as SVGGElement[]);
+  const dataEl = document.getElementById('method-steps-data');
+  const etapes: Etape[] = dataEl ? JSON.parse(dataEl.textContent || '[]') : [];
+
+  const detail = document.getElementById('method-detail');
+  const detailNumero = document.getElementById('method-detail-numero');
+  const detailTitre = document.getElementById('method-detail-titre');
+  const detailTexte = document.getElementById('method-detail-texte');
+
+  // Durées partagées avec le minutage SMIL (voir buildHoldTiming côté
+  // serveur) : le curseur tient chaque étape HOLD_MS, glisse pendant
+  // MOVE_MS — la mise en avant automatique suit exactement ce même rythme.
+  const HOLD_MS = 1800;
+  const MOVE_MS = 700;
+
+  let activeIndex = 0;
+  let pinned = false;
+  let tourTimer: ReturnType<typeof setTimeout> | undefined;
+
+  function renderStep(index: number, animate: boolean) {
+    const etape = etapes[index];
+    if (!etape || !detail) return;
+
+    cubesBySvg.forEach((cubes) => {
+      cubes.forEach((cube, i) => {
+        const isActive = i === index;
+        cube.classList.toggle('is-active', isActive);
+        cube.setAttribute('aria-pressed', String(isActive));
+      });
     });
+
+    if (animate && !prefersReduced) {
+      detail.classList.add('is-swapping');
+      window.setTimeout(() => {
+        if (detailNumero) detailNumero.textContent = `Étape ${etape.numero}`;
+        if (detailTitre) detailTitre.textContent = etape.titre;
+        if (detailTexte) detailTexte.textContent = etape.texte;
+        detail.classList.remove('is-swapping');
+      }, 180);
+    } else {
+      if (detailNumero) detailNumero.textContent = `Étape ${etape.numero}`;
+      if (detailTitre) detailTitre.textContent = etape.titre;
+      if (detailTexte) detailTexte.textContent = etape.texte;
+    }
+  }
+
+  function tourStep(index: number) {
+    activeIndex = index;
+    renderStep(index, true);
+    tourTimer = window.setTimeout(() => tourStep((index + 1) % etapes.length), HOLD_MS + MOVE_MS);
+  }
+
+  function startTour() {
+    clearTimeout(tourTimer);
+    tourStep(activeIndex);
+  }
+
+  function stopTour() {
+    clearTimeout(tourTimer);
+  }
+
+  // Fait "sauter" le curseur SMIL des deux tracés jusqu'au milieu du
+  // palier de l'étape choisie, puis fige l'animation à cet instant — le
+  // curseur se retrouve visuellement pile sur le cube cliqué.
+  function seekCursorTo(index: number) {
+    const holdStart = index * (HOLD_MS + MOVE_MS);
+    const seconds = (holdStart + HOLD_MS / 2) / 1000;
+    svgs.forEach((svg) => {
+      svg.setCurrentTime(seconds);
+      svg.pauseAnimations();
+    });
+  }
+
+  function selectStep(index: number) {
+    if (pinned && activeIndex === index) {
+      // Reclic sur l'étape déjà épinglée : referme et reprend la tournée
+      // automatique depuis le début.
+      pinned = false;
+      if (!prefersReduced) {
+        svgs.forEach((svg) => svg.unpauseAnimations());
+        startTour();
+      }
+      return;
+    }
+    pinned = true;
+    stopTour();
+    activeIndex = index;
+    renderStep(index, true);
+    if (!prefersReduced) seekCursorTo(index);
+  }
+
+  cubesBySvg.forEach((cubes) => {
+    cubes.forEach((cube) => {
+      const index = Number(cube.dataset.step);
+      cube.addEventListener('click', () => selectStep(index));
+      cube.addEventListener('keydown', (event) => {
+        const e = event as KeyboardEvent;
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        selectStep(index);
+      });
+    });
+  });
+
+  if (prefersReduced) {
+    // Pas de tournée automatique ni de curseur en mouvement : la première
+    // étape est affichée directement, le clic reste pleinement fonctionnel
+    // mais sans transition animée.
+    svgs.forEach((svg) => svg.pauseAnimations());
+    renderStep(0, false);
+  } else {
+    startTour();
   }
 </script>
 
@@ -205,12 +389,15 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
   }
 
   .method__title {
-    margin-top: 20px;
     font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.5rem);
     line-height: 1.2;
     font-weight: 600;
     color: var(--color-ink);
     max-width: 36ch;
+  }
+
+  .method .title-flanked {
+    margin-top: 20px;
   }
 
   .method__title em {
@@ -285,9 +472,128 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
     text-align: center;
   }
 
+  /* Cubes cliquables : agrandissement au survol/focus, halo doré pulsant
+     sur l'étape mise en avant (tournée automatique ou clic). transform-box
+     recentre le scale sur le cube lui-même plutôt que sur l'origine du
+     SVG. */
+  .method-cube {
+    cursor: pointer;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.3s var(--ease-spring);
+  }
+
+  .method-cube:hover {
+    transform: scale(1.08);
+  }
+
+  .method-cube:focus-visible {
+    outline: 2px solid var(--color-accent-2);
+    outline-offset: 6px;
+    border-radius: 4px;
+  }
+
+  .method-cube.is-active {
+    transform: scale(1.12);
+  }
+
+  .method-cube-glow {
+    fill: #d9a854;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: opacity 0.3s ease;
+  }
+
+  .method-cube.is-active .method-cube-glow {
+    animation: method-glow-pulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes method-glow-pulse {
+    0%,
+    100% {
+      opacity: 0.2;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.4;
+      transform: scale(1.18);
+    }
+  }
+
+  /* Panneau de détail — mis à jour au rythme du curseur (tournée auto) ou
+     épinglé par clic. Barre d'accent dégradée or → vert, contenu qui
+     s'efface/réapparaît brièvement à chaque changement d'étape plutôt
+     qu'un remplacement brut du texte. */
+  .method-detail {
+    display: flex;
+    gap: 20px;
+    max-width: 620px;
+    margin: 40px auto 0;
+    padding: 26px 32px;
+    background: var(--color-glass-strong);
+    border: 1px solid var(--color-glass-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  .method-detail__accent {
+    flex-shrink: 0;
+    width: 3px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #d9a854, var(--color-accent-2));
+  }
+
+  .method-detail__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+
+  .method-detail.is-swapping .method-detail__body {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  .method-detail__numero {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #ab7d33;
+  }
+
+  .method-detail__titre {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: var(--color-ink);
+    margin: 0;
+  }
+
+  .method-detail__texte {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .method-path__cursor {
       filter: none;
+    }
+
+    .method-cube,
+    .method-cube-glow,
+    .method-detail__body {
+      transition: none;
+    }
+
+    .method-cube.is-active .method-cube-glow {
+      animation: none;
+      opacity: 0.3;
     }
   }
 
@@ -309,6 +615,11 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
 
     .method-path__svg--mobile {
       display: block;
+    }
+
+    .method-detail {
+      max-width: 320px;
+      padding: 22px 24px;
     }
   }
 </style>

@@ -2,21 +2,18 @@
 const piliers = [
   {
     numero: '01',
-    emoji: '🎯',
     titre: 'Expertise UX/UI',
     texte:
       "Dix ans de pratique produit : interviews, tri de cartes, wireframes, tests d'utilisabilité — de la recherche utilisateur au design d'interface, dont plusieurs années sur des sujets de transformation RH et d'innovation au sein de grandes organisations.",
   },
   {
     numero: '02',
-    emoji: '⚡',
     titre: 'AI-assisted development',
     texte:
       "Le code va aussi vite que le design. Les outils d'IA accélèrent le prototypage et l'intégration, pour livrer des interfaces fonctionnelles en jours, pas en mois.",
   },
   {
     numero: '03',
-    emoji: '🚀',
     titre: "Rapidité d'exécution",
     texte:
       "Moins d'allers-retours, moins d'incertitude : une méthode resserrée qui va du cadrage à la mise en ligne sans perdre en qualité ni en clarté.",
@@ -31,9 +28,13 @@ const piliers = [
       Positionnement
     </span>
 
-    <h2 class="positioning__title">
-      Le design comme métier, <em>l'IA comme accélérateur.</em>
-    </h2>
+    <div class="title-flanked">
+      <span class="title-flanked__line" aria-hidden="true" />
+      <h2 class="positioning__title">
+        Le design comme métier, <em>l'IA comme accélérateur.</em>
+      </h2>
+      <span class="title-flanked__line title-flanked__line--right" aria-hidden="true" />
+    </div>
 
     <p class="positioning__intro">
       Dix ans à concevoir des produits utiles pour des organisations exigeantes m'ont appris
@@ -57,7 +58,6 @@ const piliers = [
               <div class="flip-card__front">
                 <div class="pillar__header">
                   <span class="pillar__numero">{pilier.numero}</span>
-                  <span class="pillar__emoji emoji-live" aria-hidden="true">{pilier.emoji}</span>
                 </div>
                 <h3 class="pillar__titre">{pilier.titre}</h3>
               </div>
@@ -84,12 +84,15 @@ const piliers = [
   }
 
   .positioning__title {
-    margin-top: 20px;
     font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.5rem);
     line-height: 1.2;
     font-weight: 600;
     color: var(--color-ink);
     max-width: 28ch;
+  }
+
+  .positioning .title-flanked {
+    margin-top: 20px;
   }
 
   .positioning__title em {
@@ -155,10 +158,6 @@ const piliers = [
     color: #ffffff;
     font-family: var(--font-mono);
     font-size: 13px;
-  }
-
-  .pillar__emoji {
-    font-size: 1.5rem;
   }
 
   .pillar__titre {

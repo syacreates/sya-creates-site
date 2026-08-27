@@ -34,9 +34,13 @@ const problemes = [
       Problématiques
     </span>
 
-    <h2 class="problems__title">
-      Les problèmes UX/UI que tu rencontres <em>forcément.</em>
-    </h2>
+    <div class="title-flanked">
+      <span class="title-flanked__line" aria-hidden="true" />
+      <h2 class="problems__title">
+        Les problèmes UX/UI que tu rencontres <em>forcément.</em>
+      </h2>
+      <span class="title-flanked__line title-flanked__line--right" aria-hidden="true" />
+    </div>
 
     <p class="problems__intro">
       Un produit peut être fonctionnel, bien codé, presque complet — et pourtant perdre des
@@ -60,7 +64,11 @@ const problemes = [
                 <span class="problem-card__icon">
                   <span class="emoji-live" aria-hidden="true">{probleme.emoji}</span>
                 </span>
-                <h3 class="problem-card__titre">{probleme.titre}</h3>
+                <div class="problem-card__titre-wrap">
+                  <span class="problem-card__line" aria-hidden="true" />
+                  <h3 class="problem-card__titre">{probleme.titre}</h3>
+                  <span class="problem-card__line problem-card__line--right" aria-hidden="true" />
+                </div>
               </div>
               <div class="flip-card__back">
                 <p>{probleme.texte}</p>
@@ -85,12 +93,15 @@ const problemes = [
   }
 
   .problems__title {
-    margin-top: 20px;
     font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.5rem);
     line-height: 1.2;
     font-weight: 600;
     color: var(--color-ink);
     max-width: 30ch;
+  }
+
+  .problems .title-flanked {
+    margin-top: 20px;
   }
 
   .problems__title em {
@@ -119,35 +130,35 @@ const problemes = [
   }
 
   .problem-card {
-    min-height: 220px;
+    min-height: 156px;
   }
 
   .problem-card .flip-card__front {
-    padding: 32px;
+    padding: 22px;
     align-items: center;
     justify-content: center;
     text-align: center;
   }
 
   .problem-card .flip-card__back {
-    padding: 32px;
+    padding: 24px;
   }
 
   .problem-card .flip-card__back p {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
   }
 
   .problem-card__icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 42px;
-    height: 42px;
-    margin-bottom: 18px;
+    width: 34px;
+    height: 34px;
+    margin-bottom: 12px;
     border-radius: 50%;
     background: var(--color-bg-alt);
     border: 1px solid var(--color-line);
-    font-size: 1.1875rem;
+    font-size: 1rem;
     transition: border-color 0.3s ease, background-color 0.3s ease;
   }
 
@@ -156,11 +167,30 @@ const problemes = [
     border-color: var(--color-accent-2);
   }
 
+  /* Titre encadré de deux traits dorés qui s'estompent vers l'extérieur —
+     signature typographique plutôt qu'un simple texte centré. */
+  .problem-card__titre-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .problem-card__line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to left, #d9a854, transparent);
+  }
+
+  .problem-card__line--right {
+    background: linear-gradient(to right, #d9a854, transparent);
+  }
+
   .problem-card__titre {
-    font-size: 1.1875rem;
+    font-size: 1.0625rem;
     font-weight: 600;
     color: var(--color-ink);
-    margin-bottom: 12px;
+    margin: 0;
   }
 
   @media (max-width: 860px) {
