@@ -244,7 +244,7 @@ const tags = [
     let spawnCount = 0;
 
     function spawnCube(spec: { size: number; color: number }, targetX: number) {
-      const geo = new RoundedBoxGeometry(spec.size, spec.size, spec.size, 4, spec.size * 0.14);
+      const geo = new RoundedBoxGeometry(spec.size, spec.size, spec.size, 4, spec.size * 0.06);
       const mat = new THREE.MeshStandardMaterial({
         color: spec.color,
         metalness: 1,
@@ -254,6 +254,16 @@ const tags = [
         opacity: 0,
       });
       const mesh = new THREE.Mesh(geo, mat);
+      // Arêtes dessinées explicitement : un cube en rotation libre (tumbling
+      // sur les 3 axes) traverse des angles où le chrome lisse ne montre
+      // aucune arête visible entre deux faces — la silhouette se lit alors
+      // comme un losange/rectangle plutôt qu'un cube. Ce trait fin garde les
+      // 12 arêtes visibles en permanence, quelle que soit la rotation.
+      const edges = new THREE.LineSegments(
+        new THREE.EdgesGeometry(geo, 25),
+        new THREE.LineBasicMaterial({ color: 0x1f3d2e, transparent: true, opacity: 0 })
+      );
+      mesh.add(edges);
       scene.add(mesh);
 
       const half = spec.size / 2;
@@ -470,6 +480,9 @@ const tags = [
           scene.remove(c.mesh);
           c.mesh.geometry.dispose();
           (c.mesh.material as THREE.Material).dispose();
+          const edgesToDispose = c.mesh.children[0] as THREE.LineSegments | undefined;
+          edgesToDispose?.geometry.dispose();
+          (edgesToDispose?.material as THREE.Material | undefined)?.dispose();
           cubes.splice(i, 1);
           continue;
         }
@@ -480,7 +493,10 @@ const tags = [
         // Fondu d'apparition — le cube arrive progressivement plutôt que de
         // recouvrir brutalement un label (chip, texte) qu'il traverse.
         c.age += dt;
-        (c.mesh.material as THREE.MeshStandardMaterial).opacity = Math.min(c.age / 0.4, 1);
+        const fadeIn = Math.min(c.age / 0.4, 1);
+        (c.mesh.material as THREE.MeshStandardMaterial).opacity = fadeIn;
+        const edges = c.mesh.children[0] as THREE.LineSegments | undefined;
+        if (edges) (edges.material as THREE.LineBasicMaterial).opacity = fadeIn * 0.85;
       }
       renderer.render(scene, camera);
     }

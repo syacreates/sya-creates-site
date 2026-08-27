@@ -26,6 +26,58 @@ const etapes = [
     texte: "Un accompagnement disponible après la livraison, avec des itérations basées sur les retours et l'usage réel du produit.",
   },
 ];
+
+// Chemin serpentin — le tracé et les cubes partagent les mêmes points, calculés
+// une seule fois ici, pour que le curseur (SMIL <animateMotion>) et les faces des
+// cubes coïncident exactement avec le tracé, sans jamais dupliquer des coordonnées
+// à la main entre le SVG et le CSS.
+const CUBE_HALF = 22; // demi-taille de la face isométrique (viewBox du cube : 0–44)
+const LABEL_W = 152;
+const LABEL_GAP = 14;
+
+function buildSerpentine(points: { x: number; y: number }[], axis: 'x' | 'y') {
+  let d = `M${points[0].x},${points[0].y}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i];
+    const b = points[i + 1];
+    if (axis === 'x') {
+      const half = (b.x - a.x) / 2;
+      d += ` C${a.x + half},${a.y} ${b.x - half},${b.y} ${b.x},${b.y}`;
+    } else {
+      const half = (b.y - a.y) / 2;
+      d += ` C${a.x},${a.y + half} ${b.x},${b.y - half} ${b.x},${b.y}`;
+    }
+  }
+  return d;
+}
+
+// --- Desktop : tracé horizontal, amplitude verticale alternée ---
+const DW = 1180;
+const DH = 330;
+const D_MARGIN_X = 100;
+const D_Y_HIGH = 85;
+const D_Y_LOW = 205;
+const dStepX = (DW - D_MARGIN_X * 2) / (etapes.length - 1);
+const desktopPoints = etapes.map((etape, i) => ({
+  ...etape,
+  x: D_MARGIN_X + i * dStepX,
+  y: i % 2 === 0 ? D_Y_LOW : D_Y_HIGH,
+}));
+const desktopPath = buildSerpentine(desktopPoints, 'x');
+
+// --- Mobile : tracé vertical, amplitude horizontale alternée ---
+const MW = 320;
+const M_MARGIN_TOP = 90;
+const M_STEP_Y = 260;
+const M_X_LEFT = 110;
+const M_X_RIGHT = 230;
+const MH = M_MARGIN_TOP + (etapes.length - 1) * M_STEP_Y + 120;
+const mobilePoints = etapes.map((etape, i) => ({
+  ...etape,
+  x: i % 2 === 0 ? M_X_LEFT : M_X_RIGHT,
+  y: M_MARGIN_TOP + i * M_STEP_Y,
+}));
+const mobilePath = buildSerpentine(mobilePoints, 'y');
 ---
 
 <section class="method" id="methode">
@@ -45,23 +97,101 @@ const etapes = [
       processus.
     </p>
 
-    <div class="method__steps">
-      {
-        etapes.map((etape, index) => (
-          <div
-            class={`method-step glass-card reveal-item ${index === etapes.length - 1 ? 'method-step--active' : ''}`}
-            style={`--i: ${index}`}
-          >
-            <span class="method-step__dot" />
-            <span class="method-step__numero">{etape.numero}</span>
-            <h3 class="method-step__titre">{etape.titre}</h3>
-            <p class="method-step__texte">{etape.texte}</p>
-          </div>
-        ))
-      }
+    <div class="method-path">
+      <svg
+        class="method-path__svg method-path__svg--desktop"
+        viewBox={`0 0 ${DW} ${DH}`}
+        preserveAspectRatio="xMidYMid meet"
+      >
+        <path
+          id="method-curve-desktop"
+          class="method-path__track"
+          d={desktopPath}
+          fill="none"
+        />
+        {
+          desktopPoints.map((p) => (
+            <g
+              transform={`translate(${p.x - CUBE_HALF} ${p.y - CUBE_HALF})`}
+              role="img"
+              aria-label={`Étape ${p.numero} : ${p.titre} — ${p.texte}`}
+            >
+              <path class="method-cube-face method-cube-face--top" d="M22 4 L38 13 L22 22 L6 13 Z" />
+              <path class="method-cube-face method-cube-face--left" d="M6 13 L22 22 L22 40 L6 31 Z" />
+              <path class="method-cube-face method-cube-face--right" d="M38 13 L38 31 L22 40 L22 22 Z" />
+            </g>
+          ))
+        }
+        <circle class="method-path__cursor" r="8">
+          <animateMotion dur="5.5s" repeatCount="indefinite" rotate="0">
+            <mpath href="#method-curve-desktop" />
+          </animateMotion>
+        </circle>
+        {
+          desktopPoints.map((p) => (
+            <foreignObject x={p.x - LABEL_W / 2} y={p.y + CUBE_HALF + LABEL_GAP} width={LABEL_W} height="60">
+              <div xmlns="http://www.w3.org/1999/xhtml" class="method-path__label">
+                {p.titre}
+              </div>
+            </foreignObject>
+          ))
+        }
+      </svg>
+
+      <svg
+        class="method-path__svg method-path__svg--mobile"
+        viewBox={`0 0 ${MW} ${MH}`}
+        preserveAspectRatio="xMidYMid meet"
+      >
+        <path
+          id="method-curve-mobile"
+          class="method-path__track"
+          d={mobilePath}
+          fill="none"
+        />
+        {
+          mobilePoints.map((p) => (
+            <g
+              transform={`translate(${p.x - CUBE_HALF} ${p.y - CUBE_HALF})`}
+              role="img"
+              aria-label={`Étape ${p.numero} : ${p.titre} — ${p.texte}`}
+            >
+              <path class="method-cube-face method-cube-face--top" d="M22 4 L38 13 L22 22 L6 13 Z" />
+              <path class="method-cube-face method-cube-face--left" d="M6 13 L22 22 L22 40 L6 31 Z" />
+              <path class="method-cube-face method-cube-face--right" d="M38 13 L38 31 L22 40 L22 22 Z" />
+            </g>
+          ))
+        }
+        <circle class="method-path__cursor" r="8">
+          <animateMotion dur="5.5s" repeatCount="indefinite" rotate="0">
+            <mpath href="#method-curve-mobile" />
+          </animateMotion>
+        </circle>
+        {
+          mobilePoints.map((p) => (
+            <foreignObject x={p.x - LABEL_W / 2} y={p.y + CUBE_HALF + LABEL_GAP} width={LABEL_W} height="60">
+              <div xmlns="http://www.w3.org/1999/xhtml" class="method-path__label">
+                {p.titre}
+              </div>
+            </foreignObject>
+          ))
+        }
+      </svg>
     </div>
   </div>
 </section>
+
+<script>
+  // Sous prefers-reduced-motion, le curseur doré reste figé sur la première
+  // étape (Cadrage) plutôt que de boucler indéfiniment — pauseAnimations()
+  // gèle le timeline SMIL à t=0, avant que l'animateMotion n'ait progressé.
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) {
+    document.querySelectorAll('.method-path__svg').forEach((svg) => {
+      (svg as unknown as SVGSVGElement).pauseAnimations();
+    });
+  }
+</script>
 
 <style>
   .method {
@@ -101,66 +231,64 @@ const etapes = [
     margin-top: 24px;
   }
 
-  .method__steps {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 16px;
-    margin-top: 64px;
+  /* Chemin serpentin — le tracé et les titres restent sobres (gris/beige),
+     le vert des cubes et le doré du curseur sont les deux seules touches
+     d'accent de ce visuel. */
+  .method-path {
+    margin-top: 56px;
   }
 
-  .method-step {
-    position: relative;
-    padding: 24px 18px;
-    text-align: left;
-  }
-
-  .method-step__dot {
+  .method-path__svg {
     display: block;
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    background: var(--color-surface);
-    border: 1.5px solid var(--color-ink);
-    margin-bottom: 16px;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    width: 100%;
+    height: auto;
+    overflow: visible;
   }
 
-  .method-step--active .method-step__dot {
-    background: var(--gradient-accent);
-    border-color: transparent;
+  .method-path__svg--mobile {
+    display: none;
   }
 
-  .reveal.is-visible .method-step--active .method-step__dot {
-    animation: dot-pop 0.5s ease 0.3s both;
+  .method-path__track {
+    stroke: var(--color-line);
+    stroke-width: 2;
+    stroke-linecap: round;
   }
 
-  @media (hover: hover) and (pointer: fine) {
-    .method-step:hover .method-step__dot {
-      background: var(--gradient-accent);
-      border-color: transparent;
-    }
+  .method-cube-face {
+    fill: var(--color-accent);
   }
 
-  .method-step__numero {
-    display: block;
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--color-accent);
-    margin-bottom: 12px;
+  .method-cube-face--left {
+    opacity: 0.8;
   }
 
-  .method-step__titre {
-    font-size: 1.0625rem;
-    font-weight: 600;
-    color: var(--color-ink);
-    margin-bottom: 10px;
+  .method-cube-face--right {
+    opacity: 0.55;
   }
 
-  .method-step__texte {
+  .method-path__cursor {
+    fill: #d9a854;
+    filter: drop-shadow(0 0 6px rgba(217, 168, 84, 0.65));
+  }
+
+  .method-path__label {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    height: 100%;
     font-family: var(--font-body);
-    font-size: 0.875rem;
-    line-height: 1.6;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.35;
     color: var(--color-text-secondary);
+    text-align: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .method-path__cursor {
+      filter: none;
+    }
   }
 
   @media (max-width: 860px) {
@@ -168,10 +296,19 @@ const etapes = [
       padding: 64px 20px;
     }
 
-    .method__steps {
-      grid-template-columns: 1fr;
-      gap: 14px;
+    .method-path {
       margin-top: 40px;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .method-path__svg--desktop {
+      display: none;
+    }
+
+    .method-path__svg--mobile {
+      display: block;
     }
   }
 </style>
