@@ -21,7 +21,11 @@ const ogImageURL = new URL(ogImage, Astro.site);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f3d2e" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="canonical" href={canonicalURL} />
 
     <!-- Preconnect + <link> plutôt qu'un @import CSS (bloquant le rendu,
@@ -47,6 +51,26 @@ const ogImageURL = new URL(ogImage, Astro.site);
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageURL} />
+
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'ProfessionalService',
+        name: 'Sya Creates',
+        url: 'https://sya-creates.vercel.app',
+        image: ogImageURL.toString(),
+        description,
+        email: 'sya.creates@gmail.com',
+        founder: {
+          '@type': 'Person',
+          name: 'Aïda',
+          jobTitle: 'Designer UX/UI indépendante',
+        },
+        areaServed: 'FR',
+        knowsAbout: ['UX Design', 'UI Design', 'Développement assisté par IA'],
+      })}
+    />
   </head>
   <body>
     <slot />

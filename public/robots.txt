@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sya-creates.vercel.app/sitemap-index.xml

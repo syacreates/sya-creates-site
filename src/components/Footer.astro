@@ -103,7 +103,9 @@ const anneeCourante = new Date().getFullYear();
   .site-footer__bottom p {
     font-family: var(--font-mono);
     font-size: 12px;
-    color: rgba(239, 237, 230, 0.5);
+    /* 0.5 donnait un contraste de 4.49:1 (juste sous le seuil AA de 4.5:1
+       mesuré par axe-core) — 0.6 passe confortablement. */
+    color: rgba(239, 237, 230, 0.6);
   }
 
   .site-footer__bottom a {
