@@ -463,7 +463,10 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
   }
 
   .method-cube-face {
-    fill: var(--color-accent);
+    /* Vert franc (accent-2) plutôt que le vert quasi noir de --color-accent
+       — se lit clairement comme "vert", pas comme du noir/marron une fois
+       les faces assombries par l'opacité ci-dessous. */
+    fill: var(--color-accent-2);
   }
 
   .method-cube-face--left {
