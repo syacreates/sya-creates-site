@@ -69,11 +69,8 @@ const tags = [
       projets de A à Z, et je livre vite.
     </p>
 
-    <!-- Cartes "pièce de puzzle" : silhouette avec tab arrondi sur le bord
-         droit (clip-path, identique avant/arrière), retournement au clic
-         via le système .flip-card partagé du site (voir Layout.astro) —
-         pas de panneau séparé, pas de dispersion, la carte reste à sa
-         place et se retourne sur elle-même. -->
+    <!-- Cartes simples, retournement au clic via le système .flip-card
+         partagé du site (voir Layout.astro). -->
     <div class="hero__pitch">
       {
         pitch.map((item, index) => (
@@ -540,35 +537,6 @@ const tags = [
   }
 </script>
 
-<script>
-  // Pièces de puzzle du hero — s'emboîtent (chevauchement négatif) quand
-  // deux voisines ont le même état (retournées ou non, donc tab/encoche en
-  // vis-à-vis), se désolidarisent sinon. Indépendant du toggle .is-flipped
-  // lui-même (géré globalement, voir Layout.astro) : on se contente de
-  // relire l'état juste après, sur la frame suivante pour être sûr que le
-  // clic global a déjà fait son travail.
-  const heroCards = Array.from(document.querySelectorAll('.hero__pitch-card'));
-
-  function updatePuzzleJoins() {
-    heroCards.forEach((card, i) => {
-      if (i === 0) return;
-      const prev = heroCards[i - 1];
-      const sameState = prev.classList.contains('is-flipped') === card.classList.contains('is-flipped');
-      card.classList.toggle('hero__pitch-card--joined', sameState);
-    });
-  }
-
-  heroCards.forEach((card) => {
-    card.addEventListener('click', () => requestAnimationFrame(updatePuzzleJoins));
-    card.addEventListener('keydown', (event) => {
-      const e = event as KeyboardEvent;
-      if (e.key === 'Enter' || e.key === ' ') requestAnimationFrame(updatePuzzleJoins);
-    });
-  });
-
-  updatePuzzleJoins();
-</script>
-
 <style>
   .hero {
     position: relative;
@@ -701,69 +669,29 @@ const tags = [
   }
 
   /* Rangée "ce que je fais concrètement" — répond dès le premier regard à
-     quoi/comment/quoi-concrètement, avant même le CTA. Cartes en forme de
-     pièce de puzzle (tab arrondi sur le bord droit, clip-path partagé par
-     les deux faces) qui se retournent sur elles-mêmes au clic — système
-     .flip-card partagé du site (voir Layout.astro pour le comportement
-     clic/clavier, et global.css pour le fallback prefers-reduced-motion). */
+     quoi/comment/quoi-concrètement, avant même le CTA. Cartes qui se
+     retournent sur elles-mêmes au clic — système .flip-card partagé du
+     site (voir Layout.astro pour le comportement clic/clavier, et
+     global.css pour le fallback prefers-reduced-motion). */
   .hero__pitch {
     display: flex;
     align-items: center;
     margin-top: 16px;
     justify-content: center;
     flex-wrap: wrap;
+    gap: 14px;
   }
 
   .hero__pitch-card {
-    /* 206 = 174 (corps) + 16 (tab, bord droit) + 16 (encoche, bord gauche) :
-       clip-path ne peut révéler que des pixels déjà rendus par la boîte
-       elle-même — elle doit donc être assez large pour contenir le
-       renflement ET le creux, sans quoi ils resteraient transparents. */
-    width: 206px;
+    width: 190px;
     height: 112px;
     position: relative;
     z-index: 1;
-    /* Séparées par défaut ; ne se chevauchent (tab dans l'encoche du
-       voisin) que quand .hero__pitch-card--joined est présent — posé
-       dynamiquement en JS seulement quand les deux pièces voisines ont
-       le même état (retournée ou non), donc des formes qui coïncident
-       vraiment. Sinon (l'une retournée, pas l'autre), le tab et l'encoche
-       ne se font plus face : les pièces se désolidarisent. */
-    margin-left: 14px;
-    transition: margin-left 0.4s var(--ease-spring), filter 0.3s ease, clip-path 0.5s ease-in-out;
-    /* Rectangle à coins arrondis, renflement circulaire à droite (tab) et
-       creux circulaire à gauche (encoche) — une vraie pièce de puzzle,
-       pas juste une encoche à angles droits. Sur le conteneur externe
-       (pas rotatif) : les deux faces héritent de la même silhouette. */
-    clip-path: path(
-      'M30,0 L176,0 A14,14 0 0 1 190,14 L190,40 A16,16 0 0 1 190,72 L190,98 A14,14 0 0 1 176,112 L30,112 A14,14 0 0 1 16,98 L16,72 A16,16 0 0 0 16,40 L16,14 A14,14 0 0 1 30,0 Z'
-    );
+    border-radius: 16px;
     filter: drop-shadow(0 12px 26px rgba(22, 36, 28, 0.28));
-    transition: filter 0.3s ease, clip-path 0.5s ease-in-out;
+    transition: filter 0.3s ease;
   }
 
-  .hero__pitch-card:first-child {
-    margin-left: 0;
-  }
-
-  .hero__pitch-card--joined {
-    margin-left: -16px;
-  }
-
-  /* Au clic, la pièce se retourne (voir .flip-card__inner) ET son tab
-     bascule de l'autre côté — comme une vraie pièce qu'on retourne à la
-     main, où le renflement change de bord. La transition clip-path (même
-     nombre de points des deux côtés) se joue en même temps que la
-     rotation 3D. */
-  .hero__pitch-card.is-flipped {
-    clip-path: path(
-      'M176,0 L30,0 A14,14 0 0 0 16,14 L16,40 A16,16 0 0 0 16,72 L16,98 A14,14 0 0 0 30,112 L176,112 A14,14 0 0 0 190,98 L190,72 A16,16 0 0 1 190,40 L190,14 A14,14 0 0 0 176,0 Z'
-    );
-  }
-
-  /* Chaque pièce reprend une couleur différente de la palette du site
-     (les deux verts déjà utilisés + l'or des cubes) — pas de nouvelle
-     teinte introduite. */
   .hero__pitch-card--0 .flip-card__front,
   .hero__pitch-card--0 .flip-card__back {
     background: var(--color-accent);
@@ -801,10 +729,7 @@ const tags = [
   .hero__pitch-card .flip-card__back {
     align-items: center;
     justify-content: center;
-    /* Padding gauche/droite plus large : compense le tab et l'encoche
-       pour que le texte reste centré sur le corps de la pièce, pas sur
-       la largeur totale (tab + encoche compris). */
-    padding: 18px 38px 18px 36px;
+    padding: 18px 24px;
   }
 
   .hero__pitch-card__titre {

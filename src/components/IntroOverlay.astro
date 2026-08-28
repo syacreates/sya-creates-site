@@ -11,11 +11,7 @@
   <canvas id="intro-overlay-canvas" class="intro-overlay__canvas"></canvas>
   <button type="button" id="intro-overlay-cta" class="intro-overlay__cta" aria-label="Découvrir le site">
     <span class="intro-overlay__cta-icon" aria-hidden="true">
-      <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
-        <path class="intro-overlay__cta-face intro-overlay__cta-face--top" d="M22 4 L38 13 L22 22 L6 13 Z" />
-        <path class="intro-overlay__cta-face intro-overlay__cta-face--left" d="M6 13 L22 22 L22 40 L6 31 Z" />
-        <path class="intro-overlay__cta-face intro-overlay__cta-face--right" d="M38 13 L38 31 L22 40 L22 22 Z" />
-      </svg>
+      <canvas id="intro-overlay-cta-canvas" class="intro-overlay__cta-canvas"></canvas>
     </span>
     <span class="intro-overlay__cta-wordmark" aria-hidden="true">Sya<span class="intro-overlay__cta-dot">.</span>Creates</span>
   </button>
@@ -66,6 +62,67 @@
     const rim = new THREE.DirectionalLight(0xffe3ad, 0.5);
     rim.position.set(-200, -80, 180);
     scene.add(ambient, key, rim);
+
+    // Cube-logo du CTA : petite scène 3D indépendante (pas une icône SVG
+    // qu'on pivote en CSS) — même matériau chromé/or que les cubes qui
+    // tombent, pour un vrai reflet spéculaire qui bouge avec la rotation
+    // plutôt qu'un flat-shading figé. Tourne en continu sur deux axes
+    // (tumbling, pas un simple spin Y) jusqu'au clic.
+    const iconCanvas = document.getElementById('intro-overlay-cta-canvas') as HTMLCanvasElement | null;
+    const iconWrapper = cta.querySelector('.intro-overlay__cta-icon') as HTMLElement | null;
+    let iconRafId = 0;
+    if (iconCanvas && iconWrapper) {
+      const iconScene = new THREE.Scene();
+      const iconCamera = new THREE.OrthographicCamera(-22, 22, 22, -22, 1, 500);
+      iconCamera.position.z = 100;
+
+      const iconRenderer = new THREE.WebGLRenderer({ canvas: iconCanvas, alpha: true, antialias: true });
+      const iconPmrem = new THREE.PMREMGenerator(iconRenderer);
+      iconScene.environment = iconPmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+      const iconAmbient = new THREE.AmbientLight(0xffffff, 0.55);
+      const iconKey = new THREE.DirectionalLight(0xffffff, 1.5);
+      iconKey.position.set(140, 260, 320);
+      const iconRim = new THREE.DirectionalLight(0xffe3ad, 0.5);
+      iconRim.position.set(-200, -80, 180);
+      iconScene.add(iconAmbient, iconKey, iconRim);
+
+      const iconGeo = new RoundedBoxGeometry(24, 24, 24, 4, 24 * 0.06);
+      // Plus glacé/brillant que les cubes qui tombent (roughness plus basse,
+      // envMapIntensity plus haute) : c'est la pièce maîtresse de l'écran
+      // d'intro, elle doit accrocher la lumière plus fort que le reste.
+      const iconMat = new THREE.MeshStandardMaterial({
+        color: 0xd9a854,
+        metalness: 1,
+        roughness: 0.15,
+        envMapIntensity: 1.7,
+      });
+      const iconMesh = new THREE.Mesh(iconGeo, iconMat);
+      iconMesh.rotation.set(-0.5, 0.7, 0);
+      const iconEdges = new THREE.LineSegments(
+        new THREE.EdgesGeometry(iconGeo, 25),
+        new THREE.LineBasicMaterial({ color: 0x1f3d2e, transparent: true, opacity: 0.35 })
+      );
+      iconMesh.add(iconEdges);
+      iconScene.add(iconMesh);
+
+      function sizeIconRenderer() {
+        const size = iconWrapper!.clientWidth || 60;
+        iconRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        iconRenderer.setSize(size, size, false);
+      }
+      sizeIconRenderer();
+
+      function iconTick() {
+        iconRafId = requestAnimationFrame(iconTick);
+        iconMesh.rotation.x += 0.011;
+        iconMesh.rotation.y += 0.018;
+        iconRenderer.render(iconScene, iconCamera);
+      }
+      iconTick();
+
+      window.addEventListener('resize', sizeIconRenderer);
+    }
 
     // Gravité nulle au départ : les cubes n'existent pas encore avant le
     // clic (voir plus bas), la gravité n'est activée qu'au moment de leur
@@ -212,6 +269,9 @@
       window.removeEventListener('keydown', onKeydown);
       clearTimeout(safetyTimer);
       collapsedAt = performance.now();
+      // Le cube-logo s'efface (transition CSS) au même instant : plus
+      // besoin de continuer à le faire tourner en arrière-plan.
+      cancelAnimationFrame(iconRafId);
     }
 
     // Le clic n'importe où sur l'overlay déclenche l'explosion, pas
@@ -303,27 +363,16 @@
     width: 60px;
     height: 60px;
     flex-shrink: 0;
-    /* Rotation continue + halo qui respire : deux propriétés différentes
-       (transform / filter) pour que ça n'entre jamais en conflit avec le
-       scale appliqué au survol sur le bouton parent. */
-    animation: intro-cta-spin 4.5s linear infinite, intro-cta-glow 2.2s ease-in-out infinite;
+    /* La rotation elle-même vient du rendu 3D (voir le script) — ici juste
+       le halo qui respire, en filter pour ne jamais entrer en conflit avec
+       le scale appliqué au survol sur le bouton parent. */
+    animation: intro-cta-glow 2.2s ease-in-out infinite;
   }
 
-  .intro-overlay__cta-icon svg {
+  .intro-overlay__cta-canvas {
+    display: block;
     width: 100%;
     height: 100%;
-  }
-
-  .intro-overlay__cta-face {
-    fill: #d9a854;
-  }
-
-  .intro-overlay__cta-face--left {
-    opacity: 0.78;
-  }
-
-  .intro-overlay__cta-face--right {
-    opacity: 0.52;
   }
 
   .intro-overlay__cta-wordmark {
@@ -336,15 +385,6 @@
 
   .intro-overlay__cta-dot {
     color: #d9a854;
-  }
-
-  @keyframes intro-cta-spin {
-    from {
-      transform: rotateY(0deg);
-    }
-    to {
-      transform: rotateY(360deg);
-    }
   }
 
   @keyframes intro-cta-glow {
