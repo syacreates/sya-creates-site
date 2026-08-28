@@ -132,9 +132,10 @@
     const cubeMat = new CANNON.Material('cube');
     world.addContactMaterial(new CANNON.ContactMaterial(cubeMat, cubeMat, { friction: 0.4, restitution: 0.1 }));
 
-    // Trois nuances de vert de la marque (accent foncé + les deux verts du
-    // hero) — plus d'or, tout reste dans la même famille de teinte.
-    const palette = [0x1f3d2e, 0x3f7a58, 0x4c8c63];
+    // Couleurs exactes de la charte (--color-accent, --color-accent-2, or
+    // #d9a854) — les mêmes que la pile de cubes du hero, pas une teinte
+    // approchée inventée pour l'occasion.
+    const palette = [0x1f3d2e, 0x4c8c63, 0xd9a854];
     // Cubes un peu plus grands qu'avant : une grille plein écran (pas une
     // pyramide) compte nettement plus de cubes à taille égale, donc on
     // agrandit légèrement pour garder un nombre de corps physiques
