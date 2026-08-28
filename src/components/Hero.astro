@@ -76,9 +76,9 @@ const tags = [
          place et se retourne sur elle-même. -->
     <div class="hero__pitch">
       {
-        pitch.map((item) => (
+        pitch.map((item, index) => (
           <div
-            class="hero__pitch-card flip-card"
+            class={`hero__pitch-card hero__pitch-card--${index} flip-card`}
             tabindex="0"
             role="button"
             aria-expanded="false"
@@ -680,38 +680,83 @@ const tags = [
   .hero__pitch {
     display: flex;
     align-items: center;
-    gap: 28px;
     margin-top: 16px;
     justify-content: center;
     flex-wrap: wrap;
   }
 
   .hero__pitch-card {
-    /* 206 = 190 (corps rectangulaire) + 16 (rayon du tab qui déborde à
-       droite) : clip-path ne peut révéler que des pixels déjà rendus par
-       la boîte elle-même — la boîte doit donc être assez large pour
-       contenir le renflement, sans quoi le tab resterait transparent. */
+    /* 206 = 174 (corps) + 16 (tab, bord droit) + 16 (encoche, bord gauche) :
+       clip-path ne peut révéler que des pixels déjà rendus par la boîte
+       elle-même — elle doit donc être assez large pour contenir le
+       renflement ET le creux, sans quoi ils resteraient transparents. */
     width: 206px;
     height: 112px;
-    /* Rectangle à coins arrondis + renflement circulaire sur le bord
-       droit : un vrai tab de pièce de puzzle plutôt qu'une encoche à
-       angles droits. Sur le conteneur externe (pas rotatif) — les deux
-       faces à l'intérieur héritent donc automatiquement de la même
-       silhouette pendant tout le retournement. */
+    position: relative;
+    z-index: 1;
+    /* Un cran avant/après pour que chaque pièce chevauche pile la
+       suivante (le tab de l'une comble l'encoche de l'autre) — un vrai
+       assemblage plutôt que des cartes simplement côte à côte. */
+    margin-left: -16px;
+    /* Rectangle à coins arrondis, renflement circulaire à droite (tab) et
+       creux circulaire à gauche (encoche) — une vraie pièce de puzzle,
+       pas juste une encoche à angles droits. Sur le conteneur externe
+       (pas rotatif) : les deux faces héritent de la même silhouette. */
     clip-path: path(
-      'M14,0 L176,0 A14,14 0 0 1 190,14 L190,40 A16,16 0 0 1 190,72 L190,98 A14,14 0 0 1 176,112 L14,112 A14,14 0 0 1 0,98 L0,14 A14,14 0 0 1 14,0 Z'
+      'M30,0 L176,0 A14,14 0 0 1 190,14 L190,40 A16,16 0 0 1 190,72 L190,98 A14,14 0 0 1 176,112 L30,112 A14,14 0 0 1 16,98 L16,72 A16,16 0 0 0 16,40 L16,14 A14,14 0 0 1 30,0 Z'
     );
     filter: drop-shadow(0 12px 26px rgba(22, 36, 28, 0.28));
-    transition: filter 0.3s ease;
+    transition: filter 0.3s ease, clip-path 0.5s ease-in-out;
+  }
+
+  .hero__pitch-card:first-child {
+    margin-left: 0;
+  }
+
+  /* Au clic, la pièce se retourne (voir .flip-card__inner) ET son tab
+     bascule de l'autre côté — comme une vraie pièce qu'on retourne à la
+     main, où le renflement change de bord. La transition clip-path (même
+     nombre de points des deux côtés) se joue en même temps que la
+     rotation 3D. */
+  .hero__pitch-card.is-flipped {
+    clip-path: path(
+      'M176,0 L30,0 A14,14 0 0 0 16,14 L16,40 A16,16 0 0 0 16,72 L16,98 A14,14 0 0 0 30,112 L176,112 A14,14 0 0 0 190,98 L190,72 A16,16 0 0 1 190,40 L190,14 A14,14 0 0 0 176,0 Z'
+    );
+  }
+
+  /* Chaque pièce reprend une couleur différente de la palette du site
+     (les deux verts déjà utilisés + l'or des cubes) — pas de nouvelle
+     teinte introduite. */
+  .hero__pitch-card--0 .flip-card__front,
+  .hero__pitch-card--0 .flip-card__back {
+    background: var(--color-accent);
+  }
+
+  .hero__pitch-card--1 .flip-card__front,
+  .hero__pitch-card--1 .flip-card__back {
+    background: var(--color-accent-2);
+  }
+
+  .hero__pitch-card--2 .flip-card__front,
+  .hero__pitch-card--2 .flip-card__back {
+    background: #d9a854;
+  }
+
+  .hero__pitch-card--2 .hero__pitch-card__titre,
+  .hero__pitch-card--2 .flip-card__back p {
+    /* Fond or plus clair que les deux verts : texte encre plutôt que
+       blanc pour rester lisible (contraste AA). */
+    color: var(--color-accent);
   }
 
   .hero__pitch-card:hover,
   .hero__pitch-card:focus-visible {
     filter: drop-shadow(0 18px 34px rgba(22, 36, 28, 0.38));
+    z-index: 2;
   }
 
   .hero__pitch-card:focus-visible {
-    outline: 2px solid var(--color-accent-2);
+    outline: 2px solid var(--color-ink);
     outline-offset: 3px;
   }
 
@@ -719,11 +764,10 @@ const tags = [
   .hero__pitch-card .flip-card__back {
     align-items: center;
     justify-content: center;
-    /* Padding droit plus large : compense le renflement du tab pour que
-       le texte reste centré sur le corps rectangulaire de la pièce, pas
-       sur la largeur totale (tab compris). */
-    padding: 18px 38px 18px 20px;
-    background: var(--color-accent);
+    /* Padding gauche/droite plus large : compense le tab et l'encoche
+       pour que le texte reste centré sur le corps de la pièce, pas sur
+       la largeur totale (tab + encoche compris). */
+    padding: 18px 38px 18px 36px;
   }
 
   .hero__pitch-card__titre {
