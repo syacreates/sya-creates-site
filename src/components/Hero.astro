@@ -540,6 +540,35 @@ const tags = [
   }
 </script>
 
+<script>
+  // Pièces de puzzle du hero — s'emboîtent (chevauchement négatif) quand
+  // deux voisines ont le même état (retournées ou non, donc tab/encoche en
+  // vis-à-vis), se désolidarisent sinon. Indépendant du toggle .is-flipped
+  // lui-même (géré globalement, voir Layout.astro) : on se contente de
+  // relire l'état juste après, sur la frame suivante pour être sûr que le
+  // clic global a déjà fait son travail.
+  const heroCards = Array.from(document.querySelectorAll('.hero__pitch-card'));
+
+  function updatePuzzleJoins() {
+    heroCards.forEach((card, i) => {
+      if (i === 0) return;
+      const prev = heroCards[i - 1];
+      const sameState = prev.classList.contains('is-flipped') === card.classList.contains('is-flipped');
+      card.classList.toggle('hero__pitch-card--joined', sameState);
+    });
+  }
+
+  heroCards.forEach((card) => {
+    card.addEventListener('click', () => requestAnimationFrame(updatePuzzleJoins));
+    card.addEventListener('keydown', (event) => {
+      const e = event as KeyboardEvent;
+      if (e.key === 'Enter' || e.key === ' ') requestAnimationFrame(updatePuzzleJoins);
+    });
+  });
+
+  updatePuzzleJoins();
+</script>
+
 <style>
   .hero {
     position: relative;
@@ -694,10 +723,14 @@ const tags = [
     height: 112px;
     position: relative;
     z-index: 1;
-    /* Un cran avant/après pour que chaque pièce chevauche pile la
-       suivante (le tab de l'une comble l'encoche de l'autre) — un vrai
-       assemblage plutôt que des cartes simplement côte à côte. */
-    margin-left: -16px;
+    /* Séparées par défaut ; ne se chevauchent (tab dans l'encoche du
+       voisin) que quand .hero__pitch-card--joined est présent — posé
+       dynamiquement en JS seulement quand les deux pièces voisines ont
+       le même état (retournée ou non), donc des formes qui coïncident
+       vraiment. Sinon (l'une retournée, pas l'autre), le tab et l'encoche
+       ne se font plus face : les pièces se désolidarisent. */
+    margin-left: 14px;
+    transition: margin-left 0.4s var(--ease-spring), filter 0.3s ease, clip-path 0.5s ease-in-out;
     /* Rectangle à coins arrondis, renflement circulaire à droite (tab) et
        creux circulaire à gauche (encoche) — une vraie pièce de puzzle,
        pas juste une encoche à angles droits. Sur le conteneur externe
@@ -711,6 +744,10 @@ const tags = [
 
   .hero__pitch-card:first-child {
     margin-left: 0;
+  }
+
+  .hero__pitch-card--joined {
+    margin-left: -16px;
   }
 
   /* Au clic, la pièce se retourne (voir .flip-card__inner) ET son tab
