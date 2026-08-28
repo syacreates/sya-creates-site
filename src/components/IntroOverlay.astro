@@ -281,6 +281,12 @@
       overlay.removeEventListener('click', onOverlayClick);
       window.removeEventListener('keydown', onKeydown);
       clearTimeout(safetyTimer);
+      // Le conteneur passe déjà en aria-hidden via son état "décoratif"
+      // (voir plus haut), mais il reste ~3,2s dans le DOM le temps de la
+      // chute : sans ça, le CTA resterait focusable au clavier pendant
+      // cette fenêtre alors même que son ancêtre est aria-hidden.
+      cta.setAttribute('tabindex', '-1');
+      if (document.activeElement === cta) (document.activeElement as HTMLElement).blur();
       collapsedAt = performance.now();
       // Le cube-logo s'efface (transition CSS) au même instant : plus
       // besoin de continuer à le faire tourner en arrière-plan.

@@ -1,0 +1,63 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout
+  title="Page introuvable : Sya Creates"
+  description="Cette page n'existe pas ou plus. Retourne à l'accueil du site de Sya Creates, designer UX/UI indépendante."
+>
+    <Navbar />
+    <main class="not-found">
+      <div class="not-found__inner">
+        <p class="not-found__eyebrow">Erreur 404</p>
+        <h1 class="not-found__title">Cette page s'est perdue en route.</h1>
+        <p class="not-found__text">
+          Le lien est cassé ou la page a été déplacée. Retourne à l'accueil pour repartir sur
+          une base solide.
+        </p>
+        <a href="/" class="btn btn--primary">Retour à l'accueil</a>
+      </div>
+    </main>
+
+    <Footer />
+</Layout>
+
+<style>
+  .not-found {
+    padding: 96px 24px 140px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .not-found__inner {
+    max-width: 480px;
+    text-align: center;
+  }
+
+  .not-found__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    margin-bottom: 20px;
+  }
+
+  .not-found__title {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1.5rem + 1vw, 2.5rem);
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 16px;
+  }
+
+  .not-found__text {
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin-bottom: 32px;
+  }
+</style>

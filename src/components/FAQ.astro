@@ -113,6 +113,24 @@ const columns = [
   </div>
 </section>
 
+<script
+  type="application/ld+json"
+  set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: columns.flatMap((column) =>
+      column.questions.map((item) => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.r,
+        },
+      }))
+    ),
+  })}
+/>
+
 <style>
   .faq {
     position: relative;

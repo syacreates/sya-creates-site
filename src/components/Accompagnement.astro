@@ -87,6 +87,23 @@ const offres = [
   </div>
 </section>
 
+<script
+  type="application/ld+json"
+  set:html={JSON.stringify(
+    offres.map((offre) => ({
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: offre.titre,
+      description: offre.texte,
+      areaServed: 'FR',
+      provider: {
+        '@type': 'ProfessionalService',
+        name: 'Sya Creates',
+      },
+    }))
+  )}
+/>
+
 <style>
   .accompaniment {
     position: relative;
