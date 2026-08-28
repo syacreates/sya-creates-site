@@ -446,13 +446,12 @@ const apports = [
     cursor: default;
     pointer-events: none;
     transform-origin: 120px 110px;
-    /* Envol plus doux et plus long : on lui laisse le temps de s'éloigner
-       vers le haut avant de disparaître, pas un saut brusque. */
-    transition: opacity 1.4s ease, transform 2.8s cubic-bezier(0.22, 0.7, 0.2, 1);
+    transition: opacity 1.4s ease;
   }
 
   .cocoon__butterfly--no-transition {
     transition: none !important;
+    animation: none !important;
   }
 
   .cocoon__wing-fill {
@@ -546,9 +545,24 @@ const apports = [
 
   .cocoon__butterfly.is-flying {
     /* S'envole nettement plus haut (au-delà du cadre du visuel, vers le
-       haut de la section) plutôt qu'un petit déplacement local. */
-    transform: translate(60px, -420px) rotate(12deg) scale(0.22);
+       haut de la section) plutôt qu'un petit déplacement local. Le
+       rétrécissement est repoussé en fin de trajectoire (voir keyframes) :
+       il monte d'abord à taille quasi normale, il ne rapetisse qu'en
+       s'éloignant vraiment, pas dès la première frame. */
+    animation: cocoon-fly-away 2.8s cubic-bezier(0.22, 0.7, 0.2, 1) forwards;
     opacity: 0;
+  }
+
+  @keyframes cocoon-fly-away {
+    0% {
+      transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    60% {
+      transform: translate(26px, -250px) rotate(6deg) scale(0.95);
+    }
+    100% {
+      transform: translate(60px, -420px) rotate(12deg) scale(0.22);
+    }
   }
 
   @keyframes cocoon-swing {
@@ -711,7 +725,8 @@ const apports = [
     .cocoon__swing,
     .cocoon__wing,
     .cocoon__spark,
-    .cocoon__glow {
+    .cocoon__glow,
+    .cocoon__butterfly {
       animation: none !important;
     }
 
