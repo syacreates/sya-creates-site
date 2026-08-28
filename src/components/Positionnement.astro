@@ -4,7 +4,7 @@ const piliers = [
     numero: '01',
     titre: 'Expertise UX/UI',
     texte:
-      "Dix ans de pratique produit : interviews, tri de cartes, wireframes, tests d'utilisabilité — de la recherche utilisateur au design d'interface, dont plusieurs années sur des sujets de transformation RH et d'innovation au sein de grandes organisations.",
+      "Dix ans de pratique produit : interviews, tri de cartes, wireframes, tests d'utilisabilité, de la recherche utilisateur au design d'interface, dont plusieurs années sur des sujets de transformation RH et d'innovation au sein de grandes organisations.",
   },
   {
     numero: '02',
@@ -40,7 +40,7 @@ const piliers = [
     <p class="positioning__intro">
       Dix ans à concevoir des produits pour des équipes exigeantes m'ont appris qu'un bon
       design, ce n'est pas juste une interface soignée : c'est une méthode. Le développement
-      assisté par IA ne la remplace pas — il me fait juste aller plus vite, sans rogner sur la
+      assisté par IA ne la remplace pas : il me fait juste aller plus vite, sans rogner sur la
       qualité.
     </p>
 
@@ -53,7 +53,7 @@ const piliers = [
             tabindex="0"
             role="button"
             aria-expanded="false"
-            aria-label={`${pilier.titre} — appuie pour voir le détail`}
+            aria-label={`${pilier.titre}, appuie pour voir le détail`}
           >
             <div class="flip-card__inner">
               <div class="flip-card__front">
@@ -121,7 +121,6 @@ const piliers = [
     font-size: 1.0625rem;
     line-height: 1.6;
     color: var(--color-text-secondary);
-    max-width: 62ch;
     margin: 24px auto 0;
     text-align: center;
   }

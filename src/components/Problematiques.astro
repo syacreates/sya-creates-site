@@ -3,7 +3,7 @@ const problemes = [
   {
     titre: 'Une interface qui ne convertit pas',
     texte:
-      "Le produit fonctionne, mais les utilisateurs abandonnent avant l'étape clé — sans qu'on sache précisément où, ni pourquoi.",
+      "Le produit fonctionne, mais les utilisateurs abandonnent avant l'étape clé, sans qu'on sache précisément où, ni pourquoi.",
   },
   {
     titre: 'Design et développement désynchronisés',
@@ -18,7 +18,7 @@ const problemes = [
   {
     titre: 'Un design qui vieillit mal',
     texte:
-      'Une interface bricolée au fil des besoins finit par perdre en cohérence — et en crédibilité aux yeux de tes utilisateurs.',
+      'Une interface bricolée au fil des besoins finit par perdre en cohérence et en crédibilité aux yeux de tes utilisateurs.',
   },
 ];
 ---
@@ -40,7 +40,7 @@ const problemes = [
     </div>
 
     <p class="problems__intro">
-      Un produit peut être fonctionnel, bien codé, presque complet — et pourtant perdre des
+      Un produit peut être fonctionnel, bien codé, presque complet, et pourtant perdre des
       utilisateurs en route. Voici ce qui revient le plus souvent chez les équipes que
       j'accompagne.
     </p>
@@ -54,7 +54,7 @@ const problemes = [
             tabindex="0"
             role="button"
             aria-expanded="false"
-            aria-label={`${probleme.titre} — appuie pour voir le détail`}
+            aria-label={`${probleme.titre}, appuie pour voir le détail`}
           >
             <div class="flip-card__inner">
               <div class="flip-card__front">
@@ -119,7 +119,6 @@ const problemes = [
     font-size: 1.0625rem;
     line-height: 1.6;
     color: var(--color-text-secondary);
-    max-width: 62ch;
     margin: 24px auto 0;
     text-align: center;
   }

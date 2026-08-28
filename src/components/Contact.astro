@@ -19,7 +19,7 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
     </div>
 
     <p class="contact__intro">
-      Choisis ce qui te convient le mieux — un créneau dans l'agenda, un email direct, ou
+      Choisis ce qui te convient le mieux : un créneau dans l'agenda, un email direct, ou
       quelques minutes pour cadrer ton besoin.
     </p>
 
@@ -225,7 +225,7 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
     }
 
     const formData = new FormData(form);
-    formData.append('subject', 'Nouvelle demande de cadrage — Sya Creates');
+    formData.append('subject', 'Nouvelle demande de cadrage : Sya Creates');
 
     if (submitBtn) {
       submitBtn.disabled = true;
@@ -296,7 +296,6 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
     font-size: 1.0625rem;
     line-height: 1.6;
     color: var(--color-text-secondary);
-    max-width: 62ch;
     margin: 24px auto 0;
     text-align: center;
   }

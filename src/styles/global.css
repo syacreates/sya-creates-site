@@ -31,8 +31,8 @@
   /* Rythme vertical entre sections — une seule source de vérité pour que
      l'espace haut/bas de chaque section soit identique au pixel près,
      partout sur le site. */
-  --section-py: 96px;
-  --section-py-mobile: 64px;
+  --section-py: 64px;
+  --section-py-mobile: 40px;
 
   /* Easing "spring" — entrées et survols au ressort doux, comme sur le site modèle */
   --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
