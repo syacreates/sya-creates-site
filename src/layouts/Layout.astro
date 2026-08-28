@@ -106,9 +106,23 @@ const ogImageURL = new URL(ogImage, Astro.site);
   // "click" (pas pointerdown/touchstart) : les navigateurs ne synthétisent
   // pas de click après un tap qui a scrollé la page, donc rien à gérer en plus.
   document.querySelectorAll('.flip-card').forEach((card) => {
+    const front = card.querySelector('.flip-card__front');
+    const back = card.querySelector('.flip-card__back');
+
+    // Le dos de la carte reste dans le DOM même face cachée (rotation 3D,
+    // pas display:none) : sans aria-hidden, son texte reste exposé aux
+    // lecteurs d'écran et aux outils de contrôle vocal en même temps que
+    // le recto, alors qu'un seul des deux est réellement visible.
+    const syncFaces = (flipped: boolean) => {
+      front?.setAttribute('aria-hidden', String(flipped));
+      back?.setAttribute('aria-hidden', String(!flipped));
+    };
+    syncFaces(false);
+
     const toggle = () => {
       const flipped = card.classList.toggle('is-flipped');
       card.setAttribute('aria-expanded', String(flipped));
+      syncFaces(flipped);
     };
 
     card.addEventListener('click', toggle);
