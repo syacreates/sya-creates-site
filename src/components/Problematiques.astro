@@ -24,6 +24,7 @@ const problemes = [
 ---
 
 <section class="problems" id="problematiques">
+  <span class="blob blob--problems" aria-hidden="true"></span>
   <div class="problems__inner">
     <span class="eyebrow-pill">
       <span class="eyebrow-pill__dot"></span>
@@ -73,10 +74,21 @@ const problemes = [
 <style>
   .problems {
     position: relative;
-    padding: 96px 24px;
+    padding: var(--section-py) 24px;
+    overflow: hidden;
+  }
+
+  .blob--problems {
+    width: 380px;
+    height: 380px;
+    top: -120px;
+    left: -120px;
+    background: radial-gradient(circle, rgba(76, 140, 99, 0.14), transparent 70%);
   }
 
   .problems__inner {
+    position: relative;
+    z-index: 1;
     max-width: 1180px;
     margin: 0 auto;
   }
@@ -108,7 +120,8 @@ const problemes = [
     line-height: 1.6;
     color: var(--color-text-secondary);
     max-width: 62ch;
-    margin-top: 24px;
+    margin: 24px auto 0;
+    text-align: center;
   }
 
   .problems__grid {
@@ -146,7 +159,7 @@ const problemes = [
 
   @media (max-width: 860px) {
     .problems {
-      padding: 64px 20px;
+      padding: var(--section-py-mobile) 20px;
     }
 
     .problems__grid {

@@ -121,6 +121,7 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
 ---
 
 <section class="method" id="methode">
+  <span class="blob blob--method" aria-hidden="true"></span>
   <div class="method__inner">
     <span class="eyebrow-pill">
       <span class="eyebrow-pill__dot"></span>
@@ -136,9 +137,9 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
     </div>
 
     <p class="method__intro">
-      Pas de boîte noire : chaque étape est cadrée, documentée et validée avant de passer à la
-      suivante. Le développement assisté par IA accélère l'exécution — jamais la clarté du
-      processus.
+      Pas de boîte noire : on avance étape par étape, et tu valides avant qu'on passe à la
+      suivante. Le développement assisté par IA me fait gagner du temps sur l'exécution —
+      jamais sur la clarté du processus.
     </p>
 
     <div class="method-path">
@@ -387,10 +388,21 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
 <style>
   .method {
     position: relative;
-    padding: 96px 24px;
+    padding: var(--section-py) 24px;
+    overflow: hidden;
+  }
+
+  .blob--method {
+    width: 420px;
+    height: 420px;
+    top: 15%;
+    left: -160px;
+    background: radial-gradient(circle, rgba(31, 61, 46, 0.12), transparent 70%);
   }
 
   .method__inner {
+    position: relative;
+    z-index: 1;
     max-width: 1180px;
     margin: 0 auto;
   }
@@ -422,7 +434,8 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
     line-height: 1.6;
     color: var(--color-text-secondary);
     max-width: 62ch;
-    margin-top: 24px;
+    margin: 24px auto 0;
+    text-align: center;
   }
 
   /* Chemin serpentin — le tracé et les titres restent sobres (gris/beige),
@@ -605,7 +618,7 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
 
   @media (max-width: 860px) {
     .method {
-      padding: 64px 20px;
+      padding: var(--section-py-mobile) 20px;
     }
 
     .method-path {

@@ -159,8 +159,10 @@ const tags = [
 
     const cubeMat = new CANNON.Material('cube');
     const wallMat = new CANNON.Material('wall');
-    world.addContactMaterial(new CANNON.ContactMaterial(cubeMat, wallMat, { friction: 0.4, restitution: 0.18 }));
-    world.addContactMaterial(new CANNON.ContactMaterial(cubeMat, cubeMat, { friction: 0.35, restitution: 0.15 }));
+    // Friction basse : quand on attrape un cube à la souris, ses voisins
+    // glissent et basculent facilement au lieu de rester figés en pile.
+    world.addContactMaterial(new CANNON.ContactMaterial(cubeMat, wallMat, { friction: 0.18, restitution: 0.18 }));
+    world.addContactMaterial(new CANNON.ContactMaterial(cubeMat, cubeMat, { friction: 0.12, restitution: 0.15 }));
 
     let depth = Math.min(width, height) * 0.5;
 
@@ -276,8 +278,8 @@ const tags = [
         mass: 1,
         material: cubeMat,
         shape: new CANNON.Box(new CANNON.Vec3(half, half, half)),
-        linearDamping: 0.5,
-        angularDamping: 0.6,
+        linearDamping: 0.25,
+        angularDamping: 0.3,
       });
       // Départ près du haut du canvas (= haut de la page) plutôt que loin
       // au-dessus, invisible — la chute doit se voir depuis le sommet.
@@ -540,7 +542,7 @@ const tags = [
 <style>
   .hero {
     position: relative;
-    padding: 64px 24px 96px;
+    padding: 64px 24px var(--section-py);
     overflow: hidden;
   }
 
@@ -835,7 +837,7 @@ const tags = [
 
   @media (max-width: 860px) {
     .hero {
-      padding: 40px 20px 64px;
+      padding: 40px 20px var(--section-py-mobile);
     }
 
     .hero__orbfield {

@@ -22,6 +22,7 @@ const piliers = [
 ---
 
 <section class="positioning" id="positionnement">
+  <span class="blob blob--positioning" aria-hidden="true"></span>
   <div class="positioning__inner">
     <span class="eyebrow-pill">
       <span class="eyebrow-pill__dot"></span>
@@ -37,10 +38,10 @@ const piliers = [
     </div>
 
     <p class="positioning__intro">
-      Dix ans à concevoir des produits utiles pour des organisations exigeantes m'ont appris
-      qu'un bon design ne se résume pas à une interface soignée : c'est une méthode. Le
-      développement assisté par IA ne remplace pas cette méthode — il la met au service d'une
-      exécution plus rapide, sans rogner sur la qualité.
+      Dix ans à concevoir des produits pour des équipes exigeantes m'ont appris qu'un bon
+      design, ce n'est pas juste une interface soignée : c'est une méthode. Le développement
+      assisté par IA ne la remplace pas — il me fait juste aller plus vite, sans rogner sur la
+      qualité.
     </p>
 
     <div class="positioning__pillars">
@@ -75,10 +76,21 @@ const piliers = [
 <style>
   .positioning {
     position: relative;
-    padding: 96px 24px;
+    padding: var(--section-py) 24px;
+    overflow: hidden;
+  }
+
+  .blob--positioning {
+    width: 400px;
+    height: 400px;
+    bottom: -140px;
+    right: -140px;
+    background: radial-gradient(circle, rgba(214, 178, 110, 0.14), transparent 70%);
   }
 
   .positioning__inner {
+    position: relative;
+    z-index: 1;
     max-width: 1180px;
     margin: 0 auto;
   }
@@ -110,7 +122,8 @@ const piliers = [
     line-height: 1.6;
     color: var(--color-text-secondary);
     max-width: 62ch;
-    margin-top: 24px;
+    margin: 24px auto 0;
+    text-align: center;
   }
 
   .positioning__pillars {
@@ -170,7 +183,7 @@ const piliers = [
 
   @media (max-width: 860px) {
     .positioning {
-      padding: 64px 20px;
+      padding: var(--section-py-mobile) 20px;
     }
 
     .positioning__pillars {

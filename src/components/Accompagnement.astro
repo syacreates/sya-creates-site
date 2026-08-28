@@ -90,7 +90,7 @@ const offres = [
 <style>
   .accompaniment {
     position: relative;
-    padding: 96px 24px;
+    padding: var(--section-py) 24px;
     overflow: hidden;
   }
 
@@ -136,7 +136,8 @@ const offres = [
     line-height: 1.6;
     color: var(--color-text-secondary);
     max-width: 62ch;
-    margin-top: 24px;
+    margin: 24px auto 0;
+    text-align: center;
   }
 
   .accompaniment__grid {
@@ -238,7 +239,7 @@ const offres = [
 
   @media (max-width: 860px) {
     .accompaniment {
-      padding: 64px 20px;
+      padding: var(--section-py-mobile) 20px;
     }
 
     .accompaniment__grid {

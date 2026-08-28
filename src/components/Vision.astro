@@ -265,7 +265,7 @@ const apports = [
             scheduleNext();
           });
         });
-      }, 1900);
+      }, 3100);
     }
 
     stepButtons.forEach((btn, i) => {
@@ -295,7 +295,7 @@ const apports = [
 <style>
   .vision {
     position: relative;
-    padding: 96px 0;
+    padding: var(--section-py) 0;
     overflow: hidden;
   }
 
@@ -373,7 +373,7 @@ const apports = [
 
   .cocoon__visual {
     flex-shrink: 0;
-    width: 260px;
+    width: 340px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -446,7 +446,9 @@ const apports = [
     cursor: default;
     pointer-events: none;
     transform-origin: 120px 110px;
-    transition: opacity 0.6s ease, transform 1.6s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Envol plus doux et plus long : on lui laisse le temps de s'éloigner
+       vers le haut avant de disparaître, pas un saut brusque. */
+    transition: opacity 1.4s ease, transform 2.8s cubic-bezier(0.22, 0.7, 0.2, 1);
   }
 
   .cocoon__butterfly--no-transition {
@@ -543,7 +545,9 @@ const apports = [
   }
 
   .cocoon__butterfly.is-flying {
-    transform: translate(70px, -150px) rotate(20deg) scale(0.35);
+    /* S'envole nettement plus haut (au-delà du cadre du visuel, vers le
+       haut de la section) plutôt qu'un petit déplacement local. */
+    transform: translate(60px, -420px) rotate(12deg) scale(0.22);
     opacity: 0;
   }
 
@@ -748,7 +752,7 @@ const apports = [
 
   @media (max-width: 860px) {
     .vision {
-      padding: 64px 0;
+      padding: var(--section-py-mobile) 0;
     }
 
     .vision__grid {
@@ -766,7 +770,7 @@ const apports = [
     }
 
     .cocoon__visual {
-      width: 200px;
+      width: 260px;
     }
 
     .vision-benefits {
