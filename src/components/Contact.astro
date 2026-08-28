@@ -25,33 +25,18 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
 
     <div class="contact__channels">
       <div class="channel-card channel-card--primary glass-card reveal-item" style="--i: 0">
-        <span class="channel-card__rank" aria-hidden="true">Le plus direct</span>
-        <span class="channel-card__symbol" aria-hidden="true">→</span>
-        <h3 class="channel-card__titre">Prendre rendez-vous</h3>
-        <p class="channel-card__texte">Réserve un créneau directement dans mon agenda.</p>
-        <a
-          href="https://calendly.com/sya-creates"
-          class="btn btn--primary channel-card__cta"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Ouvrir Calendly
-        </a>
-        <span class="channel-card__note">Lien Calendly à connecter</span>
-      </div>
-
-      <div class="channel-card glass-card reveal-item" style="--i: 1">
+        <span class="channel-card__rank" aria-hidden="true">Le plus rapide</span>
         <span class="channel-card__symbol" aria-hidden="true">✎</span>
         <h3 class="channel-card__titre">Formulaire de cadrage</h3>
         <p class="channel-card__texte">
           Décris ton besoin en quelques minutes, je reviens vers toi avec une proposition.
         </p>
-        <a href="#formulaire-cadrage" class="btn btn--ghost channel-card__cta">
-          Remplir le formulaire ↓
-        </a>
+        <button type="button" class="btn btn--primary channel-card__cta" id="open-form-btn">
+          Remplir le formulaire
+        </button>
       </div>
 
-      <div class="channel-card glass-card reveal-item" style="--i: 2">
+      <div class="channel-card glass-card reveal-item" style="--i: 1">
         <span class="channel-card__symbol" aria-hidden="true">@</span>
         <h3 class="channel-card__titre">Email direct</h3>
         <p class="channel-card__texte">Pour une question rapide ou un premier contact informel.</p>
@@ -63,9 +48,19 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
           <a href={`mailto:${email}`} class="link-underline">Envoyer un email</a>
         </div>
       </div>
+
+      <div class="channel-card glass-card reveal-item" style="--i: 2">
+        <span class="channel-card__symbol" aria-hidden="true">→</span>
+        <h3 class="channel-card__titre">Prendre rendez-vous</h3>
+        <p class="channel-card__texte">
+          La prise de rendez-vous en ligne arrive bientôt. En attendant, écris-moi ou passe par le
+          formulaire pour qu'on cale un appel.
+        </p>
+        <span class="channel-card__soon">Bientôt disponible</span>
+      </div>
     </div>
 
-    <div class="contact__form-wrap glass-panel" id="formulaire-cadrage">
+    <div class="contact__form-wrap glass-panel" id="formulaire-cadrage" hidden>
       <h3 class="contact__form-title">Formulaire de cadrage</h3>
       <p class="contact__form-subtitle">
         Quelques questions courtes pour comprendre ton besoin avant notre échange.
@@ -87,7 +82,7 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
         </div>
 
         <div class="contact-form__field contact-form__field--full">
-          <label for="entreprise">Entreprise ou secteur d'activité</label>
+          <label for="entreprise">Entreprise ou secteur d'activité <span class="contact-form__optional">(optionnel)</span></label>
           <input type="text" id="entreprise" name="entreprise" />
         </div>
 
@@ -95,20 +90,15 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
           <label for="besoin">Besoin principal</label>
           <select id="besoin" name="besoin" required aria-describedby="besoin-error">
             <option value="">Sélectionner…</option>
-            <option>Discovery</option>
-            <option>UX Design</option>
-            <option>UI Design</option>
-            <option>Fast Integration</option>
-            <option>Strategy / Marketing</option>
-            <option>UX Audit</option>
-            <option>Ongoing Support</option>
+            <option>Diagnostic UX/UI</option>
+            <option>Accompagnement sur-mesure (design + dev)</option>
             <option>Je ne sais pas encore</option>
           </select>
           <span class="field-error" id="besoin-error" role="alert"></span>
         </div>
 
         <div class="contact-form__field">
-          <label for="stade">Stade du projet</label>
+          <label for="stade">Stade du projet <span class="contact-form__optional">(optionnel)</span></label>
           <select id="stade" name="stade">
             <option value="">Sélectionner…</option>
             <option>Idée</option>
@@ -118,7 +108,7 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
         </div>
 
         <div class="contact-form__field contact-form__field--full">
-          <label for="delai">Délai souhaité</label>
+          <label for="delai">Délai souhaité <span class="contact-form__optional">(optionnel)</span></label>
           <select id="delai" name="delai">
             <option value="">Sélectionner…</option>
             <option>Urgent (moins d'1 mois)</option>
@@ -174,6 +164,18 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
     } catch {
       // clipboard indisponible — l'utilisateur peut toujours utiliser le lien mailto
     }
+  });
+
+  // Le formulaire reste replié tant qu'on n'a pas explicitement demandé à
+  // le remplir — évite d'imposer un mur de 7 champs à quelqu'un qui vient
+  // juste chercher l'email ou le futur lien de RDV.
+  const openFormBtn = document.getElementById('open-form-btn');
+  const formWrap = document.getElementById('formulaire-cadrage');
+  openFormBtn?.addEventListener('click', () => {
+    formWrap?.removeAttribute('hidden');
+    formWrap?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const firstField = document.getElementById('nom') as HTMLInputElement | null;
+    window.setTimeout(() => firstField?.focus(), 400);
   });
 
   const form = document.getElementById('cadrage-form') as HTMLFormElement | null;
@@ -367,11 +369,19 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
     margin-top: 20px;
   }
 
-  .channel-card__note {
+  .channel-card__soon {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 20px;
+    padding: 8px 16px;
+    border-radius: var(--radius-pill);
+    background: var(--color-glass);
+    border: 1px solid var(--color-line);
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: var(--color-text-secondary);
-    margin-top: 8px;
   }
 
   .channel-card__email {
