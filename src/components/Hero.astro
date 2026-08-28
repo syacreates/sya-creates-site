@@ -115,11 +115,6 @@ const tags = [
 </section>
 
 <script>
-  import * as THREE from 'three';
-  import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
-  import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-  import * as CANNON from 'cannon-es';
-
   const canvas = document.getElementById('hero-cubes') as HTMLCanvasElement | null;
   const field = canvas?.parentElement;
   const orbfield = document.querySelector('.hero__orbfield') as HTMLElement | null;
@@ -130,6 +125,17 @@ const tags = [
   const tooNarrow = window.innerWidth < 700;
 
   if (canvas && field && orbfield && !prefersReduced && !tooNarrow) {
+    // Three.js/cannon-es chargés à la demande (voir IntroOverlay.astro pour
+    // le détail de la mesure Lighthouse qui a motivé ce changement) — pas
+    // en import statique qui alourdirait le bundle initial de la page.
+    void (async () => {
+    const [THREE, { RoundedBoxGeometry }, { RoomEnvironment }, CANNON] = await Promise.all([
+      import('three'),
+      import('three/examples/jsm/geometries/RoundedBoxGeometry.js'),
+      import('three/examples/jsm/environments/RoomEnvironment.js'),
+      import('cannon-es'),
+    ]);
+
     let width = field.clientWidth;
     let height = field.clientHeight;
 
@@ -536,6 +542,7 @@ const tags = [
       renderer.setSize(width, height, false);
       layoutWalls();
     });
+    })();
   }
 </script>
 

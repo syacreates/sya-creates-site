@@ -28,17 +28,25 @@
 </script>
 
 <script>
-  import * as THREE from 'three';
-  import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
-  import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-  import * as CANNON from 'cannon-es';
-
   const overlay = document.getElementById('intro-overlay');
   const canvas = document.getElementById('intro-overlay-canvas') as HTMLCanvasElement | null;
   const cta = document.getElementById('intro-overlay-cta');
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (overlay && canvas && cta && !prefersReduced) {
+    // Three.js/cannon-es (~600 Ko à eux deux) ne sont chargés qu'ici, à la
+    // demande, plutôt qu'en import statique évalué au chargement de la
+    // page — ce bundle plombait le FCP/LCP (mesuré : ~2,7s de thread
+    // principal rien que pour son parsing/exécution). Sous
+    // prefers-reduced-motion, il n'est même jamais téléchargé.
+    void (async () => {
+    const [THREE, { RoundedBoxGeometry }, { RoomEnvironment }, CANNON] = await Promise.all([
+      import('three'),
+      import('three/examples/jsm/geometries/RoundedBoxGeometry.js'),
+      import('three/examples/jsm/environments/RoomEnvironment.js'),
+      import('cannon-es'),
+    ]);
+
     let width = window.innerWidth;
     let height = window.innerHeight;
 
@@ -298,6 +306,7 @@
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
     });
+    })();
   }
 </script>
 
