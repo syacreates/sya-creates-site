@@ -482,6 +482,21 @@ const tags = [
         const aSpeed = Math.sqrt(av.x * av.x + av.y * av.y + av.z * av.z);
         if (aSpeed > 12) av.scale(12 / aSpeed, av);
 
+        // Un cube peut se stabiliser sur la borne invisible du CTA (plateforme
+        // isolée, sans mur latéral pour le faire basculer) et y rester bloqué
+        // indéfiniment au lieu de retomber dans la pile. Tant qu'il est
+        // presque immobile au-dessus de cette borne, une petite poussée
+        // latérale aléatoire l'empêche de s'y stabiliser.
+        for (const { body: bumperBody } of uiBumpers) {
+          const bumperTopY = bumperBody.position.y + 55;
+          if (c.body.position.y > bumperTopY - 40 && speed < 20) {
+            c.body.velocity.x += (Math.random() - 0.5) * 260;
+            c.body.velocity.z += (Math.random() - 0.5) * 100;
+            c.body.angularVelocity.y += (Math.random() - 0.5) * 4;
+            break;
+          }
+        }
+
         // Un cube qui a basculé par-dessus les murs (pile trop haute) finit
         // par sortir du champ visible — on le retire alors proprement.
         if (
@@ -718,9 +733,7 @@ const tags = [
 
   .hero__pitch-card--2 .hero__pitch-card__titre,
   .hero__pitch-card--2 .flip-card__back p {
-    /* Fond or plus clair que les deux verts : texte encre plutôt que
-       blanc pour rester lisible (contraste AA). */
-    color: var(--color-accent);
+    color: #ffffff;
   }
 
   .hero__pitch-card:hover,
