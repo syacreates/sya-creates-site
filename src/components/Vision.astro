@@ -58,20 +58,12 @@ const apports = [
       <span class="title-flanked__line title-flanked__line--right" aria-hidden="true" />
     </div>
 
-    <div class="vision__grid">
-      <p class="vision__paragraph">
-        Un bon design, c'est la preuve qu'un produit se comprend du premier coup, et qu'il reste
-        cohérent à mesure qu'il grandit. Ce n'est pas une question de goût, c'est une méthode :
-        comprendre l'utilisateur, structurer le parcours, puis donner une forme visuelle qui sert
-        cet objectif.
-      </p>
-
-      <p class="vision__paragraph">
-        Le développement assisté par IA ne remplace rien de tout ça : il accélère la dernière
-        étape, celle qui transforme une maquette validée en interface réellement utilisable,
-        sans attendre des mois.
-      </p>
-    </div>
+    <p class="vision__paragraph">
+      Un bon design, ça se sent dès la première utilisation, tout est clair, rien ne surprend.
+      Ce n'est pas une question de goût, c'est du travail de fond que je fais avant de dessiner
+      quoi que ce soit. L'IA n'y change rien, elle m'aide juste à aller plus vite une fois ce
+      travail fait.
+    </p>
 
     <div class="vision__block">
       <h3 class="vision__block-title">C'est quoi, concrètement, l'UX/UI Design ?</h3>
@@ -336,18 +328,13 @@ const apports = [
     color: transparent;
   }
 
-  .vision__grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 32px;
-    margin-top: 40px;
-  }
-
   .vision__paragraph {
     font-family: var(--font-body);
     font-size: 1.0625rem;
     line-height: 1.6;
     color: var(--color-text-secondary);
+    margin: 40px auto 0;
+    text-align: center;
   }
 
   .vision__block {
@@ -768,11 +755,6 @@ const apports = [
   @media (max-width: 860px) {
     .vision {
       padding: var(--section-py-mobile) 0;
-    }
-
-    .vision__grid {
-      grid-template-columns: 1fr;
-      gap: 20px;
     }
 
     .vision__block {

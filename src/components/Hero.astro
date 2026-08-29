@@ -110,6 +110,7 @@ const tags = [
 
     <div class="hero__orbfield" aria-hidden="true">
       <span class="hero__nebula"></span>
+      <span class="hero__floor"></span>
     </div>
   </div>
 </section>
@@ -814,6 +815,22 @@ const tags = [
     pointer-events: none;
   }
 
+  /* Sol : flaque vert foncé floutée au pied du champ d'orbes, là où les
+     cubes atterrissent — ancre visuellement la pile au lieu de la laisser
+     flotter sur le fond crème. */
+  .hero__floor {
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    bottom: 4%;
+    height: 70px;
+    z-index: 0;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(22, 36, 28, 0.4), transparent 72%);
+    filter: blur(26px);
+    pointer-events: none;
+  }
+
   /* Cubes chromés — scène WebGL (Three.js + cannon-es), voir le <script>
      plus bas. Le canvas couvre tout le hero (chute depuis le haut de la
      page) ; le sol physique est calé en JS sur le bas de .hero__orbfield,
@@ -862,6 +879,10 @@ const tags = [
 
     .hero__orbfield {
       height: 360px;
+    }
+
+    .hero__floor {
+      height: 50px;
     }
 
     .hero__marquee {
