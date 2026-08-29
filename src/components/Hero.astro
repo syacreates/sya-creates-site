@@ -83,6 +83,13 @@ const tags = [
           >
             <div class="flip-card__inner">
               <div class="flip-card__front">
+                <!-- Mini-cube décoratif : même rendu que le gros cube du
+                     hero (couleur, matériau laqué, arêtes), voir le <script>
+                     plus bas pour l'initialisation partagée des 3 cartes.
+                     aria-hidden : purement décoratif, le clic pour le faire
+                     pivoter est un bonus, pas une action à annoncer — le
+                     contenu réel de la carte reste le titre/texte au clic. -->
+                <canvas class="hero__pitch-cube" aria-hidden="true"></canvas>
                 <span class="hero__pitch-card__titre">{item.titre}</span>
               </div>
               <div class="flip-card__back">
@@ -130,9 +137,11 @@ const tags = [
     // le détail de la mesure Lighthouse qui a motivé ce changement) — pas
     // en import statique qui alourdirait le bundle initial de la page.
     void (async () => {
-    const [THREE, { RoundedBoxGeometry }, { RoomEnvironment }, CANNON] = await Promise.all([
+    // RoundedBoxGeometry retirée : BoxGeometry, seule à définir nativement
+    // 6 groupes de matériaux (un par face), nécessaire pour imprimer un
+    // texte différent sur chaque face du cube.
+    const [THREE, { RoomEnvironment }, CANNON] = await Promise.all([
       import('three'),
-      import('three/examples/jsm/geometries/RoundedBoxGeometry.js'),
       import('three/examples/jsm/environments/RoomEnvironment.js'),
       import('cannon-es'),
     ]);
@@ -202,7 +211,11 @@ const tags = [
       // Murs latéraux volontairement bas (pas "big") : la pile peut monter
       // jusqu'à cette hauteur, puis les cubes en trop perdent l'équilibre
       // et basculent par-dessus au lieu d'être contenus indéfiniment.
-      const wallFillHeight = 420;
+      // Proportionnel à la hauteur réelle de .hero__orbfield (pas une
+      // constante en dur) : la pile reste toujours contenue DANS le champ
+      // d'orbes, elle ne peut plus dépasser vers le haut et venir se coller
+      // sur le ruban de tags ou les cartes au-dessus.
+      const wallFillHeight = orbRect.height * 0.8;
       const wallCenterY = floorWorldY + wallFillHeight / 2;
       if (floor) [floor, left, right, front, back].forEach((b) => world.removeBody(b));
       floor = makeWall((laneLeftX + laneRightX) / 2, floorWorldY - 10, 0, (laneRightX - laneLeftX) / 2 + 30, 20, big);
@@ -242,43 +255,109 @@ const tags = [
       }
     }
 
-    // --- Cubes : quelques étapes-clés de la section Méthode, dans l'ordre
-    // — elles tombent et se posent de gauche à droite. Le cube or,
-    // dernier, reprend l'accent que la section Méthode donne déjà à sa
-    // toute dernière étape. Canvas posé au-dessus du texte, qu'il déborde
-    // légèrement en tombant, façon elevenses-product.com.
-    const palette = [
-      { size: 118, color: 0x3f7a58 }, // 01 Cadrage
-      { size: 100, color: 0x4c8c63 }, // 03 Développement IA-assisted
-      { size: 72, color: 0x7fc4a0 }, // 05 Suivi — accent
-    ];
+    // --- Cube : un seul, gros, plutôt qu'une pile qui s'alimente en
+    // continu — plus simple, plus impactant, et ça élimine tout le
+    // problème de pile qui grossit et vient chevaucher le contenu au-dessus
+    // (tags, CTA). Canvas posé au-dessus du texte, qu'il déborde légèrement
+    // en tombant, façon elevenses-product.com.
+    const palette = [{ size: 170, color: 0x7fc4a0 }];
 
     type CubeRig = { mesh: THREE.Mesh; body: CANNON.Body; size: number; age: number };
     const cubes: CubeRig[] = [];
     let spawnCount = 0;
 
+    // Étapes de la méthode imprimées sur les 4 faces latérales du cube
+    // (haut/bas restent unies — rarement face caméra une fois la pile
+    // posée à plat au sol, et jamais visibles pendant qu'il roule dessus).
+    const faceLabels = ['Comprendre le besoin', 'Parcours clair', 'Interface soignée', 'Testé et validé'];
+
+    function makeFaceTexture(text: string, bgHex: number) {
+      const size = 512;
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = `#${bgHex.toString(16).padStart(6, '0')}`;
+      ctx.fillRect(0, 0, size, size);
+
+      if (text) {
+        ctx.fillStyle = '#16241c';
+        ctx.font = "600 46px 'Fraunces', Georgia, serif";
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Retour à la ligne simple par mot, centré verticalement selon le
+        // nombre de lignes obtenues.
+        const words = text.split(' ');
+        const maxWidth = size * 0.78;
+        const lines: string[] = [];
+        let line = '';
+        for (const word of words) {
+          const test = line ? `${line} ${word}` : word;
+          if (ctx.measureText(test).width > maxWidth && line) {
+            lines.push(line);
+            line = word;
+          } else {
+            line = test;
+          }
+        }
+        if (line) lines.push(line);
+
+        const lineHeight = 58;
+        const startY = size / 2 - ((lines.length - 1) * lineHeight) / 2;
+        lines.forEach((l, i) => ctx.fillText(l, size / 2, startY + i * lineHeight));
+      }
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      return texture;
+    }
+
     function spawnCube(spec: { size: number; color: number }, targetX: number) {
-      const geo = new RoundedBoxGeometry(spec.size, spec.size, spec.size, 4, spec.size * 0.06);
-      const mat = new THREE.MeshStandardMaterial({
-        color: spec.color,
-        metalness: 1,
-        roughness: 0.22,
-        envMapIntensity: 1.3,
-        transparent: true,
-        opacity: 0,
+      const geo = new THREE.BoxGeometry(spec.size, spec.size, spec.size);
+      // Ordre des groupes de BoxGeometry : +x, -x, +y, -y, +z, -z
+      // (droite, gauche, haut, bas, avant, arrière). Haut/bas restent unies.
+      // Les 4 faces latérales sont réparties pour qu'une rotation de +90°
+      // autour de Y, répétée à chaque clic à partir de la pose neutre
+      // (identité, +z face caméra), les amène dans l'ordre exact 1→2→3→4 :
+      // +z (0°) → -x (90°) → -z (180°) → +x (270°).
+      const faceOrder: (string | null)[] = [
+        faceLabels[3],
+        faceLabels[1],
+        null,
+        null,
+        faceLabels[0],
+        faceLabels[2],
+      ];
+      const materials = faceOrder.map((label) => {
+        const texture = label ? makeFaceTexture(label, spec.color) : null;
+        return new THREE.MeshPhysicalMaterial({
+          color: spec.color,
+          map: texture,
+          // Fini satiné + couche vernie (clearcoat) : brillant et
+          // dimensionnel façon laque, sans le mirroir plein-chrome qui
+          // écraserait le texte imprimé sous des reflets illisibles.
+          metalness: 0.45,
+          roughness: 0.32,
+          envMapIntensity: 1.4,
+          clearcoat: 0.7,
+          clearcoatRoughness: 0.15,
+          transparent: true,
+          opacity: 0,
+        });
       });
-      const mesh = new THREE.Mesh(geo, mat);
+      const mesh = new THREE.Mesh(geo, materials);
       // Arêtes dessinées explicitement : un cube en rotation libre (tumbling
-      // sur les 3 axes) traverse des angles où le chrome lisse ne montre
+      // sur les 3 axes) traverse des angles où le fini satiné ne montre
       // aucune arête visible entre deux faces — la silhouette se lit alors
       // comme un losange/rectangle plutôt qu'un cube. Ce trait fin garde les
       // 12 arêtes visibles en permanence, quelle que soit la rotation.
       const edges = new THREE.LineSegments(
         new THREE.EdgesGeometry(geo, 25),
-        // Arête claire (pas encre sombre) : reste visible sur fond noir même
-        // quand la face du cube est elle-même la teinte la plus sombre de
-        // la palette — une arête sombre-sur-sombre y disparaîtrait.
-        new THREE.LineBasicMaterial({ color: 0x7fc4a0, transparent: true, opacity: 0 })
+        // Arête sombre (sapin profond) : le cube unique est maintenant une
+        // teinte claire, une arête de la même couleur s'y fondrait — un
+        // contour sombre marque nettement chaque face quel que soit l'angle.
+        new THREE.LineBasicMaterial({ color: 0x1e3d2f, transparent: true, opacity: 0 })
       );
       mesh.add(edges);
       scene.add(mesh);
@@ -303,19 +382,8 @@ const tags = [
       return rig;
     }
 
-    palette.forEach((spec, i) => {
-      const t = palette.length > 1 ? i / (palette.length - 1) : 0.5;
-      const targetX = laneLeftX + t * (laneRightX - laneLeftX);
-      const rig = spawnCube(spec, targetX);
-      // Chute séquentielle, une étape après l'autre — comme le process.
-      setTimeout(() => world.addBody(rig.body), i * 320);
-    });
-
-    // La pile continue de s'alimenter : un nouveau cube tombe régulièrement
-    // et vient s'empiler, jusqu'à ce que le tas devienne trop haut pour les
-    // murs (voir layoutWalls) et que les cubes en trop basculent et tombent.
-    let spawnTimer = 0;
-    const SPAWN_INTERVAL = 3.2;
+    const rig = spawnCube(palette[0], (laneLeftX + laneRightX) / 2);
+    world.addBody(rig.body);
 
     // --- Drag to throw ---
     const raycaster = new THREE.Raycaster();
@@ -325,6 +393,45 @@ const tags = [
     let lastWorldPos = new THREE.Vector3();
     let lastMoveTime = 0;
     let throwVelocity = new THREE.Vector3();
+
+    // --- Clic pour faire pivoter la face affichée ---
+    // Un vrai clic (peu de mouvement, relâché vite) sur le cube fait
+    // pivoter la face visible d'un quart de tour plutôt que de le
+    // lancer — un clic sans mouvement n'est pas une intention de lancer.
+    let pointerDownAt = 0;
+    let pointerDownX = 0;
+    let pointerDownY = 0;
+    let totalMoveDist = 0;
+    const CLICK_MAX_DIST = 6;
+    const CLICK_MAX_MS = 350;
+
+    let faceAnimating: CubeRig | null = null;
+    let faceStage = 0;
+    const faceAnimFrom = new THREE.Quaternion();
+    const faceAnimTo = new THREE.Quaternion();
+    let faceAnimStart = 0;
+    const FACE_ANIM_MS = 500;
+    // Légère bascule permanente : sans elle, une face pile perpendiculaire à
+    // la caméra orthographique se lit comme un carré plat, pas comme un
+    // cube — ce tilt garde le dessus et une tranche latérale visibles en
+    // permanence, quelle que soit la face affichée.
+    const CUBE_TILT = new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.32, 0, 0.14));
+    let hasAutoPosed = false;
+
+    function goToFaceStage(rig: CubeRig, stage: number) {
+      faceStage = stage;
+      faceAnimFrom.copy(rig.mesh.quaternion);
+      faceAnimTo.setFromAxisAngle(new THREE.Vector3(0, 1, 0), faceStage * (Math.PI / 2));
+      faceAnimTo.premultiply(CUBE_TILT);
+      faceAnimStart = performance.now();
+      faceAnimating = rig;
+      rig.body.angularVelocity.set(0, 0, 0);
+      rig.body.velocity.set(0, 0, 0);
+    }
+
+    function turnToNextFace(rig: CubeRig) {
+      goToFaceStage(rig, (faceStage + 1) % 4);
+    }
 
     function toNDC(e: PointerEvent) {
       const rect = canvas!.getBoundingClientRect();
@@ -363,10 +470,18 @@ const tags = [
       lastMoveTime = performance.now();
       dragging.body.velocity.set(0, 0, 0);
       dragging.body.angularVelocity.set(0, 0, 0);
+      pointerDownAt = performance.now();
+      pointerDownX = e.clientX;
+      pointerDownY = e.clientY;
+      totalMoveDist = 0;
     });
 
     canvas.addEventListener('pointermove', (e) => {
       if (!dragging) return;
+      totalMoveDist = Math.max(
+        totalMoveDist,
+        Math.hypot(e.clientX - pointerDownX, e.clientY - pointerDownY)
+      );
       toNDC(e);
       const target = worldOnPlane(dragPlaneZ);
       const now = performance.now();
@@ -380,11 +495,17 @@ const tags = [
 
     function releaseDrag() {
       if (!dragging) return;
-      dragging.body.velocity.set(
-        THREE.MathUtils.clamp(throwVelocity.x, -1800, 1800),
-        THREE.MathUtils.clamp(throwVelocity.y, -1800, 1800),
-        0
-      );
+      const wasClick =
+        totalMoveDist < CLICK_MAX_DIST && performance.now() - pointerDownAt < CLICK_MAX_MS;
+      if (wasClick) {
+        turnToNextFace(dragging);
+      } else {
+        dragging.body.velocity.set(
+          THREE.MathUtils.clamp(throwVelocity.x, -1800, 1800),
+          THREE.MathUtils.clamp(throwVelocity.y, -1800, 1800),
+          0
+        );
+      }
       dragging = null;
     }
     canvas.addEventListener('pointerup', releaseDrag);
@@ -463,16 +584,6 @@ const tags = [
         nextWobbleAt = now + 6000 + Math.random() * 2000;
       }
 
-      // Nourrit la pile en continu tant que le hero est visible.
-      spawnTimer += dt;
-      if (spawnTimer > SPAWN_INTERVAL) {
-        spawnTimer = 0;
-        const spec = palette[spawnCount % palette.length];
-        const targetX = laneLeftX + Math.random() * (laneRightX - laneLeftX);
-        const rig = spawnCube(spec, targetX);
-        world.addBody(rig.body);
-      }
-
       for (let i = cubes.length - 1; i >= 0; i--) {
         const c = cubes[i];
         // Vitesse plafonnée pour éviter qu'un contact multi-corps un peu
@@ -485,6 +596,14 @@ const tags = [
         const av = c.body.angularVelocity;
         const aSpeed = Math.sqrt(av.x * av.x + av.y * av.y + av.z * av.z);
         if (aSpeed > 12) av.scale(12 / aSpeed, av);
+
+        // Dès que la chute initiale se stabilise, on bascule une seule fois
+        // vers la pose nette (face 1 + léger tilt) plutôt que de laisser le
+        // cube posé à l'orientation aléatoire où la physique l'a arrêté.
+        if (!hasAutoPosed && !faceAnimating && speed < 15 && aSpeed < 0.3) {
+          hasAutoPosed = true;
+          goToFaceStage(c, 0);
+        }
 
         // Un cube peut se stabiliser sur la borne invisible du CTA (plateforme
         // isolée, sans mur latéral pour le faire basculer) et y rester bloqué
@@ -511,7 +630,12 @@ const tags = [
           world.removeBody(c.body);
           scene.remove(c.mesh);
           c.mesh.geometry.dispose();
-          (c.mesh.material as THREE.Material).dispose();
+          // Un matériau par face (texte imprimé sur 4 des 6) — chacun avec
+          // sa propre texture canvas à libérer, pas un matériau unique.
+          for (const m of Array.isArray(c.mesh.material) ? c.mesh.material : [c.mesh.material]) {
+            (m as THREE.MeshStandardMaterial).map?.dispose();
+            m.dispose();
+          }
           const edgesToDispose = c.mesh.children[0] as THREE.LineSegments | undefined;
           edgesToDispose?.geometry.dispose();
           (edgesToDispose?.material as THREE.Material | undefined)?.dispose();
@@ -520,13 +644,28 @@ const tags = [
         }
 
         c.mesh.position.copy(c.body.position as unknown as THREE.Vector3);
-        c.mesh.quaternion.set(c.body.quaternion.x, c.body.quaternion.y, c.body.quaternion.z, c.body.quaternion.w);
+        if (faceAnimating === c) {
+          // Rotation pilotée par l'animation de clic plutôt que par la
+          // physique le temps du quart de tour, pour un mouvement net et
+          // prévisible plutôt qu'un roulement aléatoire.
+          const t = Math.min((performance.now() - faceAnimStart) / FACE_ANIM_MS, 1);
+          const eased = 1 - Math.pow(1 - t, 3);
+          c.mesh.quaternion.slerpQuaternions(faceAnimFrom, faceAnimTo, eased);
+          if (t >= 1) {
+            c.body.quaternion.set(c.mesh.quaternion.x, c.mesh.quaternion.y, c.mesh.quaternion.z, c.mesh.quaternion.w);
+            faceAnimating = null;
+          }
+        } else {
+          c.mesh.quaternion.set(c.body.quaternion.x, c.body.quaternion.y, c.body.quaternion.z, c.body.quaternion.w);
+        }
 
         // Fondu d'apparition — le cube arrive progressivement plutôt que de
         // recouvrir brutalement un label (chip, texte) qu'il traverse.
         c.age += dt;
         const fadeIn = Math.min(c.age / 0.4, 1);
-        (c.mesh.material as THREE.MeshStandardMaterial).opacity = fadeIn;
+        for (const m of Array.isArray(c.mesh.material) ? c.mesh.material : [c.mesh.material]) {
+          (m as THREE.MeshStandardMaterial).opacity = fadeIn;
+        }
         const edges = c.mesh.children[0] as THREE.LineSegments | undefined;
         if (edges) (edges.material as THREE.LineBasicMaterial).opacity = fadeIn * 0.85;
       }
@@ -561,6 +700,157 @@ const tags = [
       renderer.setSize(width, height, false);
       layoutWalls();
     });
+    })();
+  }
+
+  // --- Mini-cubes des 3 cartes pitch : même cube que celui du hero
+  // (couleur, matériau laqué, style d'arêtes copiés tels quels), mais
+  // statique — pas de monde physique, juste un pivot d'un quart de tour
+  // par clic. Indépendant du bloc au-dessus : doit fonctionner même sur
+  // mobile/écran étroit, là où le gros cube qui tombe est désactivé.
+  const pitchCanvases = Array.from(
+    document.querySelectorAll<HTMLCanvasElement>('.hero__pitch-cube')
+  );
+  const prefersReducedPitch = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (pitchCanvases.length) {
+    void (async () => {
+      const [THREE, { RoomEnvironment }] = await Promise.all([
+        import('three'),
+        import('three/examples/jsm/environments/RoomEnvironment.js'),
+      ]);
+
+      // Valeurs copiées du cube principal (voir plus haut) plutôt que
+      // redéfinies séparément, pour un rendu identique.
+      const CUBE_COLOR = 0x7fc4a0;
+      const EDGE_COLOR = 0x1e3d2f;
+      const CUBE_TILT = new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.32, 0, 0.14));
+      const Y_AXIS = new THREE.Vector3(0, 1, 0);
+      const ROTATE_MS = 650;
+
+      type MiniCube = {
+        mesh: THREE.Mesh;
+        renderer: THREE.WebGLRenderer;
+        scene: THREE.Scene;
+        camera: THREE.OrthographicCamera;
+        stage: number;
+        animFrom: THREE.Quaternion;
+        animTo: THREE.Quaternion;
+        animStart: number;
+        animating: boolean;
+      };
+
+      const minis: MiniCube[] = [];
+      let rafId = 0;
+
+      // Le cube du hero doit sa couleur nette au fait que ses faces
+      // portent une texture (fond uni + texte) : color × map se multiplient,
+      // ce qui sature le vert. Une face sans texture (juste `color`) rend
+      // beaucoup plus pâle sous cet éclairage — sans cette même texture ici,
+      // les mini-cubes auraient l'air délavés/blanchâtres au lieu d'être
+      // identiques au cube source. Un simple aplat, sans texte.
+      const flatCanvas = document.createElement('canvas');
+      flatCanvas.width = flatCanvas.height = 64;
+      const flatCtx = flatCanvas.getContext('2d')!;
+      flatCtx.fillStyle = `#${CUBE_COLOR.toString(16).padStart(6, '0')}`;
+      flatCtx.fillRect(0, 0, 64, 64);
+      const flatTexture = new THREE.CanvasTexture(flatCanvas);
+      flatTexture.colorSpace = THREE.SRGBColorSpace;
+
+      function tick() {
+        const now = performance.now();
+        let anyAnimating = false;
+        for (const mini of minis) {
+          if (!mini.animating) continue;
+          anyAnimating = true;
+          const t = Math.min((now - mini.animStart) / ROTATE_MS, 1);
+          const eased = 1 - Math.pow(1 - t, 3);
+          mini.mesh.quaternion.slerpQuaternions(mini.animFrom, mini.animTo, eased);
+          if (t >= 1) mini.animating = false;
+          mini.renderer.render(mini.scene, mini.camera);
+        }
+        rafId = anyAnimating ? requestAnimationFrame(tick) : 0;
+      }
+
+      for (const canvas of pitchCanvases) {
+        const size = canvas.clientWidth || 48;
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-size / 2, size / 2, size / 2, -size / 2, 1, 2000);
+        camera.position.z = 700;
+
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(size, size, false);
+
+        const pmrem = new THREE.PMREMGenerator(renderer);
+        scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+        // Éclairage adouci par rapport au cube du hero (0.6/1.4) : sur une
+        // face pleine sans texte imprimé pour l'assombrir, le même réglage
+        // sature le vert pastel en blanc — même matériau, même arêtes, mais
+        // un éclairage recalibré pour qu'il reste lisible en vert à cette
+        // taille.
+        scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+        const key = new THREE.DirectionalLight(0xffffff, 0.55);
+        key.position.set(120, 220, 260);
+        scene.add(key);
+
+        const cubeSize = size * 0.72;
+        const geo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+        const material = new THREE.MeshPhysicalMaterial({
+          color: CUBE_COLOR,
+          map: flatTexture,
+          metalness: 0.45,
+          roughness: 0.32,
+          envMapIntensity: 1.4,
+          clearcoat: 0.7,
+          clearcoatRoughness: 0.15,
+        });
+        const mesh = new THREE.Mesh(geo, material);
+        mesh.quaternion.copy(CUBE_TILT);
+        const edges = new THREE.LineSegments(
+          new THREE.EdgesGeometry(geo, 25),
+          new THREE.LineBasicMaterial({ color: EDGE_COLOR })
+        );
+        mesh.add(edges);
+        scene.add(mesh);
+        renderer.render(scene, camera);
+
+        const mini: MiniCube = {
+          mesh,
+          renderer,
+          scene,
+          camera,
+          stage: 0,
+          animFrom: new THREE.Quaternion(),
+          animTo: new THREE.Quaternion(),
+          animStart: 0,
+          animating: false,
+        };
+        minis.push(mini);
+
+        // stopPropagation : le canvas vit dans une carte .flip-card qui se
+        // retourne au clic — sans ça, faire pivoter le cube retournerait
+        // aussi la carte en dessous à chaque fois.
+        canvas.addEventListener('pointerdown', (e) => e.stopPropagation());
+        canvas.addEventListener('click', (e) => {
+          e.stopPropagation();
+          mini.stage += 1;
+          const target = new THREE.Quaternion()
+            .setFromAxisAngle(Y_AXIS, mini.stage * (Math.PI / 2))
+            .premultiply(CUBE_TILT);
+          if (prefersReducedPitch) {
+            mini.mesh.quaternion.copy(target);
+            mini.renderer.render(mini.scene, mini.camera);
+            return;
+          }
+          mini.animFrom.copy(mini.mesh.quaternion);
+          mini.animTo.copy(target);
+          mini.animStart = performance.now();
+          mini.animating = true;
+          if (!rafId) rafId = requestAnimationFrame(tick);
+        });
+      }
     })();
   }
 </script>
@@ -712,7 +1002,9 @@ const tags = [
 
   .hero__pitch-card {
     width: 190px;
-    height: 112px;
+    /* +26px vs la version sans cube, pour laisser la place au mini-cube
+       au-dessus du titre sans tasser le texte. */
+    height: 138px;
     position: relative;
     z-index: 1;
     border-radius: 16px;
@@ -757,9 +1049,22 @@ const tags = [
 
   .hero__pitch-card .flip-card__front,
   .hero__pitch-card .flip-card__back {
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 18px 24px;
+    gap: 10px;
+    padding: 16px 24px;
+  }
+
+  /* Taille fixe (pas de media query dessus) : le cube garde la même
+     taille/position sur les 3 cartes, à toutes les largeurs. */
+  .hero__pitch-cube {
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    /* Touch target confortable (>=44px recommandé) malgré un rendu visuel
+       de 48px déjà suffisant — pas de padding invisible nécessaire ici. */
+    touch-action: manipulation;
   }
 
   .hero__pitch-card__titre {
