@@ -4,7 +4,7 @@ const email = 'sya.creates@gmail.com';
 const columns = [
   {
     id: 'diagnostic',
-    label: '🔍 Le diagnostic UX/UI',
+    label: 'Le diagnostic UX/UI',
     questions: [
       {
         q: 'Ce diagnostic, il est fait pour qui ?',
@@ -38,7 +38,7 @@ const columns = [
   },
   {
     id: 'accompagnement',
-    label: "🤝 Un accompagnement dans la durée",
+    label: "Un accompagnement dans la durée",
     questions: [
       {
         q: 'Comment se déroule une mission avec toi ?',
@@ -85,7 +85,7 @@ const columns = [
 
     <p class="faq__intro">
       Tout ce qu'on me demande avant de démarrer une collaboration.
-      <span class="emoji-wiggle-idle" aria-hidden="true">💬</span> Une autre question ?
+      Une autre question ?
       Écris-moi directement à <a href={`mailto:${email}`} class="link-underline">{email}</a>.
     </p>
 
@@ -194,20 +194,6 @@ const columns = [
 
   .faq__list {
     margin-top: 4px;
-  }
-
-  @keyframes emoji-idle-bob {
-    0%, 100% {
-      transform: translateY(0) rotate(0deg);
-    }
-    50% {
-      transform: translateY(-3px) rotate(-6deg);
-    }
-  }
-
-  .emoji-wiggle-idle {
-    display: inline-block;
-    animation: emoji-idle-bob 2.4s ease-in-out infinite;
   }
 
   @media (max-width: 860px) {

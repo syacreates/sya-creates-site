@@ -1,7 +1,6 @@
 ---
 const offres = [
   {
-    emoji: '🔍',
     titre: 'Le diagnostic UX/UI',
     prix: '890 € – 1 200 €',
     prixNote: 'Forfait fixe, 3 jours de travail effectif',
@@ -17,7 +16,6 @@ const offres = [
     ctaLabel: 'Réserver mon diagnostic',
   },
   {
-    emoji: '🎯',
     titre: 'Sprint ciblé',
     prix: '1 800 € – 2 800 €',
     prixNote: 'Forfait fixe, 5 jours de travail effectif',
@@ -31,7 +29,6 @@ const offres = [
     ctaLabel: 'Démarrer un sprint',
   },
   {
-    emoji: '🤝',
     titre: "L'accompagnement sur-mesure",
     prix: 'À partir de 400 €/jour',
     prixNote: 'Selon périmètre, devis personnalisé après le premier échange',
@@ -76,10 +73,7 @@ const offres = [
         offres.map((offre, index) => (
           <div class="offer glass-card reveal-item" style={`--i: ${index}`}>
             <div class="offer__header">
-              <h3 class="offer__titre">
-                <span class="offer__emoji emoji-live" aria-hidden="true">{offre.emoji}</span>
-                {offre.titre}
-              </h3>
+              <h3 class="offer__titre">{offre.titre}</h3>
             </div>
 
             <div class="offer__pricing">
@@ -197,16 +191,9 @@ const offres = [
   }
 
   .offer__titre {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
     font-size: 1.1875rem;
     font-weight: 600;
     color: var(--color-ink);
-  }
-
-  .offer__emoji {
-    font-size: 1.25rem;
   }
 
   .offer__pricing {
