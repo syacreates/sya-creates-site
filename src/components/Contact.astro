@@ -25,18 +25,32 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
 
     <div class="contact__channels">
       <div class="channel-card channel-card--primary glass-card reveal-item" style="--i: 0">
-        <span class="channel-card__rank" aria-hidden="true">Le plus rapide</span>
+        <span class="channel-card__rank" aria-hidden="true">Le plus direct</span>
+        <span class="channel-card__symbol" aria-hidden="true">→</span>
+        <h3 class="channel-card__titre">Prendre rendez-vous</h3>
+        <p class="channel-card__texte">Réserve un créneau directement dans mon agenda.</p>
+        <a
+          href="https://calendly.com/sya-creates"
+          class="btn btn--primary channel-card__cta"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Ouvrir Calendly
+        </a>
+      </div>
+
+      <div class="channel-card glass-card reveal-item" style="--i: 1">
         <span class="channel-card__symbol" aria-hidden="true">✎</span>
         <h3 class="channel-card__titre">Formulaire de cadrage</h3>
         <p class="channel-card__texte">
           Décris ton besoin en quelques minutes, je reviens vers toi avec une proposition.
         </p>
-        <button type="button" class="btn btn--primary channel-card__cta" id="open-form-btn">
+        <button type="button" class="btn btn--ghost channel-card__cta" id="open-form-btn">
           Remplir le formulaire
         </button>
       </div>
 
-      <div class="channel-card glass-card reveal-item" style="--i: 1">
+      <div class="channel-card glass-card reveal-item" style="--i: 2">
         <span class="channel-card__symbol" aria-hidden="true">@</span>
         <h3 class="channel-card__titre">Email direct</h3>
         <p class="channel-card__texte">Pour une question rapide ou un premier contact informel.</p>
@@ -47,16 +61,6 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
           </button>
           <a href={`mailto:${email}`} class="link-underline">Envoyer un email</a>
         </div>
-      </div>
-
-      <div class="channel-card glass-card reveal-item" style="--i: 2">
-        <span class="channel-card__symbol" aria-hidden="true">→</span>
-        <h3 class="channel-card__titre">Prendre rendez-vous</h3>
-        <p class="channel-card__texte">
-          La prise de rendez-vous en ligne arrive bientôt. En attendant, écris-moi ou passe par le
-          formulaire pour qu'on cale un appel.
-        </p>
-        <span class="channel-card__soon">Bientôt disponible</span>
       </div>
     </div>
 
@@ -366,21 +370,6 @@ const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
 
   .channel-card__cta {
     margin-top: 20px;
-  }
-
-  .channel-card__soon {
-    display: inline-flex;
-    align-items: center;
-    margin-top: 20px;
-    padding: 8px 16px;
-    border-radius: var(--radius-pill);
-    background: var(--color-glass);
-    border: 1px solid var(--color-line);
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-text-secondary);
   }
 
   .channel-card__email {

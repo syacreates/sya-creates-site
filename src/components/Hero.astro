@@ -806,8 +806,11 @@ const tags = [
     position: absolute;
     inset: -20%;
     z-index: 0;
+    /* Le vert foncé est calé à 86% (pas 35%) pour retomber exactement sur
+       .hero__floor, au même endroit que la ligne où atterrissent les
+       cubes — un seul repère vert foncé, pas deux zones désalignées. */
     background:
-      radial-gradient(circle at 30% 35%, rgba(31, 61, 46, 0.22), transparent 55%),
+      radial-gradient(circle at 30% 86%, rgba(31, 61, 46, 0.22), transparent 55%),
       radial-gradient(circle at 72% 60%, rgba(214, 178, 110, 0.18), transparent 50%),
       radial-gradient(circle at 55% 20%, rgba(76, 140, 99, 0.16), transparent 45%);
     filter: blur(30px);

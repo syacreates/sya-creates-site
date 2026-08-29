@@ -204,6 +204,7 @@ const apports = [
     let stage = 0;
     let timer = 0;
     let flying = false;
+    let flyAwayTimer = 0;
 
     function render() {
       visual!.dataset.stage = String(stage);
@@ -234,8 +235,16 @@ const apports = [
     function jumpTo(i: number) {
       if (flying) return;
       clearTimeout(timer);
+      clearTimeout(flyAwayTimer);
       goToStage(i);
       scheduleNext();
+    }
+
+    // Laisse le temps de voir le papillon posé sur l'étape "Habiller"
+    // avant qu'il ne s'envole, plutôt qu'un envol immédiat au clic.
+    function scheduleFlyAway() {
+      clearTimeout(flyAwayTimer);
+      flyAwayTimer = window.setTimeout(() => flyAway(), 2500);
     }
 
     // Bonus ponctuel : le papillon s'envole hors du cadre, puis le cycle
@@ -264,7 +273,7 @@ const apports = [
       btn.addEventListener('click', () => {
         if (i === LAST) {
           jumpTo(LAST);
-          flyAway();
+          scheduleFlyAway();
         } else {
           jumpTo(i);
         }
@@ -276,7 +285,10 @@ const apports = [
     // bouton "Habiller" ci-dessous offre déjà le même déclenchement au
     // clavier.
     butterfly.addEventListener('click', () => {
-      if (stage === LAST) flyAway();
+      if (stage === LAST) {
+        clearTimeout(flyAwayTimer);
+        flyAway();
+      }
     });
 
     goToStage(prefersReduced ? LAST : 0);
