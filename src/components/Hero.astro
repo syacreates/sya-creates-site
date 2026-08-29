@@ -817,17 +817,21 @@ const tags = [
 
   /* Sol : flaque vert foncé floutée au pied du champ d'orbes, là où les
      cubes atterrissent — ancre visuellement la pile au lieu de la laisser
-     flotter sur le fond crème. */
+     flotter sur le fond crème. Centrée exactement sur le bord bas de
+     .hero__orbfield (bottom: -moitié de la hauteur) : c'est précisément la
+     ligne où repose le sol physique en JS (floorWorldY, calé sur ce même
+     bord), donc les cubes touchent vraiment le trait, pas un flou décalé
+     au-dessus. */
   .hero__floor {
     position: absolute;
-    left: 6%;
-    right: 6%;
-    bottom: 4%;
-    height: 70px;
+    left: 4%;
+    right: 4%;
+    bottom: -30px;
+    height: 60px;
     z-index: 0;
     border-radius: 50%;
-    background: radial-gradient(ellipse at center, rgba(22, 36, 28, 0.4), transparent 72%);
-    filter: blur(26px);
+    background: radial-gradient(ellipse at center, rgba(22, 36, 28, 0.55), transparent 70%);
+    filter: blur(18px);
     pointer-events: none;
   }
 
@@ -883,6 +887,7 @@ const tags = [
 
     .hero__floor {
       height: 50px;
+      bottom: -25px;
     }
 
     .hero__marquee {
