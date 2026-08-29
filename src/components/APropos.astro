@@ -88,17 +88,18 @@ import portrait from '../assets/sya-creates-photo.jpg';
     aspect-ratio: 4 / 5;
     max-width: 320px;
     margin: 0 auto;
-    padding: 10px;
+    padding: 0;
     border-radius: var(--radius-card);
-    background: var(--gradient-accent);
-    box-shadow: 0 0 0 1px rgba(31, 61, 46, 0.15), 0 30px 60px -24px rgba(31, 61, 46, 0.55),
-      0 0 60px -8px rgba(76, 140, 99, 0.6);
+    background: var(--color-surface);
+    /* Cadre fin sapin clair plutôt que le cadre épais plein d'origine —
+       aéré, cohérent avec le traitement outline des cartes. */
+    border: 1px solid var(--color-accent-2);
+    box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.7), 0 0 50px -10px rgba(74, 128, 101, 0.45);
     transition: box-shadow 0.4s var(--ease-spring);
   }
 
   .about__photo:hover {
-    box-shadow: 0 0 0 1px rgba(31, 61, 46, 0.2), 0 34px 64px -22px rgba(31, 61, 46, 0.55),
-      0 0 80px -6px rgba(76, 140, 99, 0.75);
+    box-shadow: 0 34px 64px -22px rgba(0, 0, 0, 0.7), 0 0 70px -8px rgba(74, 128, 101, 0.65);
   }
 
   .about__photo-inner {
@@ -106,7 +107,7 @@ import portrait from '../assets/sya-creates-photo.jpg';
     width: 100%;
     height: 100%;
     overflow: hidden;
-    border-radius: calc(var(--radius-card) - 10px);
+    border-radius: calc(var(--radius-card) - 1px);
   }
 
   .about__photo-inner img {
@@ -129,14 +130,16 @@ import portrait from '../assets/sya-creates-photo.jpg';
     z-index: 1;
   }
 
-  /* Teinte duotone — superpose l'encre du site sur la photo en noir et blanc */
+  /* Duotone noir/vert sapin : superpose l'accent (pas --color-ink, devenu
+     clair en dark mode — un duotone crème casserait l'effet) sur la photo
+     en noir et blanc. */
   .about__photo-inner::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: var(--color-ink);
+    background: var(--color-accent);
     mix-blend-mode: color;
-    opacity: 0.42;
+    opacity: 0.55;
     pointer-events: none;
     z-index: 2;
   }

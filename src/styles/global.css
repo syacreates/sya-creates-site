@@ -1,22 +1,33 @@
 :root {
-  /* Couleurs — fond crème/sable, encre vert forêt, accent dégradé vert */
-  --color-bg: #f7f3e8;
-  --color-bg-alt: #efe6d0;
-  --color-ink: #16241c;
-  --color-text-secondary: #5b6259;
-  --color-accent: #1f3d2e;
-  --color-accent-2: #4c8c63;
-  --color-line: rgba(22, 36, 28, 0.1);
-  --color-surface: #ffffff;
-  --color-glass: rgba(255, 252, 244, 0.6);
-  --color-glass-strong: rgba(255, 252, 244, 0.8);
-  --color-glass-border: rgba(255, 255, 255, 0.7);
-  /* Sémantique d'erreur — distincte de l'accent (vert = positif/marque) */
-  --color-error: #a8432f;
+  /* Couleurs — dark mode : noir sapin profond, vert sapin comme accent
+     chromatique unique (remplace l'ancien duo vert/or sur crème). Les noms
+     de variables restent inchangés pour que tout le site (déjà écrit en
+     tokens sémantiques, jamais en hex en dur) bascule sans réécrire les
+     composants un par un. */
+  --color-bg: #0b0f0d;
+  --color-bg-alt: #121710;
+  --color-ink: #f5f3ee;
+  --color-text-secondary: #8a9089;
+  /* Sapin profond : réservé aux FONDS pleins (boutons, badges) — jamais en
+     texte/bordure sur --color-bg, le contraste y est insuffisant. */
+  --color-accent: #1e3d2f;
+  /* Sapin clair : texte accentué, liens, bordures, hover — le seul des deux
+     à rester lisible sur noir. */
+  --color-accent-2: #4a8065;
+  --color-line: rgba(74, 128, 101, 0.16);
+  --color-surface: #121710;
+  --color-glass: rgba(18, 23, 16, 0.65);
+  --color-glass-strong: rgba(18, 23, 16, 0.85);
+  --color-glass-border: rgba(74, 128, 101, 0.22);
+  /* Sémantique d'erreur — éclairci pour rester lisible sur fond noir */
+  --color-error: #e2725b;
 
-  --gradient-accent: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
-  --shadow-soft: 0 20px 45px -20px rgba(31, 61, 46, 0.35);
-  --shadow-card: 0 12px 32px -18px rgba(22, 36, 28, 0.22);
+  /* Dégradé texte-safe : jamais --color-accent dedans (trop sombre sur
+     noir une fois en background-clip:text) — seulement les deux teintes
+     claires de la famille sapin. */
+  --gradient-accent: linear-gradient(135deg, var(--color-accent-2), #7fc4a0);
+  --shadow-soft: 0 20px 45px -20px rgba(0, 0, 0, 0.6);
+  --shadow-card: 0 12px 32px -18px rgba(0, 0, 0, 0.5);
 
   /* Typographie */
   --font-display: 'Fraunces', Georgia, serif;
@@ -47,19 +58,27 @@
 
 html {
   background: var(--color-bg);
-  color-scheme: light;
+  color-scheme: dark;
   scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
+  /* Les deux dégradés d'ambiance étaient vert foncé + or : l'or est retiré
+     (le sapin devient l'accent chromatique unique) et le vert foncé,
+     invisible sur fond noir, est remplacé par la teinte claire de la
+     famille sapin. */
   background:
-    radial-gradient(720px 480px at 8% -10%, rgba(31, 61, 46, 0.14), transparent 60%),
-    radial-gradient(680px 460px at 96% 8%, rgba(214, 178, 110, 0.16), transparent 60%),
-    radial-gradient(900px 600px at 50% 60%, rgba(76, 140, 99, 0.1), transparent 65%),
+    radial-gradient(720px 480px at 8% -10%, rgba(74, 128, 101, 0.2), transparent 60%),
+    radial-gradient(680px 460px at 96% 8%, rgba(74, 128, 101, 0.14), transparent 60%),
+    radial-gradient(900px 600px at 50% 60%, rgba(30, 61, 47, 0.4), transparent 65%),
     var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-body);
+  /* 500 plutôt que 400 : le texte fin perd en lisibilité sur fond sombre,
+     un poids légèrement plus fort compense (400 est chargé mais 500 l'est
+     aussi, pas de coût supplémentaire). */
+  font-weight: 500;
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -145,15 +164,15 @@ summary:focus-visible,
 }
 
 .btn--primary {
-  background: var(--gradient-accent);
-  color: #ffffff;
+  background: var(--color-accent);
+  color: var(--color-ink);
   box-shadow: var(--shadow-soft);
 }
 
 .btn--primary:hover {
   transform: translateY(-2px) scale(1.03);
-  filter: brightness(1.05);
-  box-shadow: 0 24px 50px -18px rgba(31, 61, 46, 0.45);
+  filter: brightness(1.25);
+  box-shadow: 0 24px 50px -18px rgba(0, 0, 0, 0.6);
 }
 
 .btn--primary:active {
@@ -185,7 +204,7 @@ summary:focus-visible,
   font-size: 0.9375rem;
   color: var(--color-ink);
   text-decoration: underline;
-  text-decoration-color: var(--color-accent);
+  text-decoration-color: var(--color-accent-2);
   text-underline-offset: 4px;
   background: none;
   border: none;
@@ -196,7 +215,7 @@ summary:focus-visible,
 }
 
 .link-underline:hover {
-  text-decoration-color: var(--color-accent-2);
+  filter: brightness(1.35);
 }
 
 /* Cartes en verre — motif réutilisé dans chaque section.
@@ -234,11 +253,11 @@ summary:focus-visible,
   flex-shrink: 0;
   width: 56px;
   height: 1px;
-  background: linear-gradient(to left, #d9a854, transparent);
+  background: linear-gradient(to left, #7fc4a0, transparent);
 }
 
 .title-flanked__line--right {
-  background: linear-gradient(to right, #d9a854, transparent);
+  background: linear-gradient(to right, #7fc4a0, transparent);
 }
 
 @media (max-width: 640px) {
@@ -478,7 +497,7 @@ summary:focus-visible,
    transparent, façon verre) plutôt qu'un simple trait de séparation — les
    questions se lisent comme des unités distinctes, pas une longue liste. */
 .accordion-item {
-  border: 1px solid rgba(217, 168, 84, 0.4);
+  border: 1px solid rgba(127, 196, 160, 0.4);
   border-radius: var(--radius-card-sm);
   background: var(--color-glass);
   padding: 0 18px;
@@ -493,7 +512,7 @@ summary:focus-visible,
 .accordion-item:hover,
 .accordion-item[open] {
   background: var(--color-glass-strong);
-  border-color: rgba(217, 168, 84, 0.75);
+  border-color: rgba(127, 196, 160, 0.75);
 }
 
 .accordion-item summary {
@@ -531,7 +550,9 @@ summary:focus-visible,
 .accordion-item[open] .accordion-item__icon {
   transform: rotate(45deg);
   background: var(--gradient-accent);
-  color: #ffffff;
+  /* Le dégradé texte-safe est clair : un glyphe sombre dessus est bien
+     plus lisible qu'un blanc (contraste ~2:1 à l'extrémité claire). */
+  color: var(--color-bg);
 }
 
 .accordion-item__answer {

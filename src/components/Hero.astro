@@ -250,7 +250,7 @@ const tags = [
     const palette = [
       { size: 118, color: 0x3f7a58 }, // 01 Cadrage
       { size: 100, color: 0x4c8c63 }, // 03 Développement IA-assisted
-      { size: 72, color: 0xd9a854 }, // 05 Suivi — accent
+      { size: 72, color: 0x7fc4a0 }, // 05 Suivi — accent
     ];
 
     type CubeRig = { mesh: THREE.Mesh; body: CANNON.Body; size: number; age: number };
@@ -275,7 +275,10 @@ const tags = [
       // 12 arêtes visibles en permanence, quelle que soit la rotation.
       const edges = new THREE.LineSegments(
         new THREE.EdgesGeometry(geo, 25),
-        new THREE.LineBasicMaterial({ color: 0x1f3d2e, transparent: true, opacity: 0 })
+        // Arête claire (pas encre sombre) : reste visible sur fond noir même
+        // quand la face du cube est elle-même la teinte la plus sombre de
+        // la palette — une arête sombre-sur-sombre y disparaîtrait.
+        new THREE.LineBasicMaterial({ color: 0x7fc4a0, transparent: true, opacity: 0 })
       );
       mesh.add(edges);
       scene.add(mesh);
@@ -729,12 +732,16 @@ const tags = [
 
   .hero__pitch-card--2 .flip-card__front,
   .hero__pitch-card--2 .flip-card__back {
-    background: #d9a854;
+    /* 3e teinte de la même famille sapin (pas d'or) : la plus claire, pour
+       un dégradé à 3 niveaux plutôt qu'une 2e carte de la même couleur. */
+    background: #7fc4a0;
   }
 
   .hero__pitch-card--2 .hero__pitch-card__titre,
   .hero__pitch-card--2 .flip-card__back p {
-    color: #ffffff;
+    /* Fond clair : texte sombre plutôt que blanc pour rester lisible
+       (contraste AA — le blanc y tombe à ~2:1). */
+    color: var(--color-bg);
   }
 
   .hero__pitch-card:hover,

@@ -106,7 +106,7 @@
       // envMapIntensity plus haute) : c'est la pièce maîtresse de l'écran
       // d'intro, elle doit accrocher la lumière plus fort que le reste.
       const iconMat = new THREE.MeshStandardMaterial({
-        color: 0xd9a854,
+        color: 0x7fc4a0,
         metalness: 1,
         roughness: 0.15,
         envMapIntensity: 1.7,
@@ -115,7 +115,10 @@
       iconMesh.rotation.set(-0.5, 0.7, 0);
       const iconEdges = new THREE.LineSegments(
         new THREE.EdgesGeometry(iconGeo, 25),
-        new THREE.LineBasicMaterial({ color: 0x1f3d2e, transparent: true, opacity: 0.35 })
+        // Arête plus sombre que la face (pas la même teinte claire) : sans
+        // ça, sur ce cube clair spécifiquement, l'arête se fond dans la face
+        // et perd toute définition.
+        new THREE.LineBasicMaterial({ color: 0x1e3d2f, transparent: true, opacity: 0.5 })
       );
       iconMesh.add(iconEdges);
       iconScene.add(iconMesh);
@@ -147,9 +150,9 @@
     world.addContactMaterial(new CANNON.ContactMaterial(cubeMat, cubeMat, { friction: 0.4, restitution: 0.1 }));
 
     // Couleurs exactes de la charte (--color-accent, --color-accent-2, or
-    // #d9a854) — les mêmes que la pile de cubes du hero, pas une teinte
+    // #7fc4a0) — les mêmes que la pile de cubes du hero, pas une teinte
     // approchée inventée pour l'occasion.
-    const palette = [0x1f3d2e, 0x4c8c63, 0xd9a854];
+    const palette = [0x1f3d2e, 0x4c8c63, 0x7fc4a0];
     // Cubes un peu plus grands qu'avant : une grille plein écran (pas une
     // pyramide) compte nettement plus de cubes à taille égale, donc on
     // agrandit légèrement pour garder un nombre de corps physiques
@@ -175,7 +178,7 @@
       const mesh = new THREE.Mesh(geo, mat);
       const edges = new THREE.LineSegments(
         new THREE.EdgesGeometry(geo, 25),
-        new THREE.LineBasicMaterial({ color: 0x1f3d2e, transparent: true, opacity: 0.35 })
+        new THREE.LineBasicMaterial({ color: 0x7fc4a0, transparent: true, opacity: 0.55 })
       );
       mesh.add(edges);
       scene.add(mesh);
@@ -385,7 +388,7 @@
     gap: 8px;
     padding: 10px 22px;
     border-radius: var(--radius-pill);
-    border: 1px solid rgba(217, 168, 84, 0.5);
+    border: 1px solid rgba(127, 196, 160, 0.5);
     font-family: var(--font-mono);
     font-size: 12px;
     letter-spacing: 0.1em;
@@ -395,7 +398,7 @@
   }
 
   .intro-overlay__cta-arrow {
-    color: #d9a854;
+    color: #7fc4a0;
     transition: transform 0.3s var(--ease-spring);
   }
 
@@ -406,10 +409,10 @@
   @keyframes intro-cta-hint-pulse {
     0%,
     100% {
-      border-color: rgba(217, 168, 84, 0.35);
+      border-color: rgba(127, 196, 160, 0.35);
     }
     50% {
-      border-color: rgba(217, 168, 84, 0.85);
+      border-color: rgba(127, 196, 160, 0.85);
     }
   }
 
@@ -448,16 +451,16 @@
   }
 
   .intro-overlay__cta-dot {
-    color: #d9a854;
+    color: #7fc4a0;
   }
 
   @keyframes intro-cta-glow {
     0%,
     100% {
-      filter: drop-shadow(0 0 8px rgba(217, 168, 84, 0.4));
+      filter: drop-shadow(0 0 8px rgba(127, 196, 160, 0.4));
     }
     50% {
-      filter: drop-shadow(0 0 22px rgba(217, 168, 84, 0.9));
+      filter: drop-shadow(0 0 22px rgba(127, 196, 160, 0.9));
     }
   }
 

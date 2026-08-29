@@ -30,8 +30,12 @@ const { variant = 'on-light', class: className = '' } = Astro.props;
     color: var(--color-ink);
   }
 
+  /* Tout le site est désormais en dark mode : les deux variants
+     convergent vers la même teinte de marque (sapin clair, le seul accent
+     chromatique du site) plutôt que le duo encre/crème d'origine, pensé
+     pour une page claire avec de rares zones sombres. */
   .logo--on-dark {
-    color: var(--color-bg);
+    color: var(--color-ink);
   }
 
   .logo__mark {
@@ -40,34 +44,20 @@ const { variant = 'on-light', class: className = '' } = Astro.props;
     flex-shrink: 0;
   }
 
-  /* Une seule teinte de marque par variant, à 3 opacités — jamais le
-     currentColor du wordmark : le cube garde sa couleur de marque même
-     quand le texte change (ink en clair, crème en sombre). */
-  .logo--on-light .logo__face--top {
-    fill: #1a4733;
-  }
-
-  .logo--on-light .logo__face--left {
-    fill: #1a4733;
-    opacity: 0.8;
-  }
-
-  .logo--on-light .logo__face--right {
-    fill: #1a4733;
-    opacity: 0.55;
-  }
-
+  .logo--on-light .logo__face--top,
   .logo--on-dark .logo__face--top {
-    fill: #f4f1e7;
+    fill: var(--color-accent-2);
   }
 
+  .logo--on-light .logo__face--left,
   .logo--on-dark .logo__face--left {
-    fill: #f4f1e7;
+    fill: var(--color-accent-2);
     opacity: 0.8;
   }
 
+  .logo--on-light .logo__face--right,
   .logo--on-dark .logo__face--right {
-    fill: #f4f1e7;
+    fill: var(--color-accent-2);
     opacity: 0.55;
   }
 
@@ -80,6 +70,6 @@ const { variant = 'on-light', class: className = '' } = Astro.props;
   }
 
   .logo__dot {
-    color: var(--color-accent);
+    color: var(--color-accent-2);
   }
 </style>
