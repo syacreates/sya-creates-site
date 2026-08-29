@@ -3,7 +3,8 @@ const offres = [
   {
     emoji: '🔍',
     titre: 'Le diagnostic UX/UI',
-    sousTitre: 'Sur devis',
+    prix: '890 € – 1 200 €',
+    prixNote: 'Forfait fixe, 3 jours de travail effectif',
     texte:
       "Je passe en revue ton produit pour identifier précisément ce qui freine l'expérience utilisateur, et tu repars avec un plan d'action clair.",
     points: [
@@ -16,9 +17,24 @@ const offres = [
     ctaLabel: 'Réserver mon diagnostic',
   },
   {
+    emoji: '🎯',
+    titre: 'Sprint ciblé',
+    prix: '1 800 € – 2 800 €',
+    prixNote: 'Forfait fixe, 5 jours de travail effectif',
+    texte:
+      "Un périmètre précis, refonte UI, design system, ou parcours unique, livré vite, sans engagement long.",
+    points: [
+      'Cadrage rapide du besoin',
+      'Un livrable ciblé (prototype testable + fichiers Figma)',
+      'Une session de restitution',
+    ],
+    ctaLabel: 'Démarrer un sprint',
+  },
+  {
     emoji: '🤝',
     titre: "L'accompagnement sur-mesure",
-    sousTitre: 'Sur devis',
+    prix: 'À partir de 400 €/jour',
+    prixNote: 'Selon périmètre, devis personnalisé après le premier échange',
     texte:
       'Une collaboration dans la durée pour concevoir, designer et développer ton produit, du cadrage à la mise en ligne.',
     points: [
@@ -45,14 +61,14 @@ const offres = [
     <div class="title-flanked">
       <span class="title-flanked__line" aria-hidden="true" />
       <h2 class="accompaniment__title">
-        Deux façons de <em>travailler ensemble.</em>
+        Trois façons de <em>travailler ensemble.</em>
       </h2>
       <span class="title-flanked__line title-flanked__line--right" aria-hidden="true" />
     </div>
 
     <p class="accompaniment__intro">
-      Que tu aies besoin d'un diagnostic clair ou d'une collaboration dans la durée, il y a une
-      offre adaptée à ton étape.
+      Que tu aies besoin d'un diagnostic clair, d'un sprint ciblé, ou d'une collaboration dans la
+      durée, il y a une offre adaptée à ton étape.
     </p>
 
     <div class="accompaniment__grid">
@@ -64,7 +80,11 @@ const offres = [
                 <span class="offer__emoji emoji-live" aria-hidden="true">{offre.emoji}</span>
                 {offre.titre}
               </h3>
-              <span class="offer__sous-titre">{offre.sousTitre}</span>
+            </div>
+
+            <div class="offer__pricing">
+              <span class="offer__prix">{offre.prix}</span>
+              <span class="offer__prix-note">{offre.prixNote}</span>
             </div>
 
             <p class="offer__texte">{offre.texte}</p>
@@ -158,21 +178,20 @@ const offres = [
 
   .accompaniment__grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
     margin-top: 56px;
   }
 
   .offer {
     display: flex;
     flex-direction: column;
-    padding: 40px;
+    padding: 32px;
   }
 
   .offer__header {
     display: flex;
     align-items: baseline;
-    justify-content: space-between;
     gap: 12px;
     flex-wrap: wrap;
   }
@@ -181,7 +200,7 @@ const offres = [
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    font-size: 1.375rem;
+    font-size: 1.1875rem;
     font-weight: 600;
     color: var(--color-ink);
   }
@@ -190,12 +209,27 @@ const offres = [
     font-size: 1.25rem;
   }
 
-  .offer__sous-titre {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+  .offer__pricing {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .offer__prix {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 600;
     color: var(--color-accent-2);
+  }
+
+  .offer__prix-note {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--color-text-secondary);
   }
 
   .offer__texte {
