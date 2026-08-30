@@ -1,0 +1,823 @@
+---
+// Étude de cas produit — voir tache-claude-code-section-pinlove.md pour le
+// brief complet (structure/copy/logique de couleurs viennent de la maquette
+// de référence ; l'implémentation CSS réutilise les tokens/composants
+// existants du site plutôt que le CSS inline de cette maquette).
+import { Image } from 'astro:assets';
+import heartIcon from '../assets/pinlove/pinlove-heart.png';
+
+const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
+
+const faits = [
+  {
+    label: 'Rôle',
+    texte: "UX design & développement — de l'idée à l'app fonctionnelle, en solo.",
+  },
+  {
+    label: 'Stack',
+    texte: 'Expo, Supabase, Firebase — build et distribution testés en conditions réelles.',
+  },
+  {
+    label: 'Statut',
+    texte: 'En développement actif — prochaine étape : le partage depuis les réseaux.',
+  },
+];
+
+const fonctionnalites = [
+  {
+    titre: 'Épingler un lieu',
+    texte:
+      "On dépose un point sur la carte, on y attache une photo ou un mot, et le souvenir reste à cet endroit précis.",
+  },
+  {
+    titre: 'Partager depuis TikTok ou Instagram',
+    texte:
+      'On envoie une vidéo repérée ailleurs directement vers PinLove : le lieu et la carte se remplissent seuls.',
+  },
+  {
+    titre: 'Garder ça entre proches',
+    texte:
+      "Chaque carte se partage avec qui on veut, pour construire ensemble l'atlas des endroits qui comptent.",
+  },
+];
+
+const stackChips = ['Expo', 'Supabase', 'Firebase', 'Stripe', 'Google Maps API', 'Vercel'];
+
+const roles = [
+  {
+    titre: 'Design',
+    texte: 'Identité de marque, tampon signature et cœur en dégradé brass→cerise, parcours utilisateur complet.',
+  },
+  {
+    titre: 'Développement',
+    texte: "App mobile fonctionnelle, géocodage automatique, extension de partage en cours d'intégration.",
+  },
+  {
+    titre: 'Cadrage produit',
+    texte: 'Choix techniques et arbitrages de coûts pensés dès le départ pour rester soutenable en solo.',
+  },
+];
+---
+
+<section class="pinlove" id="pinlove">
+  <span class="blob blob--pinlove" aria-hidden="true"></span>
+
+  <div class="pinlove__inner">
+    <span class="eyebrow-pill">
+      <span class="eyebrow-pill__dot"></span>
+      Projet indépendant · Design &amp; développement
+    </span>
+
+    <div class="title-flanked">
+      <span class="title-flanked__line" aria-hidden="true" />
+      <h2 class="pinlove__title">
+        Chaque lieu garde <em>une histoire.</em>
+      </h2>
+      <span class="title-flanked__line title-flanked__line--right" aria-hidden="true" />
+    </div>
+
+    <p class="pinlove__subtitle">
+      PinLove épingle les endroits qui comptent, y accroche un souvenir, et le partage avec les
+      personnes qu'on aime — même depuis TikTok ou Instagram.
+    </p>
+
+    <div class="pinlove__hero">
+      <div class="pinlove__ctas">
+        <a href="#pinlove-waitlist" class="btn btn--primary">Rejoindre la liste d'attente</a>
+        <!-- Pas de page projet détaillée à ce jour — lien à cibler vers une
+             étude de cas ou le site PinLove une fois disponible. -->
+        <a href="#" class="link-underline">Voir le projet en détail</a>
+      </div>
+
+      <!-- Visuel signature : mockup téléphone + 2 polaroids + tampon, façon
+           corkboard. Recréé en CSS/SVG (pas les assets de la maquette de
+           référence), avec le vrai cœur PinLove extrait du brief. -->
+      <div class="pinlove__board" aria-hidden="true">
+        <svg class="pinlove__thread" viewBox="0 0 400 460" preserveAspectRatio="none">
+          <path d="M50,100 C110,145 145,200 190,225" />
+          <path d="M340,360 C285,325 250,290 210,245" />
+        </svg>
+        <span class="pinlove__pinhead" style="left:46px; top:92px;"></span>
+        <span class="pinlove__pinhead" style="right:46px; bottom:108px;"></span>
+
+        <!-- Tampon : substitut CSS le temps d'obtenir le fichier logo.png
+             source (le tampon complet embarqué dans le brief n'a pas pu
+             être décodé proprement — voir résumé de session). -->
+        <div class="pinlove__stamp">
+          <Image src={heartIcon} alt="" width="40" height="40" />
+        </div>
+
+        <div class="pinlove__polaroid pinlove__polaroid--1">
+          <div class="pinlove__polaroid-pic pinlove__polaroid-pic--brass">
+            <Image src={heartIcon} alt="" width="34" height="34" />
+          </div>
+          <p class="pinlove__polaroid-cap">le kiosque, 8h12</p>
+        </div>
+
+        <div class="pinlove__polaroid pinlove__polaroid--2">
+          <div class="pinlove__polaroid-pic pinlove__polaroid-pic--cherry">
+            <Image src={heartIcon} alt="" width="34" height="34" />
+          </div>
+          <p class="pinlove__polaroid-cap">notre banc</p>
+        </div>
+
+        <div class="pinlove__phone">
+          <div class="pinlove__phone-screen">
+            <span class="pinlove__app-icon">
+              <Image src={heartIcon} alt="Icône PinLove" width="24" height="24" />
+            </span>
+            <span class="pinlove__map-dot" style="left:38px; top:150px;"></span>
+            <span class="pinlove__map-dot" style="left:108px; top:228px;"></span>
+            <span class="pinlove__map-dot" style="left:66px; top:306px;"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pinlove__facts">
+      {
+        faits.map((fait, index) => (
+          <div class="pinlove-fact reveal-item" style={`--i: ${index}`}>
+            <span class="pinlove-fact__label">{fait.label}</span>
+            <p class="pinlove-fact__texte">{fait.texte}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="pinlove__features-head">
+      <span class="eyebrow-pill">
+        <span class="eyebrow-pill__dot"></span>
+        Ce qu'on peut faire
+      </span>
+      <h3 class="pinlove__features-title">Un lieu, un souvenir, une personne à qui l'envoyer.</h3>
+    </div>
+
+    <div class="pinlove__features">
+      {
+        fonctionnalites.map((item, index) => (
+          <div class="pinlove-feature glass-card reveal-item" style={`--i: ${index}`}>
+            <span class="pinlove-feature__mark" aria-hidden="true" />
+            <h4 class="pinlove-feature__titre">{item.titre}</h4>
+            <p class="pinlove-feature__texte">{item.texte}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="pinlove__coulisses">
+      <div class="pinlove-coulisses__intro">
+        <span class="eyebrow-pill">
+          <span class="eyebrow-pill__dot"></span>
+          Dans les coulisses
+        </span>
+        <h3 class="pinlove-coulisses__titre">Un projet mené de bout en bout.</h3>
+        <p class="pinlove-coulisses__texte">
+          De l'identité visuelle — un cœur en dégradé brass vers cerise, affiné après plusieurs
+          rondes de simplification — jusqu'à l'architecture technique et sa distribution, chaque
+          brique a été construite et testée à la main.
+        </p>
+        <div class="pinlove-coulisses__chips">
+          {stackChips.map((chip) => <span class="tag-pill">{chip}</span>)}
+        </div>
+      </div>
+
+      <div class="pinlove-coulisses__roles">
+        {
+          roles.map((role) => (
+            <div class="pinlove-role">
+              <span class="pinlove-role__dot" aria-hidden="true" />
+              <div>
+                <h4 class="pinlove-role__titre">{role.titre}</h4>
+                <p class="pinlove-role__texte">{role.texte}</p>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="pinlove__final-cta" id="pinlove-waitlist">
+      <h3 class="pinlove-final-cta__titre">Envie de suivre l'aventure PinLove ?</h3>
+
+      <form class="pinlove-waitlist-form" id="pinlove-waitlist-form" novalidate>
+        <input type="hidden" name="access_key" value={web3formsAccessKey} />
+        <input type="hidden" name="subject" value="Liste d'attente PinLove — Sya Creates" />
+        <input
+          type="checkbox"
+          name="botcheck"
+          class="pinlove-waitlist-form__honeypot"
+          tabindex="-1"
+          autocomplete="off"
+          aria-hidden="true"
+        />
+
+        <label class="pinlove-waitlist-form__field">
+          <span class="pinlove-waitlist-form__sr-label">Adresse email</span>
+          <input
+            type="email"
+            name="email"
+            id="pinlove-waitlist-email"
+            placeholder="votre email"
+            required
+            aria-describedby="pinlove-waitlist-error"
+          />
+          <button type="submit" class="btn btn--primary" id="pinlove-waitlist-submit">S'inscrire</button>
+        </label>
+
+        <p class="pinlove-waitlist-form__success" id="pinlove-waitlist-success" role="status">
+          Merci ! Tu seras prévenu·e dès que PinLove ouvre ses portes.
+        </p>
+        <p class="pinlove-waitlist-form__error" id="pinlove-waitlist-error" role="alert">
+          L'inscription a échoué. Réessaie, ou écris directement à sya.creates@gmail.com.
+        </p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById('pinlove-waitlist-form') as HTMLFormElement | null;
+  const emailField = document.getElementById('pinlove-waitlist-email') as HTMLInputElement | null;
+  const submitBtn = document.getElementById('pinlove-waitlist-submit') as HTMLButtonElement | null;
+  const successMessage = document.getElementById('pinlove-waitlist-success');
+  const errorMessage = document.getElementById('pinlove-waitlist-error');
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    errorMessage?.classList.remove('pinlove-waitlist-form__error--visible');
+
+    if (!emailField?.checkValidity()) {
+      emailField?.reportValidity();
+      return;
+    }
+
+    const formData = new FormData(form);
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Envoi…';
+    }
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: formData,
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        form.hidden = true;
+        successMessage?.classList.add('pinlove-waitlist-form__success--visible');
+      } else {
+        throw new Error(result.message || 'submission failed');
+      }
+    } catch {
+      errorMessage?.classList.add('pinlove-waitlist-form__error--visible');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "S'inscrire";
+      }
+    }
+  });
+</script>
+
+<style>
+  /* Tokens locaux à PinLove uniquement : l'accent doré remplace le vert
+     sauge ici, sans toucher --color-accent/--color-accent-2 utilisés par
+     le reste du site. Les teintes brass/cerise sont propres au produit
+     (logo du cœur PinLove) — jamais réutilisées comme accent de section. */
+  .pinlove {
+    --pin-gold: #d9a441;
+    --pin-gold-pale: #ebd09a;
+    --pin-ink-on-gold: #14140f;
+    --pin-brass: #dca05a;
+    --pin-cherry: #f1566a;
+    --pin-cherry-deep: #d93753;
+
+    position: relative;
+    padding: var(--section-py) 24px;
+    overflow: hidden;
+  }
+
+  .blob--pinlove {
+    width: 420px;
+    height: 420px;
+    top: -100px;
+    right: -140px;
+    background: radial-gradient(circle, rgba(217, 164, 65, 0.14), transparent 70%);
+  }
+
+  .pinlove__inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  .pinlove .eyebrow-pill__dot {
+    background: var(--pin-gold);
+  }
+
+  .pinlove .title-flanked__line {
+    background: linear-gradient(to left, var(--pin-gold), transparent);
+  }
+
+  .pinlove .title-flanked__line--right {
+    background: linear-gradient(to right, var(--pin-gold), transparent);
+  }
+
+  .pinlove__title {
+    font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.5rem);
+    line-height: 1.2;
+    font-weight: 600;
+    color: var(--color-ink);
+    max-width: 26ch;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .pinlove .title-flanked {
+    margin-top: 20px;
+  }
+
+  .pinlove__title em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--pin-gold);
+  }
+
+  .pinlove__subtitle {
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    max-width: 56ch;
+    margin: 24px auto 0;
+    text-align: center;
+  }
+
+  .pinlove .btn--primary {
+    background: var(--pin-gold);
+    color: var(--pin-ink-on-gold);
+  }
+
+  .pinlove .link-underline {
+    text-decoration-color: var(--pin-gold);
+  }
+
+  /* --- Hero : CTA + visuel corkboard --- */
+  .pinlove__hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+    margin-top: 40px;
+  }
+
+  .pinlove__ctas {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .pinlove__board {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    height: 340px;
+  }
+
+  .pinlove__thread {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    stroke: var(--color-text-secondary);
+    stroke-width: 1.2;
+    fill: none;
+    opacity: 0.4;
+    stroke-dasharray: 3 4;
+  }
+
+  .pinlove__pinhead {
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--pin-cherry);
+    border: 2px solid var(--color-bg);
+    z-index: 4;
+  }
+
+  .pinlove__stamp {
+    position: absolute;
+    top: 0;
+    right: 4%;
+    width: 96px;
+    height: 96px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--pin-brass), var(--pin-cherry));
+    border: 2px dashed rgba(245, 243, 238, 0.55);
+    box-shadow: 0 16px 32px -16px rgba(0, 0, 0, 0.6);
+  }
+
+  .pinlove__polaroid {
+    position: absolute;
+    width: 92px;
+    padding: 8px 8px 16px;
+    background: var(--color-ink);
+    border-radius: 3px;
+    box-shadow: 0 14px 26px -12px rgba(0, 0, 0, 0.55);
+    z-index: 2;
+  }
+
+  .pinlove__polaroid-pic {
+    width: 100%;
+    height: 66px;
+    border-radius: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pinlove__polaroid-pic--brass {
+    background: linear-gradient(135deg, var(--pin-brass), var(--pin-cherry));
+  }
+
+  .pinlove__polaroid-pic--cherry {
+    background: linear-gradient(135deg, var(--pin-cherry), var(--pin-cherry-deep));
+  }
+
+  .pinlove__polaroid-cap {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.6875rem;
+    color: var(--color-bg);
+    margin: 6px 0 0;
+    text-align: center;
+  }
+
+  .pinlove__polaroid--1 {
+    left: 0;
+    top: 4%;
+    transform: rotate(-9deg);
+  }
+
+  .pinlove__polaroid--2 {
+    right: 0;
+    bottom: 4%;
+    transform: rotate(7deg);
+  }
+
+  .pinlove__phone {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(-4deg);
+    width: 172px;
+    height: 344px;
+    background: var(--color-surface);
+    border-radius: 28px;
+    border: 6px solid #050403;
+    box-shadow: 0 26px 60px -20px rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+    z-index: 3;
+  }
+
+  .pinlove__phone-screen {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(140% 100% at 25% 0%, #4a2e12 0%, #2a0e10 55%, var(--color-surface) 100%);
+  }
+
+  .pinlove__app-icon {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    overflow: hidden;
+    display: block;
+    box-shadow: 0 6px 14px -4px rgba(0, 0, 0, 0.5);
+  }
+
+  .pinlove__app-icon :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .pinlove__map-dot {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--pin-cherry);
+    box-shadow: 0 0 0 6px rgba(241, 86, 106, 0.22);
+  }
+
+  /* --- Bandeau faits --- */
+  .pinlove__facts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    margin-top: 64px;
+    padding: 32px 0;
+    border-top: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .pinlove-fact {
+    padding: 0 28px;
+    border-left: 1px solid var(--color-line);
+  }
+
+  .pinlove-fact:first-child {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .pinlove-fact__label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--pin-gold);
+    margin-bottom: 10px;
+  }
+
+  .pinlove-fact__texte {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+  }
+
+  /* --- Fonctionnalités --- */
+  .pinlove__features-head {
+    max-width: 560px;
+    margin: 64px auto 0;
+    text-align: center;
+  }
+
+  .pinlove__features-title {
+    font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem);
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-top: 14px;
+  }
+
+  .pinlove__features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1080px;
+    margin: 40px auto 0;
+  }
+
+  .pinlove-feature {
+    padding: 30px 26px;
+  }
+
+  .pinlove-feature__mark {
+    display: block;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--pin-brass), var(--pin-cherry));
+    margin-bottom: 20px;
+  }
+
+  .pinlove-feature__titre {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 1.0625rem;
+    color: var(--color-ink);
+    margin: 0 0 10px;
+  }
+
+  .pinlove-feature__texte {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+
+  /* --- Coulisses --- */
+  .pinlove__coulisses {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 48px;
+    margin-top: 72px;
+    padding-top: 56px;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .pinlove-coulisses__titre {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem);
+    color: var(--pin-gold-pale);
+    margin: 14px 0 18px;
+  }
+
+  .pinlove-coulisses__texte {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--color-text-secondary);
+    max-width: 46ch;
+  }
+
+  .pinlove-coulisses__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 26px;
+  }
+
+  .pinlove-coulisses__roles {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    justify-content: center;
+  }
+
+  .pinlove-role {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .pinlove-role__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--pin-gold);
+    margin-top: 7px;
+    flex-shrink: 0;
+  }
+
+  .pinlove-role__titre {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--color-ink);
+    margin: 0 0 4px;
+  }
+
+  .pinlove-role__texte {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  /* --- CTA final --- */
+  .pinlove__final-cta {
+    margin-top: 72px;
+    text-align: center;
+    scroll-margin-top: 100px;
+  }
+
+  .pinlove-final-cta__titre {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem);
+    color: var(--pin-gold-pale);
+    margin: 0 0 30px;
+  }
+
+  .pinlove-waitlist-form {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .pinlove-waitlist-form__field {
+    display: inline-flex;
+    background: var(--color-glass-strong);
+    border: 1px solid var(--color-glass-border);
+    border-radius: var(--radius-pill);
+    padding: 6px;
+    gap: 6px;
+  }
+
+  .pinlove-waitlist-form__field:has(input:focus-visible) {
+    outline: 2px solid var(--pin-gold);
+    outline-offset: 3px;
+  }
+
+  .pinlove-waitlist-form__sr-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .pinlove-waitlist-form input[type='email'] {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    padding: 12px 18px;
+    width: 220px;
+  }
+
+  .pinlove-waitlist-form input[type='email']::placeholder {
+    color: var(--color-text-secondary);
+  }
+
+  .pinlove-waitlist-form input[type='email']:focus-visible {
+    outline: none;
+  }
+
+  .pinlove-waitlist-form .btn--primary {
+    padding: 10px 22px;
+  }
+
+  .pinlove-waitlist-form__honeypot {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .pinlove-waitlist-form__success,
+  .pinlove-waitlist-form__error {
+    display: none;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    margin: 4px 0 0;
+  }
+
+  .pinlove-waitlist-form__success--visible,
+  .pinlove-waitlist-form__error--visible {
+    display: block;
+  }
+
+  .pinlove-waitlist-form__error {
+    color: var(--color-error);
+  }
+
+  @media (max-width: 860px) {
+    .pinlove {
+      padding: var(--section-py-mobile) 20px;
+    }
+
+    .pinlove__facts {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    .pinlove-fact {
+      border-left: none;
+      border-top: 1px solid var(--color-line);
+      padding: 20px 0 0;
+    }
+
+    .pinlove-fact:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .pinlove__features {
+      grid-template-columns: 1fr;
+    }
+
+    .pinlove__coulisses {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .pinlove__board {
+      max-width: 320px;
+      height: 300px;
+    }
+
+    .pinlove__stamp {
+      width: 80px;
+      height: 80px;
+    }
+  }
+</style>
