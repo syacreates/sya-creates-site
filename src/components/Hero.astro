@@ -4,12 +4,6 @@ const titleLine2 = "et j'élimine tes frictions UX.";
 const words1 = titleLine1.split(' ');
 const words2 = titleLine2.split(' ');
 
-const pitch = [
-  { titre: 'Diagnostic UX/UI', texte: 'Identifier ce qui bloque tes utilisateurs' },
-  { titre: 'Accompagnement complet', texte: 'Du cadrage à la mise en ligne' },
-  { titre: 'Dev IA-assisted', texte: 'Une interface fonctionnelle, vite' },
-];
-
 const tags = [
   'Discovery',
   'UX Research',
@@ -25,20 +19,19 @@ const tags = [
   <span class="blob blob--1" aria-hidden="true"></span>
   <span class="blob blob--2" aria-hidden="true"></span>
 
-  <!-- Cubes chromés (voir <script>) : un canvas plein-hero, pour que la
-       chute parte du haut de la page. Elles tombent dans l'ordre et se
-       posent de gauche à droite ; le cube or (dernier) reprend l'accent
-       visuel que la section Méthode donne déjà à sa dernière étape. Le
-       canvas est posé au-dessus du texte, qu'il déborde légèrement en
-       tombant, façon elevenses-product.com.
-       Interactif au clavier (tabindex + Entrée/Espace relance la pile) :
-       affordance réelle plutôt que décorative, donc pas d'aria-hidden. -->
+  <!-- Cube chromé (voir <script>) : lévite au centre de .hero__orbfield
+       plutôt que de tomber — un ressort doux le retient là, on peut le
+       lancer d'un glisser et il y revient flotter. Canvas posé au-dessus
+       du texte pour rester manipulable par-dessus.
+       Interactif au clavier (tabindex + Entrée/Espace fait pivoter la
+       face affichée) : affordance réelle plutôt que décorative, donc pas
+       d'aria-hidden. -->
   <canvas
     id="hero-cubes"
     class="hero__cubes"
     tabindex="0"
     role="button"
-    aria-label="Cubes chromés interactifs, appuie sur Entrée pour les relancer"
+    aria-label="Cube chromé interactif, appuie sur Entrée pour faire pivoter la face affichée"
   ></canvas>
 
   <div class="hero__inner">
@@ -69,38 +62,6 @@ const tags = [
       projets de A à Z, et je livre vite.
     </p>
 
-    <!-- Cartes simples, retournement au clic via le système .flip-card
-         partagé du site (voir Layout.astro). -->
-    <div class="hero__pitch">
-      {
-        pitch.map((item, index) => (
-          <div
-            class={`hero__pitch-card hero__pitch-card--${index} flip-card`}
-            tabindex="0"
-            role="button"
-            aria-expanded="false"
-            aria-label={`${item.titre}, appuie pour voir le détail`}
-          >
-            <div class="flip-card__inner">
-              <div class="flip-card__front">
-                <!-- Mini-cube décoratif : même rendu que le gros cube du
-                     hero (couleur, matériau laqué, arêtes), voir le <script>
-                     plus bas pour l'initialisation partagée des 3 cartes.
-                     aria-hidden : purement décoratif, le clic pour le faire
-                     pivoter est un bonus, pas une action à annoncer — le
-                     contenu réel de la carte reste le titre/texte au clic. -->
-                <canvas class="hero__pitch-cube" aria-hidden="true"></canvas>
-                <span class="hero__pitch-card__titre">{item.titre}</span>
-              </div>
-              <div class="flip-card__back">
-                <p>{item.texte}</p>
-              </div>
-            </div>
-          </div>
-        ))
-      }
-    </div>
-
     <div class="hero__ctas">
       <a href="#contact" class="btn btn--primary">Réserver un appel découverte</a>
       <a href="#accompagnement" class="link-underline">Voir mes offres</a>
@@ -115,10 +76,7 @@ const tags = [
       </div>
     </div>
 
-    <div class="hero__orbfield" aria-hidden="true">
-      <span class="hero__nebula"></span>
-      <span class="hero__floor"></span>
-    </div>
+    <div class="hero__orbfield" aria-hidden="true"></div>
   </div>
 </section>
 
@@ -127,8 +85,8 @@ const tags = [
   const field = canvas?.parentElement;
   const orbfield = document.querySelector('.hero__orbfield') as HTMLElement | null;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // Sur mobile, la pile de cubes (calée sur la largeur du champ d'orbes,
-  // presque plein écran à ces largeurs) recouvre trop le titre pour rester
+  // Sur mobile, le cube (calé sur la largeur du champ d'orbes, presque
+  // plein écran à ces largeurs) recouvre trop le titre pour rester
   // lisible — l'animation ne démarre qu'à partir d'un écran assez large.
   const tooNarrow = window.innerWidth < 700;
 
@@ -166,19 +124,17 @@ const tags = [
     key.position.set(120, 220, 260);
     scene.add(ambient, key);
 
-    // --- cannon-es world, same pixel-scale units ---
-    // Gravité adoucie : la chute part maintenant du haut de la page, donc
-    // beaucoup plus longue qu'avant — une gravité trop forte rendrait
-    // l'atterrissage brutal.
-    const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -680, 0) });
+    // --- cannon-es world : sans gravité, le cube lévite. Un ressort
+    // critiquement amorti (voir applyLevitation) le retient près du
+    // centre du champ d'orbes au lieu de le laisser tomber — un espace
+    // de mouvement resserré, calé sur .hero__orbfield plutôt que sur
+    // toute la hauteur du hero.
+    const world = new CANNON.World({ gravity: new CANNON.Vec3(0, 0, 0) });
     world.broadphase = new CANNON.SAPBroadphase(world);
 
     const cubeMat = new CANNON.Material('cube');
     const wallMat = new CANNON.Material('wall');
-    // Friction basse : quand on attrape un cube à la souris, ses voisins
-    // glissent et basculent facilement au lieu de rester figés en pile.
-    world.addContactMaterial(new CANNON.ContactMaterial(cubeMat, wallMat, { friction: 0.18, restitution: 0.18 }));
-    world.addContactMaterial(new CANNON.ContactMaterial(cubeMat, cubeMat, { friction: 0.12, restitution: 0.15 }));
+    world.addContactMaterial(new CANNON.ContactMaterial(cubeMat, wallMat, { friction: 0.1, restitution: 0.4 }));
 
     let depth = Math.min(width, height) * 0.5;
 
@@ -189,87 +145,55 @@ const tags = [
       return body;
     }
 
-    let floor: CANNON.Body, left: CANNON.Body, right: CANNON.Body, front: CANNON.Body, back: CANNON.Body;
+    let wallTop: CANNON.Body, wallBottom: CANNON.Body, wallLeft: CANNON.Body, wallRight: CANNON.Body, wallFront: CANNON.Body, wallBack: CANNON.Body;
 
-    // Le sol et les murs latéraux sont calés sur la position réelle de
-    // .hero__orbfield (le champ d'orbes/chips) — les cubes tombent sur
-    // toute la hauteur du hero mais atterrissent pile dans cette zone.
-    let laneLeftX = -width / 2;
-    let laneRightX = width / 2;
-    let floorWorldY = -height / 2;
+    // Point de lévitation (centre de .hero__orbfield) et bornes qui
+    // contiennent un lancer — proportionnels à la taille réelle du champ
+    // d'orbes (pas des constantes en dur), donc valables à toutes les
+    // largeurs d'écran.
+    let restX = 0;
+    let restY = 0;
 
-    function layoutWalls() {
+    function layoutBounds() {
       const heroRect = field!.getBoundingClientRect();
       const orbRect = orbfield!.getBoundingClientRect();
       const centerX = heroRect.left + heroRect.width / 2;
-      laneLeftX = orbRect.left - centerX;
-      laneRightX = orbRect.right - centerX;
-      floorWorldY = height / 2 - (orbRect.bottom - heroRect.top);
+      const laneLeftX = orbRect.left - centerX;
+      const laneRightX = orbRect.right - centerX;
+      const orbTopWorldY = height / 2 - (orbRect.top - heroRect.top);
+      const orbBottomWorldY = height / 2 - (orbRect.bottom - heroRect.top);
+      restX = (laneLeftX + laneRightX) / 2;
+      restY = (orbTopWorldY + orbBottomWorldY) / 2;
       depth = Math.min(width, height) * 0.5;
 
       const big = 4000;
-      // Murs latéraux volontairement bas (pas "big") : la pile peut monter
-      // jusqu'à cette hauteur, puis les cubes en trop perdent l'équilibre
-      // et basculent par-dessus au lieu d'être contenus indéfiniment.
-      // Proportionnel à la hauteur réelle de .hero__orbfield (pas une
-      // constante en dur) : la pile reste toujours contenue DANS le champ
-      // d'orbes, elle ne peut plus dépasser vers le haut et venir se coller
-      // sur le ruban de tags ou les cartes au-dessus.
-      const wallFillHeight = orbRect.height * 0.8;
-      const wallCenterY = floorWorldY + wallFillHeight / 2;
-      if (floor) [floor, left, right, front, back].forEach((b) => world.removeBody(b));
-      floor = makeWall((laneLeftX + laneRightX) / 2, floorWorldY - 10, 0, (laneRightX - laneLeftX) / 2 + 30, 20, big);
-      left = makeWall(laneLeftX - 10, wallCenterY, 0, 20, wallFillHeight / 2, big);
-      right = makeWall(laneRightX + 10, wallCenterY, 0, 20, wallFillHeight / 2, big);
-      front = makeWall(0, 0, depth / 2, big, big, 20);
-      back = makeWall(0, 0, -depth / 2, big, big, 20);
+      const halfW = (laneRightX - laneLeftX) / 2 - 10;
+      const halfH = (orbTopWorldY - orbBottomWorldY) / 2 - 10;
+      if (wallTop) [wallTop, wallBottom, wallLeft, wallRight, wallFront, wallBack].forEach((b) => world.removeBody(b));
+      wallTop = makeWall(restX, restY + halfH, 0, halfW + 30, 20, big);
+      wallBottom = makeWall(restX, restY - halfH, 0, halfW + 30, 20, big);
+      wallLeft = makeWall(restX - halfW, restY, 0, 20, halfH + 30, big);
+      wallRight = makeWall(restX + halfW, restY, 0, 20, halfH + 30, big);
+      wallFront = makeWall(0, 0, depth / 2, big, big, 20);
+      wallBack = makeWall(0, 0, -depth / 2, big, big, 20);
     }
-    layoutWalls();
+    layoutBounds();
 
-    // --- Borne invisible sur le CTA principal : empêche un cube de se
-    // poser dessus et de masquer durablement l'action pendant que la pile
-    // s'accumule. (Les chips flottantes ont été retirées du hero — plus de
-    // label à protéger de ce côté-là.)
-    const protectedEls = Array.from(document.querySelectorAll('.hero__ctas .btn--primary')) as HTMLElement[];
-    const uiBumpers = protectedEls.map((el) => {
-      const r = el.getBoundingClientRect();
-      const body = new CANNON.Body({
-        mass: 0,
-        material: wallMat,
-        // Marge généreuse : un cube en rotation a une silhouette 2D plus
-        // large que sa boîte alignée aux axes (jusqu'à ×1.4 en diagonale).
-        shape: new CANNON.Box(new CANNON.Vec3(r.width / 2 + 28, r.height / 2 + 28, 60)),
-      });
-      world.addBody(body);
-      return { el, body };
-    });
+    // --- Cube : un seul, gros, qui lévite plutôt qu'une pile qui tombe —
+    // plus simple, plus impactant, et ça élimine tout risque de
+    // chevaucher le contenu au-dessus (tags, CTA). Canvas posé au-dessus
+    // du texte pour rester manipulable par-dessus, façon
+    // elevenses-product.com.
+    const CUBE_SPEC = { size: 170, color: 0x7fc4a0 };
 
-    function updateUiBumpers() {
-      const heroRect = field!.getBoundingClientRect();
-      const centerX = heroRect.left + heroRect.width / 2;
-      for (const { el, body } of uiBumpers) {
-        const r = el.getBoundingClientRect();
-        const x = r.left + r.width / 2 - centerX;
-        const screenTopY = r.top + r.height / 2 - heroRect.top;
-        body.position.set(x, height / 2 - screenTopY, 0);
-      }
-    }
-
-    // --- Cube : un seul, gros, plutôt qu'une pile qui s'alimente en
-    // continu — plus simple, plus impactant, et ça élimine tout le
-    // problème de pile qui grossit et vient chevaucher le contenu au-dessus
-    // (tags, CTA). Canvas posé au-dessus du texte, qu'il déborde légèrement
-    // en tombant, façon elevenses-product.com.
-    const palette = [{ size: 170, color: 0x7fc4a0 }];
-
-    type CubeRig = { mesh: THREE.Mesh; body: CANNON.Body; size: number; age: number };
+    type CubeRig = { mesh: THREE.Mesh; body: CANNON.Body; size: number; age: number; bobPhase: number };
     const cubes: CubeRig[] = [];
-    let spawnCount = 0;
 
-    // Étapes de la méthode imprimées sur les 4 faces latérales du cube
-    // (haut/bas restent unies — rarement face caméra une fois la pile
-    // posée à plat au sol, et jamais visibles pendant qu'il roule dessus).
+    // Étapes de la méthode (faces latérales) + deux mots-clés du bandeau
+    // au-dessus (haut/bas, visibles dans le léger tilt permanent) :
+    // les 6 faces du cube portent désormais toutes un texte.
     const faceLabels = ['Comprendre le besoin', 'Parcours clair', 'Interface soignée', 'Testé et validé'];
+    const topBottomLabels = ['UX Research', 'UI Design'];
 
     function makeFaceTexture(text: string, bgHex: number) {
       const size = 512;
@@ -280,57 +204,58 @@ const tags = [
       ctx.fillStyle = `#${bgHex.toString(16).padStart(6, '0')}`;
       ctx.fillRect(0, 0, size, size);
 
-      if (text) {
-        ctx.fillStyle = '#16241c';
-        ctx.font = "600 46px 'Fraunces', Georgia, serif";
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+      ctx.font = "700 48px 'Fraunces', Georgia, serif";
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
 
-        // Retour à la ligne simple par mot, centré verticalement selon le
-        // nombre de lignes obtenues.
-        const words = text.split(' ');
-        const maxWidth = size * 0.78;
-        const lines: string[] = [];
-        let line = '';
-        for (const word of words) {
-          const test = line ? `${line} ${word}` : word;
-          if (ctx.measureText(test).width > maxWidth && line) {
-            lines.push(line);
-            line = word;
-          } else {
-            line = test;
-          }
+      // Retour à la ligne simple par mot, centré verticalement selon le
+      // nombre de lignes obtenues.
+      const words = text.split(' ');
+      const maxWidth = size * 0.7;
+      const lines: string[] = [];
+      let line = '';
+      for (const word of words) {
+        const test = line ? `${line} ${word}` : word;
+        if (ctx.measureText(test).width > maxWidth && line) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = test;
         }
-        if (line) lines.push(line);
-
-        const lineHeight = 58;
-        const startY = size / 2 - ((lines.length - 1) * lineHeight) / 2;
-        lines.forEach((l, i) => ctx.fillText(l, size / 2, startY + i * lineHeight));
       }
+      if (line) lines.push(line);
+
+      const lineHeight = 60;
+      const startY = size / 2 - ((lines.length - 1) * lineHeight) / 2;
+
+      ctx.fillStyle = '#000000';
+      lines.forEach((l, i) => ctx.fillText(l, size / 2, startY + i * lineHeight));
 
       const texture = new THREE.CanvasTexture(canvas);
       texture.colorSpace = THREE.SRGBColorSpace;
       return texture;
     }
 
-    function spawnCube(spec: { size: number; color: number }, targetX: number) {
+    function spawnCube(spec: { size: number; color: number }) {
       const geo = new THREE.BoxGeometry(spec.size, spec.size, spec.size);
       // Ordre des groupes de BoxGeometry : +x, -x, +y, -y, +z, -z
-      // (droite, gauche, haut, bas, avant, arrière). Haut/bas restent unies.
-      // Les 4 faces latérales sont réparties pour qu'une rotation de +90°
-      // autour de Y, répétée à chaque clic à partir de la pose neutre
-      // (identité, +z face caméra), les amène dans l'ordre exact 1→2→3→4 :
-      // +z (0°) → -x (90°) → -z (180°) → +x (270°).
-      const faceOrder: (string | null)[] = [
+      // (droite, gauche, haut, bas, avant, arrière). Les 4 faces latérales
+      // sont réparties pour qu'une rotation de +90° autour de Y, répétée
+      // à chaque clic à partir de la pose neutre (identité, +z face
+      // caméra), les amène dans l'ordre exact 1→2→3→4 :
+      // +z (0°) → -x (90°) → -z (180°) → +x (270°). Haut/bas ne
+      // participent pas au cycle de clic (rotation autour de Y
+      // seulement), mais restent visibles en permanence dans le tilt.
+      const faceOrder: string[] = [
         faceLabels[3],
         faceLabels[1],
-        null,
-        null,
+        topBottomLabels[0],
+        topBottomLabels[1],
         faceLabels[0],
         faceLabels[2],
       ];
       const materials = faceOrder.map((label) => {
-        const texture = label ? makeFaceTexture(label, spec.color) : null;
+        const texture = makeFaceTexture(label, spec.color);
         return new THREE.MeshPhysicalMaterial({
           color: spec.color,
           map: texture,
@@ -367,22 +292,22 @@ const tags = [
         mass: 1,
         material: cubeMat,
         shape: new CANNON.Box(new CANNON.Vec3(half, half, half)),
-        linearDamping: 0.25,
-        angularDamping: 0.3,
+        linearDamping: 0.15,
+        angularDamping: 0.35,
       });
-      // Départ près du haut du canvas (= haut de la page) plutôt que loin
-      // au-dessus, invisible — la chute doit se voir depuis le sommet.
-      body.position.set(targetX, height / 2 - 40 - (spawnCount % 6) * 60, (Math.random() - 0.5) * depth * 0.3);
+      // Apparaît déjà à son point de lévitation, avec un léger élan de
+      // rotation pour une arrivée vivante plutôt qu'un dépôt statique —
+      // il n'y a plus de chute à jouer.
+      body.position.set(restX, restY, 0);
       body.quaternion.setFromEuler((Math.random() - 0.5) * Math.PI, (Math.random() - 0.5) * Math.PI, (Math.random() - 0.5) * Math.PI);
-      body.angularVelocity.set((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2);
-      spawnCount++;
+      body.angularVelocity.set((Math.random() - 0.5) * 1.4, (Math.random() - 0.5) * 1.4, (Math.random() - 0.5) * 1.4);
 
-      const rig: CubeRig = { mesh, body, size: spec.size, age: 0 };
+      const rig: CubeRig = { mesh, body, size: spec.size, age: 0, bobPhase: Math.random() * Math.PI * 2 };
       cubes.push(rig);
       return rig;
     }
 
-    const rig = spawnCube(palette[0], (laneLeftX + laneRightX) / 2);
+    const rig = spawnCube(CUBE_SPEC);
     world.addBody(rig.body);
 
     // --- Drag to throw ---
@@ -511,9 +436,9 @@ const tags = [
     canvas.addEventListener('pointerup', releaseDrag);
     canvas.addEventListener('pointercancel', releaseDrag);
 
-    // --- Affordance : personne ne devine spontanément qu'un tas de cubes
-    // stabilisé se manipule. Un léger wobble périodique le suggère, sans
-    // ajouter le moindre bouton/texte visible en permanence. ---
+    // --- Affordance : personne ne devine spontanément qu'un cube immobile
+    // se manipule. Un léger wobble périodique le suggère, sans ajouter le
+    // moindre bouton/texte visible en permanence. ---
     let isHovering = false;
     let lastInteraction = performance.now();
     let nextWobbleAt = lastInteraction + 6000 + Math.random() * 2000;
@@ -548,20 +473,13 @@ const tags = [
     }
 
     // --- Clavier : le canvas est un vrai contrôle (tabindex + role="button"),
-    // Entrée/Espace reproduit "faire retomber/relancer" le tas — équivalent
-    // clavier de l'interaction souris, pas juste une case cochée pour la forme.
+    // Entrée/Espace reproduit le clic (fait pivoter la face affichée) —
+    // équivalent clavier de l'interaction souris, pas une action différente.
     canvas.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter' && e.key !== ' ') return;
       e.preventDefault();
       registerInteraction();
-      for (const c of cubes) {
-        c.body.velocity.set((Math.random() - 0.5) * 260, 260 + Math.random() * 160, (Math.random() - 0.5) * 120);
-        c.body.angularVelocity.set(
-          (Math.random() - 0.5) * 6,
-          (Math.random() - 0.5) * 6,
-          (Math.random() - 0.5) * 6
-        );
-      }
+      turnToNextFace(rig);
     });
 
     // --- Render loop, paused while offscreen ---
@@ -575,10 +493,23 @@ const tags = [
       const dt = Math.min((now - prevTime) / 1000, 1 / 30);
       prevTime = now;
 
-      updateUiBumpers();
+      // Ressort critiquement amorti qui retient chaque cube près de son
+      // point de lévitation (restX, restY, 0) — pas de gravité, donc rien
+      // d'autre ne l'y ramènerait après un lancer. Suspendu pendant le
+      // drag (l'utilisateur pilote déjà la position) et pendant une
+      // rotation de face pilotée (déjà figée en vitesse).
+      const SPRING_K = 5;
+      const SPRING_DAMP = 2 * Math.sqrt(SPRING_K);
+      for (const c of cubes) {
+        if (c === dragging || faceAnimating === c) continue;
+        const b = c.body;
+        b.velocity.x += (-SPRING_K * (b.position.x - restX) - SPRING_DAMP * b.velocity.x) * dt;
+        b.velocity.y += (-SPRING_K * (b.position.y - restY) - SPRING_DAMP * b.velocity.y) * dt;
+        b.velocity.z += (-SPRING_K * b.position.z - SPRING_DAMP * b.velocity.z) * dt;
+      }
       world.step(1 / 60, dt, 6);
 
-      // Wobble idle : uniquement si personne ne survole/manipule le tas.
+      // Wobble idle : uniquement si personne ne survole/manipule le cube.
       if (!isHovering && now >= nextWobbleAt) {
         wobbleRandomCube();
         nextWobbleAt = now + 6000 + Math.random() * 2000;
@@ -586,9 +517,8 @@ const tags = [
 
       for (let i = cubes.length - 1; i >= 0; i--) {
         const c = cubes[i];
-        // Vitesse plafonnée pour éviter qu'un contact multi-corps un peu
-        // chaotique (plusieurs cubes qui se tassent en même temps) n'envoie
-        // un corps à une vitesse aberrante.
+        // Vitesse plafonnée pour éviter qu'un lancer un peu chaotique
+        // n'envoie le corps à une vitesse aberrante.
         const v = c.body.velocity;
         const speed = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
         const maxSpeed = 1400;
@@ -597,53 +527,19 @@ const tags = [
         const aSpeed = Math.sqrt(av.x * av.x + av.y * av.y + av.z * av.z);
         if (aSpeed > 12) av.scale(12 / aSpeed, av);
 
-        // Dès que la chute initiale se stabilise, on bascule une seule fois
-        // vers la pose nette (face 1 + léger tilt) plutôt que de laisser le
-        // cube posé à l'orientation aléatoire où la physique l'a arrêté.
+        // Dès que l'élan initial (ou un lancer) se stabilise, on bascule
+        // une seule fois vers la pose nette (face 1 + léger tilt) plutôt
+        // que de laisser le cube à l'orientation où la physique l'arrête.
         if (!hasAutoPosed && !faceAnimating && speed < 15 && aSpeed < 0.3) {
           hasAutoPosed = true;
           goToFaceStage(c, 0);
         }
 
-        // Un cube peut se stabiliser sur la borne invisible du CTA (plateforme
-        // isolée, sans mur latéral pour le faire basculer) et y rester bloqué
-        // indéfiniment au lieu de retomber dans la pile. Tant qu'il est
-        // presque immobile au-dessus de cette borne, une petite poussée
-        // latérale aléatoire l'empêche de s'y stabiliser.
-        for (const { body: bumperBody } of uiBumpers) {
-          const bumperTopY = bumperBody.position.y + 55;
-          if (c.body.position.y > bumperTopY - 40 && speed < 20) {
-            c.body.velocity.x += (Math.random() - 0.5) * 260;
-            c.body.velocity.z += (Math.random() - 0.5) * 100;
-            c.body.angularVelocity.y += (Math.random() - 0.5) * 4;
-            break;
-          }
-        }
-
-        // Un cube qui a basculé par-dessus les murs (pile trop haute) finit
-        // par sortir du champ visible — on le retire alors proprement.
-        if (
-          c.body.position.y < floorWorldY - 900 ||
-          c.body.position.x < laneLeftX - 700 ||
-          c.body.position.x > laneRightX + 700
-        ) {
-          world.removeBody(c.body);
-          scene.remove(c.mesh);
-          c.mesh.geometry.dispose();
-          // Un matériau par face (texte imprimé sur 4 des 6) — chacun avec
-          // sa propre texture canvas à libérer, pas un matériau unique.
-          for (const m of Array.isArray(c.mesh.material) ? c.mesh.material : [c.mesh.material]) {
-            (m as THREE.MeshStandardMaterial).map?.dispose();
-            m.dispose();
-          }
-          const edgesToDispose = c.mesh.children[0] as THREE.LineSegments | undefined;
-          edgesToDispose?.geometry.dispose();
-          (edgesToDispose?.material as THREE.Material | undefined)?.dispose();
-          cubes.splice(i, 1);
-          continue;
-        }
-
         c.mesh.position.copy(c.body.position as unknown as THREE.Vector3);
+        // Léger flottement sinusoïdal, purement visuel (le corps physique
+        // reste au point de lévitation) : c'est ce qui rend le cube
+        // "vivant" à l'arrêt plutôt que figé une fois le ressort stabilisé.
+        c.mesh.position.y += Math.sin(now / 1000 * 1.1 + c.bobPhase) * 8;
         if (faceAnimating === c) {
           // Rotation pilotée par l'animation de clic plutôt que par la
           // physique le temps du quart de tour, pour un mouvement net et
@@ -698,159 +594,8 @@ const tags = [
       camera.bottom = -height / 2;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
-      layoutWalls();
+      layoutBounds();
     });
-    })();
-  }
-
-  // --- Mini-cubes des 3 cartes pitch : même cube que celui du hero
-  // (couleur, matériau laqué, style d'arêtes copiés tels quels), mais
-  // statique — pas de monde physique, juste un pivot d'un quart de tour
-  // par clic. Indépendant du bloc au-dessus : doit fonctionner même sur
-  // mobile/écran étroit, là où le gros cube qui tombe est désactivé.
-  const pitchCanvases = Array.from(
-    document.querySelectorAll<HTMLCanvasElement>('.hero__pitch-cube')
-  );
-  const prefersReducedPitch = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  if (pitchCanvases.length) {
-    void (async () => {
-      const [THREE, { RoomEnvironment }] = await Promise.all([
-        import('three'),
-        import('three/examples/jsm/environments/RoomEnvironment.js'),
-      ]);
-
-      // Valeurs copiées du cube principal (voir plus haut) plutôt que
-      // redéfinies séparément, pour un rendu identique.
-      const CUBE_COLOR = 0x7fc4a0;
-      const EDGE_COLOR = 0x1e3d2f;
-      const CUBE_TILT = new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.32, 0, 0.14));
-      const Y_AXIS = new THREE.Vector3(0, 1, 0);
-      const ROTATE_MS = 650;
-
-      type MiniCube = {
-        mesh: THREE.Mesh;
-        renderer: THREE.WebGLRenderer;
-        scene: THREE.Scene;
-        camera: THREE.OrthographicCamera;
-        stage: number;
-        animFrom: THREE.Quaternion;
-        animTo: THREE.Quaternion;
-        animStart: number;
-        animating: boolean;
-      };
-
-      const minis: MiniCube[] = [];
-      let rafId = 0;
-
-      // Le cube du hero doit sa couleur nette au fait que ses faces
-      // portent une texture (fond uni + texte) : color × map se multiplient,
-      // ce qui sature le vert. Une face sans texture (juste `color`) rend
-      // beaucoup plus pâle sous cet éclairage — sans cette même texture ici,
-      // les mini-cubes auraient l'air délavés/blanchâtres au lieu d'être
-      // identiques au cube source. Un simple aplat, sans texte.
-      const flatCanvas = document.createElement('canvas');
-      flatCanvas.width = flatCanvas.height = 64;
-      const flatCtx = flatCanvas.getContext('2d')!;
-      flatCtx.fillStyle = `#${CUBE_COLOR.toString(16).padStart(6, '0')}`;
-      flatCtx.fillRect(0, 0, 64, 64);
-      const flatTexture = new THREE.CanvasTexture(flatCanvas);
-      flatTexture.colorSpace = THREE.SRGBColorSpace;
-
-      function tick() {
-        const now = performance.now();
-        let anyAnimating = false;
-        for (const mini of minis) {
-          if (!mini.animating) continue;
-          anyAnimating = true;
-          const t = Math.min((now - mini.animStart) / ROTATE_MS, 1);
-          const eased = 1 - Math.pow(1 - t, 3);
-          mini.mesh.quaternion.slerpQuaternions(mini.animFrom, mini.animTo, eased);
-          if (t >= 1) mini.animating = false;
-          mini.renderer.render(mini.scene, mini.camera);
-        }
-        rafId = anyAnimating ? requestAnimationFrame(tick) : 0;
-      }
-
-      for (const canvas of pitchCanvases) {
-        const size = canvas.clientWidth || 48;
-        const scene = new THREE.Scene();
-        const camera = new THREE.OrthographicCamera(-size / 2, size / 2, size / 2, -size / 2, 1, 2000);
-        camera.position.z = 700;
-
-        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.setSize(size, size, false);
-
-        const pmrem = new THREE.PMREMGenerator(renderer);
-        scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-
-        // Éclairage adouci par rapport au cube du hero (0.6/1.4) : sur une
-        // face pleine sans texte imprimé pour l'assombrir, le même réglage
-        // sature le vert pastel en blanc — même matériau, même arêtes, mais
-        // un éclairage recalibré pour qu'il reste lisible en vert à cette
-        // taille.
-        scene.add(new THREE.AmbientLight(0xffffff, 0.75));
-        const key = new THREE.DirectionalLight(0xffffff, 0.55);
-        key.position.set(120, 220, 260);
-        scene.add(key);
-
-        const cubeSize = size * 0.72;
-        const geo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
-        const material = new THREE.MeshPhysicalMaterial({
-          color: CUBE_COLOR,
-          map: flatTexture,
-          metalness: 0.45,
-          roughness: 0.32,
-          envMapIntensity: 1.4,
-          clearcoat: 0.7,
-          clearcoatRoughness: 0.15,
-        });
-        const mesh = new THREE.Mesh(geo, material);
-        mesh.quaternion.copy(CUBE_TILT);
-        const edges = new THREE.LineSegments(
-          new THREE.EdgesGeometry(geo, 25),
-          new THREE.LineBasicMaterial({ color: EDGE_COLOR })
-        );
-        mesh.add(edges);
-        scene.add(mesh);
-        renderer.render(scene, camera);
-
-        const mini: MiniCube = {
-          mesh,
-          renderer,
-          scene,
-          camera,
-          stage: 0,
-          animFrom: new THREE.Quaternion(),
-          animTo: new THREE.Quaternion(),
-          animStart: 0,
-          animating: false,
-        };
-        minis.push(mini);
-
-        // stopPropagation : le canvas vit dans une carte .flip-card qui se
-        // retourne au clic — sans ça, faire pivoter le cube retournerait
-        // aussi la carte en dessous à chaque fois.
-        canvas.addEventListener('pointerdown', (e) => e.stopPropagation());
-        canvas.addEventListener('click', (e) => {
-          e.stopPropagation();
-          mini.stage += 1;
-          const target = new THREE.Quaternion()
-            .setFromAxisAngle(Y_AXIS, mini.stage * (Math.PI / 2))
-            .premultiply(CUBE_TILT);
-          if (prefersReducedPitch) {
-            mini.mesh.quaternion.copy(target);
-            mini.renderer.render(mini.scene, mini.camera);
-            return;
-          }
-          mini.animFrom.copy(mini.mesh.quaternion);
-          mini.animTo.copy(target);
-          mini.animStart = performance.now();
-          mini.animating = true;
-          if (!rafId) rafId = requestAnimationFrame(tick);
-        });
-      }
     })();
   }
 </script>
@@ -986,104 +731,6 @@ const tags = [
     max-width: 52ch;
   }
 
-  /* Rangée "ce que je fais concrètement" — répond dès le premier regard à
-     quoi/comment/quoi-concrètement, avant même le CTA. Cartes qui se
-     retournent sur elles-mêmes au clic — système .flip-card partagé du
-     site (voir Layout.astro pour le comportement clic/clavier, et
-     global.css pour le fallback prefers-reduced-motion). */
-  .hero__pitch {
-    display: flex;
-    align-items: center;
-    margin-top: 16px;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 14px;
-  }
-
-  .hero__pitch-card {
-    width: 190px;
-    /* +26px vs la version sans cube, pour laisser la place au mini-cube
-       au-dessus du titre sans tasser le texte. */
-    height: 138px;
-    position: relative;
-    z-index: 1;
-    border-radius: 16px;
-    filter: drop-shadow(0 12px 26px rgba(22, 36, 28, 0.28));
-    transition: filter 0.3s ease;
-  }
-
-  .hero__pitch-card--0 .flip-card__front,
-  .hero__pitch-card--0 .flip-card__back {
-    background: var(--color-accent);
-  }
-
-  .hero__pitch-card--1 .flip-card__front,
-  .hero__pitch-card--1 .flip-card__back {
-    background: var(--color-accent-2);
-  }
-
-  .hero__pitch-card--2 .flip-card__front,
-  .hero__pitch-card--2 .flip-card__back {
-    /* 3e teinte de la même famille sapin (pas d'or) : la plus claire, pour
-       un dégradé à 3 niveaux plutôt qu'une 2e carte de la même couleur. */
-    background: #7fc4a0;
-  }
-
-  .hero__pitch-card--2 .hero__pitch-card__titre,
-  .hero__pitch-card--2 .flip-card__back p {
-    /* Fond clair : texte sombre plutôt que blanc pour rester lisible
-       (contraste AA — le blanc y tombe à ~2:1). */
-    color: var(--color-bg);
-  }
-
-  .hero__pitch-card:hover,
-  .hero__pitch-card:focus-visible {
-    filter: drop-shadow(0 18px 34px rgba(22, 36, 28, 0.38));
-    z-index: 2;
-  }
-
-  .hero__pitch-card:focus-visible {
-    outline: 2px solid var(--color-ink);
-    outline-offset: 3px;
-  }
-
-  .hero__pitch-card .flip-card__front,
-  .hero__pitch-card .flip-card__back {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 16px 24px;
-  }
-
-  /* Taille fixe (pas de media query dessus) : le cube garde la même
-     taille/position sur les 3 cartes, à toutes les largeurs. */
-  .hero__pitch-cube {
-    width: 48px;
-    height: 48px;
-    cursor: pointer;
-    /* Touch target confortable (>=44px recommandé) malgré un rendu visuel
-       de 48px déjà suffisant — pas de padding invisible nécessaire ici. */
-    touch-action: manipulation;
-  }
-
-  .hero__pitch-card__titre {
-    font-family: var(--font-body);
-    font-weight: 600;
-    font-size: 0.9375rem;
-    color: #ffffff;
-    text-align: center;
-  }
-
-  .hero__pitch-card .flip-card__back p {
-    font-family: var(--font-body);
-    font-size: 0.8125rem;
-    line-height: 1.5;
-    color: #ffffff;
-    margin: 0;
-    text-align: center;
-  }
-
   .hero__ctas {
     display: flex;
     align-items: center;
@@ -1113,49 +760,10 @@ const tags = [
     animation: hero-reveal 0.7s ease 0.12s both;
   }
 
-  /* Nébuleuse — halo diffus derrière les orbes, pour un fond "espace" */
-  .hero__nebula {
-    position: absolute;
-    inset: -20%;
-    z-index: 0;
-    /* Le vert foncé est calé à 86% (pas 35%) pour retomber exactement sur
-       .hero__floor, au même endroit que la ligne où atterrissent les
-       cubes — un seul repère vert foncé, pas deux zones désalignées. */
-    background:
-      radial-gradient(circle at 30% 86%, rgba(31, 61, 46, 0.22), transparent 55%),
-      radial-gradient(circle at 72% 60%, rgba(214, 178, 110, 0.18), transparent 50%),
-      radial-gradient(circle at 55% 20%, rgba(76, 140, 99, 0.16), transparent 45%);
-    filter: blur(30px);
-    animation: float-blob 16s ease-in-out infinite;
-    pointer-events: none;
-  }
-
-  /* Sol : flaque vert foncé floutée au pied du champ d'orbes, là où les
-     cubes atterrissent — ancre visuellement la pile au lieu de la laisser
-     flotter sur le fond crème. Centrée exactement sur le bord bas de
-     .hero__orbfield (bottom: -moitié de la hauteur) : c'est précisément la
-     ligne où repose le sol physique en JS (floorWorldY, calé sur ce même
-     bord), donc les cubes touchent vraiment le trait, pas un flou décalé
-     au-dessus. */
-  .hero__floor {
-    position: absolute;
-    left: 4%;
-    right: 4%;
-    bottom: -30px;
-    height: 60px;
-    z-index: 0;
-    border-radius: 50%;
-    background: radial-gradient(ellipse at center, rgba(22, 36, 28, 0.55), transparent 70%);
-    filter: blur(18px);
-    pointer-events: none;
-  }
-
-  /* Cubes chromés — scène WebGL (Three.js + cannon-es), voir le <script>
-     plus bas. Le canvas couvre tout le hero (chute depuis le haut de la
-     page) ; le sol physique est calé en JS sur le bas de .hero__orbfield,
-     pour que les cubes atterrissent visuellement dans le champ d'orbes.
-     Posé au-dessus du texte, qu'il déborde légèrement en tombant/en
-     atterrissant, façon elevenses-product.com. */
+  /* Cube chromé — scène WebGL (Three.js + cannon-es), voir le <script>
+     plus bas. Le canvas couvre tout le hero, mais le cube lévite dans une
+     zone resserrée calée en JS sur .hero__orbfield. Posé au-dessus du
+     texte pour rester manipulable par-dessus. */
   .hero__cubes {
     position: absolute;
     inset: 0;
@@ -1198,11 +806,6 @@ const tags = [
 
     .hero__orbfield {
       height: 360px;
-    }
-
-    .hero__floor {
-      height: 50px;
-      bottom: -25px;
     }
 
     .hero__marquee {

@@ -284,6 +284,7 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
   // MOVE_MS — la mise en avant automatique suit exactement ce même rythme.
   const HOLD_MS = 1800;
   const MOVE_MS = 700;
+  const CYCLE_SECONDS = (etapes.length * (HOLD_MS + MOVE_MS) - MOVE_MS) / 1000;
 
   let activeIndex = 0;
   let pinned = false;
@@ -331,15 +332,37 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
     clearTimeout(tourTimer);
   }
 
-  // Fait "sauter" le curseur SMIL des deux tracés jusqu'au milieu du
-  // palier de l'étape choisie, puis fige l'animation à cet instant — le
-  // curseur se retrouve visuellement pile sur le cube cliqué.
-  function seekCursorTo(index: number) {
-    const holdStart = index * (HOLD_MS + MOVE_MS);
-    const seconds = (holdStart + HOLD_MS / 2) / 1000;
+  // Fait glisser le curseur SMIL des deux tracés le long de la courbe,
+  // depuis sa position actuelle jusqu'au milieu du palier de l'étape
+  // choisie, plutôt que de le faire sauter instantanément — on voit le
+  // curseur parcourir la ligne (et les étapes intermédiaires le cas
+  // échéant) avant de se figer pile sur le cube cliqué. Durée
+  // proportionnelle au nombre d'étapes parcourues (mais plafonnée) pour
+  // garder une vitesse de glissement cohérente avec la tournée automatique.
+  function stepTimeSeconds(index: number) {
+    return (index * (HOLD_MS + MOVE_MS) + HOLD_MS / 2) / 1000;
+  }
+
+  function glideCursorTo(fromIndex: number, toIndex: number) {
+    const targetSeconds = stepTimeSeconds(toIndex);
+    const distanceSteps = Math.max(1, Math.abs(toIndex - fromIndex));
+    const durationMs = Math.min(1200, MOVE_MS * distanceSteps);
     svgs.forEach((svg) => {
-      svg.setCurrentTime(seconds);
+      // getCurrentTime() renvoie le temps absolu de la timeline SVG (qui ne
+      // fait que croître depuis le chargement de la page), pas une valeur
+      // recalée sur le cycle de l'animation — sans ce modulo, interpoler
+      // directement entre cette grande valeur et targetSeconds (toujours
+      // < CYCLE_SECONDS) produirait un saut erratique au lieu d'un glissé
+      // court le long de la courbe.
+      const startSeconds = svg.getCurrentTime() % CYCLE_SECONDS;
       svg.pauseAnimations();
+      const start = performance.now();
+      function frame(now: number) {
+        const t = Math.min((now - start) / durationMs, 1);
+        svg.setCurrentTime(startSeconds + (targetSeconds - startSeconds) * t);
+        if (t < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
     });
   }
 
@@ -354,11 +377,12 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
       }
       return;
     }
+    const fromIndex = activeIndex;
     pinned = true;
     stopTour();
     activeIndex = index;
     renderStep(index, true);
-    if (!prefersReduced) seekCursorTo(index);
+    if (!prefersReduced) glideCursorTo(fromIndex, index);
   }
 
   cubesBySvg.forEach((cubes) => {

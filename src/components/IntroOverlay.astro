@@ -219,8 +219,7 @@
     // Grille pleine : les cubes couvrent tout l'écran, bord à bord, du sol
     // au plafond du viewport — pas une pyramide qui laisse des coins vides.
     function buildGrid(originX: number, originY: number) {
-      // Bande réduite plutôt que la hauteur totale de l'écran.
-      const gridHeight = height * 0.45;
+      const gridHeight = height;
       const cols = Math.ceil(width / cubeSize);
       const rows = Math.ceil(gridHeight / cubeSize);
       const startX = -width / 2 + cubeSize / 2;
