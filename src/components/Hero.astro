@@ -259,15 +259,18 @@ const tags = [
         return new THREE.MeshPhysicalMaterial({
           color: spec.color,
           map: texture,
-          // Même recette brillante que le cube-logo de l'écran d'intro
-          // (voir IntroOverlay.astro, juste avant l'explosion) : chrome
-          // quasi plein (metalness 1), très lisse (roughness basse),
-          // reflets d'environnement accentués — demandé explicitement pour
-          // que ce cube brille pareil, malgré le risque de reflets plus
-          // francs sur le texte imprimé.
-          metalness: 1,
-          roughness: 0.15,
-          envMapIntensity: 1.7,
+          // Le chrome quasi plein (metalness 1) du cube-logo de l'intro
+          // rendait ce cube-ci quasi invisible sur le fond sombre du hero :
+          // à metalness 1, le matériau ne restitue presque plus sa couleur
+          // ni le texte imprimé, seulement les reflets d'environnement — et
+          // ceux de la RoomEnvironment ici sont trop sombres pour se voir.
+          // Retour au fini satiné + vernis (clearcoat), qui garde le cube
+          // et son texte lisibles tout en restant nettement brillant.
+          metalness: 0.45,
+          roughness: 0.32,
+          envMapIntensity: 1.4,
+          clearcoat: 0.7,
+          clearcoatRoughness: 0.15,
           transparent: true,
           opacity: 0,
         });
