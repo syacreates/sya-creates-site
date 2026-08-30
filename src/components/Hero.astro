@@ -85,12 +85,8 @@ const tags = [
   const field = canvas?.parentElement;
   const orbfield = document.querySelector('.hero__orbfield') as HTMLElement | null;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // Sur mobile, le cube (calé sur la largeur du champ d'orbes, presque
-  // plein écran à ces largeurs) recouvre trop le titre pour rester
-  // lisible — l'animation ne démarre qu'à partir d'un écran assez large.
-  const tooNarrow = window.innerWidth < 700;
 
-  if (canvas && field && orbfield && !prefersReduced && !tooNarrow) {
+  if (canvas && field && orbfield && !prefersReduced) {
     // Three.js/cannon-es chargés à la demande (voir IntroOverlay.astro pour
     // le détail de la mesure Lighthouse qui a motivé ce changement) — pas
     // en import statique qui alourdirait le bundle initial de la page.
@@ -835,13 +831,5 @@ const tags = [
       gap: 20px;
     }
 
-  }
-
-  /* Doit correspondre au seuil JS (tooNarrow) : sous cette largeur, les
-     cubes recouvrent trop le titre pour rester lisibles. */
-  @media (max-width: 699px) {
-    .hero__cubes {
-      display: none;
-    }
   }
 </style>
