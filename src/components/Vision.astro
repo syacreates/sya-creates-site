@@ -516,6 +516,18 @@ const apports = [
     animation-delay: 1.4s;
   }
 
+  /* Le papillon reste visible (en filigrane) dès "Comprendre", de plus en
+     plus net à mesure qu'on avance, plutôt que de n'apparaître d'un coup
+     qu'à la toute dernière étape — pour qu'il reste visible à chaque
+     étape, pas juste à "Habiller". */
+  .cocoon__visual[data-stage='0'] .cocoon__butterfly {
+    opacity: 0.12;
+  }
+
+  .cocoon__visual[data-stage='1'] .cocoon__butterfly {
+    opacity: 0.45;
+  }
+
   .cocoon__visual[data-stage='1'] .cocoon__shell {
     opacity: 0.4;
   }
