@@ -5,6 +5,7 @@
 // existants du site plutôt que le CSS inline de cette maquette).
 import { Image } from 'astro:assets';
 import heartIcon from '../assets/pinlove/pinlove-heart.png';
+import stampIcon from '../assets/pinlove/pinlove-stamp.png';
 
 const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
 
@@ -100,11 +101,8 @@ const roles = [
         <span class="pinlove__pinhead" style="left:46px; top:92px;"></span>
         <span class="pinlove__pinhead" style="right:46px; bottom:108px;"></span>
 
-        <!-- Tampon : substitut CSS le temps d'obtenir le fichier logo.png
-             source (le tampon complet embarqué dans le brief n'a pas pu
-             être décodé proprement — voir résumé de session). -->
         <div class="pinlove__stamp">
-          <Image src={heartIcon} alt="" width="40" height="40" />
+          <Image src={stampIcon} alt="" width="200" height="177" />
         </div>
 
         <div class="pinlove__polaroid pinlove__polaroid--1">
@@ -420,13 +418,16 @@ const roles = [
     width: 96px;
     height: 96px;
     z-index: 5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--pin-brass), var(--pin-cherry));
-    border: 2px dashed rgba(245, 243, 238, 0.55);
+    overflow: hidden;
     box-shadow: 0 16px 32px -16px rgba(0, 0, 0, 0.6);
+  }
+
+  .pinlove__stamp img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .pinlove__polaroid {
