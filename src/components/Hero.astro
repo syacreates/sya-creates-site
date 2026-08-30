@@ -779,10 +779,25 @@ const tags = [
        sur mobile. Le drag-to-throw reste utilisable, le scroll passe. */
     touch-action: pan-y;
     cursor: grab;
+    /* Même halo respirant que le cube-logo de l'écran d'intro (voir
+       IntroOverlay.astro, .intro-overlay__cta-icon) : un drop-shadow qui
+       pulse épouse la silhouette réelle du cube (canvas à fond alpha
+       transparent), donc suit son flottement sans calcul de position. */
+    animation: hero-cube-glow 2.2s ease-in-out infinite;
   }
 
   .hero__cubes:active {
     cursor: grabbing;
+  }
+
+  @keyframes hero-cube-glow {
+    0%,
+    100% {
+      filter: drop-shadow(0 0 8px rgba(127, 196, 160, 0.4));
+    }
+    50% {
+      filter: drop-shadow(0 0 22px rgba(127, 196, 160, 0.9));
+    }
   }
 
   /* Bandeau de mots-clés — repris de l'ancienne section Vision, déplacé
