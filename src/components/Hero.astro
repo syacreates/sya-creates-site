@@ -259,14 +259,15 @@ const tags = [
         return new THREE.MeshPhysicalMaterial({
           color: spec.color,
           map: texture,
-          // Fini satiné + couche vernie (clearcoat) : brillant et
-          // dimensionnel façon laque, sans le mirroir plein-chrome qui
-          // écraserait le texte imprimé sous des reflets illisibles.
-          metalness: 0.45,
-          roughness: 0.32,
-          envMapIntensity: 1.4,
-          clearcoat: 0.7,
-          clearcoatRoughness: 0.15,
+          // Même recette brillante que le cube-logo de l'écran d'intro
+          // (voir IntroOverlay.astro, juste avant l'explosion) : chrome
+          // quasi plein (metalness 1), très lisse (roughness basse),
+          // reflets d'environnement accentués — demandé explicitement pour
+          // que ce cube brille pareil, malgré le risque de reflets plus
+          // francs sur le texte imprimé.
+          metalness: 1,
+          roughness: 0.15,
+          envMapIntensity: 1.7,
           transparent: true,
           opacity: 0,
         });
