@@ -194,6 +194,10 @@ const roles = [
     <div class="pinlove__final-cta" id="pinlove-waitlist">
       <h3 class="pinlove-final-cta__titre">Envie de suivre l'aventure PinLove ?</h3>
 
+      <a href="https://pinlove.app" class="link-underline pinlove-final-cta__link" target="_blank" rel="noopener">
+        Découvrir pinlove.app
+      </a>
+
       <form class="pinlove-waitlist-form" id="pinlove-waitlist-form" novalidate>
         <input type="hidden" name="access_key" value={web3formsAccessKey} />
         <input type="hidden" name="subject" value="Liste d'attente PinLove — Sya Creates" />
@@ -673,7 +677,12 @@ const roles = [
     font-weight: 500;
     font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem);
     color: var(--pin-gold-pale);
-    margin: 0 0 30px;
+    margin: 0 0 14px;
+  }
+
+  .pinlove-final-cta__link {
+    display: inline-block;
+    margin-bottom: 26px;
   }
 
   .pinlove-waitlist-form {
