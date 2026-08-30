@@ -65,7 +65,7 @@ function buildSerpentine(points: { x: number; y: number }[], axis: 'x' | 'y') {
 // automatique de chaque étape en JS (voir le script plus bas) — une seule
 // source de vérité pour le minutage des deux animations.
 const HOLD_MS = 1800;
-const MOVE_MS = 700;
+const MOVE_MS = 1400;
 
 function buildHoldTiming(n: number) {
   const totalMs = n * HOLD_MS + (n - 1) * MOVE_MS;
@@ -142,6 +142,10 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
       jamais sur la clarté du processus.
     </p>
 
+    <!-- Tracé + détail côte à côte sur desktop (grid), pas empilés : le
+         détail de l'étape reste visible en permanence à côté du visuel,
+         sans avoir à défiler pour le lire pendant que le curseur avance. -->
+    <div class="method-layout">
     <div class="method-path">
       <svg
         class="method-path__svg method-path__svg--desktop"
@@ -260,6 +264,7 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
         <p class="method-detail__texte" id="method-detail-texte" />
       </div>
     </div>
+    </div>
   </div>
 
   <script type="application/json" id="method-steps-data" set:html={JSON.stringify(etapes)} />
@@ -283,7 +288,7 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
   // serveur) : le curseur tient chaque étape HOLD_MS, glisse pendant
   // MOVE_MS — la mise en avant automatique suit exactement ce même rythme.
   const HOLD_MS = 1800;
-  const MOVE_MS = 700;
+  const MOVE_MS = 1400;
   const CYCLE_SECONDS = (etapes.length * (HOLD_MS + MOVE_MS) - MOVE_MS) / 1000;
 
   let activeIndex = 0;
@@ -346,7 +351,7 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
   function glideCursorTo(fromIndex: number, toIndex: number) {
     const targetSeconds = stepTimeSeconds(toIndex);
     const distanceSteps = Math.max(1, Math.abs(toIndex - fromIndex));
-    const durationMs = Math.min(1200, MOVE_MS * distanceSteps);
+    const durationMs = Math.min(2000, MOVE_MS * distanceSteps);
     svgs.forEach((svg) => {
       // getCurrentTime() renvoie le temps absolu de la timeline SVG (qui ne
       // fait que croître depuis le chargement de la page), pas une valeur
@@ -464,8 +469,16 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
   /* Chemin serpentin — le tracé et les titres restent sobres (gris/beige),
      le vert des cubes et le doré du curseur sont les deux seules touches
      d'accent de ce visuel. */
-  .method-path {
+  /* Tracé + panneau de détail côte à côte : le détail reste visible en
+     permanence pendant que le curseur avance, pas besoin de défiler pour
+     lire l'étape en cours. Empilés en une colonne sous 860px (voir media
+     query plus bas), où la place horizontale manque pour les deux. */
+  .method-layout {
     margin-top: 56px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 40px;
+    align-items: center;
   }
 
   .method-path__svg {
@@ -574,8 +587,6 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
   .method-detail {
     display: flex;
     gap: 20px;
-    max-width: 620px;
-    margin: 40px auto 0;
     padding: 26px 32px;
     background: var(--color-glass-strong);
     border: 1px solid var(--color-glass-border);
@@ -647,8 +658,13 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
       padding: var(--section-py-mobile) 20px;
     }
 
-    .method-path {
+    .method-layout {
+      grid-template-columns: 1fr;
+      gap: 32px;
       margin-top: 40px;
+    }
+
+    .method-path {
       max-width: 320px;
       margin-left: auto;
       margin-right: auto;
@@ -664,6 +680,8 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
 
     .method-detail {
       max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
       padding: 22px 24px;
     }
   }
