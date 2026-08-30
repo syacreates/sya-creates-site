@@ -4,8 +4,18 @@
 // de référence ; l'implémentation CSS réutilise les tokens/composants
 // existants du site plutôt que le CSS inline de cette maquette).
 import { Image } from 'astro:assets';
-import heartIcon from '../assets/pinlove/pinlove-heart.png';
 import stampIcon from '../assets/pinlove/pinlove-stamp.png';
+import screenCarte from '../assets/pinlove/pinlove-screen-carte.png';
+import screenFiche from '../assets/pinlove/pinlove-screen-fiche.png';
+import screenPartage from '../assets/pinlove/pinlove-screen-partage.png';
+import photoKiosque from '../assets/pinlove/pinlove-photo-kiosque.jpg';
+import photoBanc from '../assets/pinlove/pinlove-photo-banc.jpg';
+
+const phoneScreens = [
+  { src: screenCarte, alt: "Capture de l'application PinLove : la carte avec les lieux épinglés" },
+  { src: screenFiche, alt: "Capture de l'application PinLove : ajout d'un nouveau lieu" },
+  { src: screenPartage, alt: "Capture de l'application PinLove : import direct depuis TikTok ou Instagram" },
+];
 
 const web3formsAccessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY;
 
@@ -90,42 +100,72 @@ const roles = [
 
       <!-- Visuel signature : mockup téléphone + 2 polaroids + tampon, façon
            corkboard. Recréé en CSS/SVG (pas les assets de la maquette de
-           référence), avec le vrai cœur PinLove extrait du brief. -->
-      <div class="pinlove__board" aria-hidden="true">
-        <svg class="pinlove__thread" viewBox="0 0 400 460" preserveAspectRatio="none">
+           référence), avec le vrai cœur PinLove extrait du brief. Seul le
+           mockup téléphone est réellement interactif (flèches de
+           navigation) : aria-hidden retiré du conteneur global et posé
+           élément par élément sur le reste, purement décoratif. -->
+      <div class="pinlove__board">
+        <svg class="pinlove__thread" viewBox="0 0 400 460" preserveAspectRatio="none" aria-hidden="true">
           <path d="M50,100 C110,145 145,200 190,225" />
           <path d="M340,360 C285,325 250,290 210,245" />
         </svg>
-        <span class="pinlove__pinhead" style="left:46px; top:92px;"></span>
-        <span class="pinlove__pinhead" style="right:46px; bottom:108px;"></span>
+        <span class="pinlove__pinhead" style="left:46px; top:92px;" aria-hidden="true" />
+        <span class="pinlove__pinhead" style="right:46px; bottom:108px;" aria-hidden="true" />
 
-        <div class="pinlove__stamp">
+        <div class="pinlove__stamp" aria-hidden="true">
           <Image src={stampIcon} alt="" width="200" height="177" />
         </div>
 
-        <div class="pinlove__polaroid pinlove__polaroid--1">
-          <div class="pinlove__polaroid-pic pinlove__polaroid-pic--brass">
-            <Image src={heartIcon} alt="" width="34" height="34" />
+        <div class="pinlove__polaroid pinlove__polaroid--1" aria-hidden="true">
+          <div class="pinlove__polaroid-pic">
+            <Image src={photoKiosque} alt="" width="200" height="144" />
           </div>
           <p class="pinlove__polaroid-cap">le kiosque, 8h12</p>
         </div>
 
-        <div class="pinlove__polaroid pinlove__polaroid--2">
-          <div class="pinlove__polaroid-pic pinlove__polaroid-pic--cherry">
-            <Image src={heartIcon} alt="" width="34" height="34" />
+        <div class="pinlove__polaroid pinlove__polaroid--2" aria-hidden="true">
+          <div class="pinlove__polaroid-pic">
+            <Image src={photoBanc} alt="" width="200" height="144" />
           </div>
           <p class="pinlove__polaroid-cap">notre banc</p>
         </div>
 
         <div class="pinlove__phone">
-          <div class="pinlove__phone-screen">
-            <span class="pinlove__app-icon">
-              <Image src={heartIcon} alt="Icône PinLove" width="24" height="24" />
-            </span>
-            <span class="pinlove__map-dot" style="left:38px; top:150px;"></span>
-            <span class="pinlove__map-dot" style="left:108px; top:228px;"></span>
-            <span class="pinlove__map-dot" style="left:66px; top:306px;"></span>
+          <div class="pinlove__phone-screen" id="pinlove-phone-screen">
+            <!-- Vraies captures de l'app (carte, ajout d'un lieu, import
+                 TikTok/Instagram), navigables aux flèches (voir <script>
+                 plus bas) plutôt qu'en fondu automatique. -->
+            {
+              phoneScreens.map((screen, i) => (
+                <Image
+                  src={screen.src}
+                  alt={screen.alt}
+                  width="172"
+                  height="344"
+                  class="pinlove__phone-shot"
+                  data-index={i}
+                  aria-hidden={i === 0 ? 'false' : 'true'}
+                  class:list={[{ 'is-active': i === 0 }]}
+                />
+              ))
+            }
           </div>
+          <button
+            type="button"
+            class="pinlove__phone-nav pinlove__phone-nav--prev"
+            id="pinlove-phone-prev"
+            aria-label="Écran précédent"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            class="pinlove__phone-nav pinlove__phone-nav--next"
+            id="pinlove-phone-next"
+            aria-label="Écran suivant"
+          >
+            ›
+          </button>
         </div>
       </div>
     </div>
@@ -277,6 +317,34 @@ const roles = [
       }
     }
   });
+</script>
+
+<script>
+  // Carrousel du mockup téléphone : flèches gauche/droite plutôt qu'un
+  // fondu automatique — l'utilisateur garde la main, pas de mouvement
+  // imposé en continu sur une section de portfolio.
+  const shots = Array.from(
+    document.querySelectorAll<HTMLElement>('#pinlove-phone-screen .pinlove__phone-shot')
+  );
+  const prevBtn = document.getElementById('pinlove-phone-prev');
+  const nextBtn = document.getElementById('pinlove-phone-next');
+
+  if (shots.length && prevBtn && nextBtn) {
+    let current = shots.findIndex((shot) => shot.classList.contains('is-active'));
+    if (current < 0) current = 0;
+
+    function show(index: number) {
+      const next = (index + shots.length) % shots.length;
+      shots[current].classList.remove('is-active');
+      shots[current].setAttribute('aria-hidden', 'true');
+      shots[next].classList.add('is-active');
+      shots[next].setAttribute('aria-hidden', 'false');
+      current = next;
+    }
+
+    prevBtn.addEventListener('click', () => show(current - 1));
+    nextBtn.addEventListener('click', () => show(current + 1));
+  }
 </script>
 
 <style>
@@ -442,17 +510,14 @@ const roles = [
     width: 100%;
     height: 66px;
     border-radius: 1px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    overflow: hidden;
   }
 
-  .pinlove__polaroid-pic--brass {
-    background: linear-gradient(135deg, var(--pin-brass), var(--pin-cherry));
-  }
-
-  .pinlove__polaroid-pic--cherry {
-    background: linear-gradient(135deg, var(--pin-cherry), var(--pin-cherry-deep));
+  .pinlove__polaroid-pic img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .pinlove__polaroid-cap {
@@ -497,32 +562,52 @@ const roles = [
     background: radial-gradient(140% 100% at 25% 0%, #4a2e12 0%, #2a0e10 55%, var(--color-surface) 100%);
   }
 
-  .pinlove__app-icon {
+  /* Les 3 vraies captures de l'app se succèdent au clic sur les flèches
+     (voir <script> plus haut) plutôt qu'en fondu automatique imposé. */
+  .pinlove__phone-shot {
     position: absolute;
-    top: 18px;
-    left: 18px;
-    width: 32px;
-    height: 32px;
-    border-radius: 9px;
-    overflow: hidden;
-    display: block;
-    box-shadow: 0 6px 14px -4px rgba(0, 0, 0, 0.5);
-  }
-
-  .pinlove__app-icon :global(img) {
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
+    opacity: 0;
+    transition: opacity 0.4s ease;
   }
 
-  .pinlove__map-dot {
+  .pinlove__phone-shot.is-active {
+    opacity: 1;
+  }
+
+  .pinlove__phone-nav {
     position: absolute;
-    width: 9px;
-    height: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
-    background: var(--pin-cherry);
-    box-shadow: 0 0 0 6px rgba(241, 86, 106, 0.22);
+    border: 1px solid var(--color-glass-border);
+    background: var(--color-glass-strong);
+    color: var(--color-ink);
+    font-size: 16px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 4;
+    transition: background 0.15s ease;
+  }
+
+  .pinlove__phone-nav:hover {
+    background: var(--color-glass);
+  }
+
+  .pinlove__phone-nav--prev {
+    left: 8px;
+  }
+
+  .pinlove__phone-nav--next {
+    right: 8px;
   }
 
   /* --- Bandeau faits --- */
