@@ -1,0 +1,259 @@
+---
+// Cube Rubik's-like en lévitation, CSS 3D pur (transform-style: preserve-3d) —
+// pas de Three.js ici : le texte reste net sans avoir à le peindre dans une
+// texture, et le composant est autonome, importable dans n'importe quelle
+// section du site.
+//
+// Pour changer les mots : éditer ce tableau (l'ordre correspond aux 6 faces
+// du cube, voir les classes .word-cube__face--<position> plus bas).
+const faces = [
+  { position: 'front', word: 'Wireframe' },
+  { position: 'back', word: 'Prototype' },
+  { position: 'right', word: 'Accessibilité' },
+  { position: 'left', word: 'Parcours utilisateur' },
+  { position: 'top', word: 'Interface' },
+  { position: 'bottom', word: 'Interaction' },
+] as const;
+---
+
+<!-- Décoratif : les mots illustrent le vocabulaire UX/UI mais n'apportent
+     aucune information indisponible ailleurs sur la page — même traitement
+     que la cascade de cubes du Hero juste au-dessus. -->
+<div class="word-cube-scene" aria-hidden="true">
+  <span class="word-cube-shadow"></span>
+  <div class="word-cube-float">
+    <div class="word-cube-spin-y">
+      <div class="word-cube-spin-x">
+        {faces.map((f) => (
+          <div class={`word-cube__face word-cube__face--${f.position}`}>
+            <span>{f.word}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .word-cube-scene {
+    /* --- Réglages faciles à changer --- */
+    --wc-size: clamp(96px, 22vw, 148px);
+    /* 5 teintes puisées dans la palette du site (voir global.css) : deux
+       tons pleins sapin, la teinte claire du dégradé accent, et les deux
+       noirs de fond — jamais de couleur en dur hors de cette palette. */
+    --wc-tone-1: var(--color-accent-2);
+    --wc-tone-2: var(--color-accent);
+    --wc-tone-3: #7fc4a0; /* 2ᵉ arrêt de --gradient-accent */
+    --wc-tone-4: var(--color-bg-alt);
+    --wc-tone-5: var(--color-bg);
+
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 28px 0 8px;
+    perspective: 900px;
+  }
+
+  /* Ombre portée — en dehors du wrapper qui flotte : ne monte/descend pas
+     avec le cube, seulement sa taille/opacité pulsent, en phase avec le
+     flottement (même durée que .word-cube-float, pas de délai). */
+  .word-cube-shadow {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    width: calc(var(--wc-size) * 0.85);
+    height: calc(var(--wc-size) * 0.22);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(74, 128, 101, 0.45), transparent 72%);
+    filter: blur(2px);
+    animation: word-cube-shadow-pulse 4s ease-in-out infinite;
+  }
+
+  .word-cube-float {
+    position: relative;
+    width: var(--wc-size);
+    height: var(--wc-size);
+    transform-style: preserve-3d;
+    animation: word-cube-bob 4s ease-in-out infinite;
+  }
+
+  /* Rotation continue sur deux axes, chacun avec sa propre durée (24s / 17s,
+     imbriqués plutôt que combinés dans un seul keyframe) : la combinaison ne
+     boucle jamais à l'identique, donc le tumbling reste organique au lieu
+     d'un aller-retour mécanique. */
+  .word-cube-spin-y {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    animation: word-cube-spin-y 24s linear infinite;
+  }
+
+  .word-cube-spin-x {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    animation: word-cube-spin-x 17s linear infinite;
+  }
+
+  .word-cube__face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 14px;
+    border-radius: 16px;
+    box-shadow: inset 0 0 0 1px rgba(245, 243, 238, 0.08);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: clamp(0.7rem, 0.62rem + 0.35vw, 0.85rem);
+    line-height: 1.25;
+    letter-spacing: 0.01em;
+    backface-visibility: hidden;
+    /* Couleur/fond animés indépendamment (voir les 6 jeux de keyframes plus
+       bas) — transition douce pour que le changement de teinte se voie
+       comme un fondu, jamais un flash. */
+    transition: none;
+  }
+
+  .word-cube__face--front {
+    transform: translateZ(calc(var(--wc-size) / 2));
+    animation: word-cube-face-a 9s ease-in-out infinite;
+  }
+  .word-cube__face--back {
+    transform: rotateY(180deg) translateZ(calc(var(--wc-size) / 2));
+    animation: word-cube-face-b 10s ease-in-out infinite;
+    animation-delay: -3s;
+  }
+  .word-cube__face--right {
+    transform: rotateY(90deg) translateZ(calc(var(--wc-size) / 2));
+    animation: word-cube-face-c 11s ease-in-out infinite;
+    animation-delay: -6s;
+  }
+  .word-cube__face--left {
+    transform: rotateY(-90deg) translateZ(calc(var(--wc-size) / 2));
+    animation: word-cube-face-a 9s ease-in-out infinite;
+    animation-delay: -4.5s;
+  }
+  .word-cube__face--top {
+    transform: rotateX(90deg) translateZ(calc(var(--wc-size) / 2));
+    animation: word-cube-face-b 10s ease-in-out infinite;
+    animation-delay: -1.5s;
+  }
+  .word-cube__face--bottom {
+    transform: rotateX(-90deg) translateZ(calc(var(--wc-size) / 2));
+    animation: word-cube-face-c 11s ease-in-out infinite;
+    animation-delay: -8s;
+  }
+
+  /* Chaque face oscille entre deux teintes de la palette (fond + texte
+     recalculé pour rester lisible sur les deux). Trois jeux (a/b/c) avec
+     des paires différentes, plus des délais négatifs par face ci-dessus :
+     les 6 faces ne changent jamais de couleur toutes ensemble. */
+  @keyframes word-cube-face-a {
+    0%,
+    100% {
+      background-color: var(--wc-tone-1);
+      color: var(--color-ink);
+    }
+    50% {
+      background-color: var(--wc-tone-3);
+      color: var(--color-bg);
+    }
+  }
+  @keyframes word-cube-face-b {
+    0%,
+    100% {
+      background-color: var(--wc-tone-2);
+      color: var(--color-ink);
+    }
+    50% {
+      background-color: var(--wc-tone-4);
+      color: var(--color-ink);
+    }
+  }
+  @keyframes word-cube-face-c {
+    0%,
+    100% {
+      background-color: var(--wc-tone-4);
+      color: var(--color-ink);
+    }
+    50% {
+      background-color: var(--wc-tone-5);
+      color: var(--color-ink);
+    }
+  }
+
+  @keyframes word-cube-spin-y {
+    from {
+      transform: rotateY(0deg);
+    }
+    to {
+      transform: rotateY(360deg);
+    }
+  }
+
+  @keyframes word-cube-spin-x {
+    from {
+      transform: rotateX(0deg);
+    }
+    to {
+      transform: rotateX(360deg);
+    }
+  }
+
+  @keyframes word-cube-bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-14px);
+    }
+  }
+
+  @keyframes word-cube-shadow-pulse {
+    0%,
+    100% {
+      transform: translateX(-50%) scale(1);
+      opacity: 0.5;
+    }
+    50% {
+      transform: translateX(-50%) scale(0.7);
+      opacity: 0.22;
+    }
+  }
+
+  /* Au survol (desktop uniquement) : la rotation accélère légèrement et
+     l'ombre pulse plus vite — bonus d'interactivité en plus du cycle
+     automatique déjà actif en continu (donc déjà visible sur mobile, sans
+     hover). */
+  @media (hover: hover) {
+    .word-cube-scene:hover .word-cube-spin-y {
+      animation-duration: 9s;
+    }
+    .word-cube-scene:hover .word-cube-spin-x {
+      animation-duration: 6.5s;
+    }
+    .word-cube-scene:hover .word-cube-shadow {
+      animation-duration: 2.2s;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .word-cube-float,
+    .word-cube-spin-y,
+    .word-cube-spin-x,
+    .word-cube-shadow,
+    .word-cube__face {
+      animation: none !important;
+    }
+    /* Pose statique lisible : une seule face visible, de face. */
+    .word-cube__face--front {
+      background-color: var(--wc-tone-1);
+      color: var(--color-ink);
+    }
+  }
+</style>
