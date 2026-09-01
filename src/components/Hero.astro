@@ -1,6 +1,4 @@
 ---
-import WordCube from './WordCube.astro';
-
 const titleLine1 = "Je débloque ton produit,";
 const titleLine2 = "et j'élimine tes frictions UX.";
 const words1 = titleLine1.split(' ');
@@ -20,14 +18,6 @@ const tags = [
 <section class="hero" id="hero">
   <span class="blob blob--1" aria-hidden="true"></span>
   <span class="blob blob--2" aria-hidden="true"></span>
-
-  <!-- Cascade de cubes noir/anthracite (voir <script>) : lévite au centre
-       de .hero__orbfield, avec un léger flottement d'arrivée avant de se
-       stabiliser. Purement décorative et non interactive (ni cliquable, ni
-       glissable, ni pilotable au clavier) — aria-hidden, et
-       pointer-events:none pour ne jamais intercepter un clic destiné au
-       contenu en dessous. -->
-  <canvas id="hero-cubes" class="hero__cubes" aria-hidden="true"></canvas>
 
   <div class="hero__inner">
     <span class="eyebrow-pill">
@@ -71,28 +61,41 @@ const tags = [
       </div>
     </div>
 
-    <div class="hero__orbfield" aria-hidden="true"></div>
-
-    <WordCube />
+    <!-- Cascade de cubes noir/anthracite (voir <script>) : tombe en boucle
+         infinie à travers .hero__orbfield, qui héberge directement le
+         canvas — ses propres dimensions bornent ce que la caméra peut
+         dessiner, donc les cubes apparaissent/disparaissent net aux bords
+         de cette zone, sans déborder sur le reste du hero. Purement
+         décorative et non interactive (ni cliquable, ni glissable, ni
+         pilotable au clavier) — aria-hidden, et pointer-events:none pour ne
+         jamais intercepter un clic destiné au contenu en dessous. -->
+    <div class="hero__orbfield" aria-hidden="true">
+      <canvas id="hero-cubes" class="hero__cubes" aria-hidden="true"></canvas>
+    </div>
   </div>
 </section>
 
 <script>
   const canvas = document.getElementById('hero-cubes') as HTMLCanvasElement | null;
-  const field = canvas?.parentElement;
-  const orbfield = document.querySelector('.hero__orbfield') as HTMLElement | null;
+  // .hero__orbfield est maintenant le parent direct du canvas (voir markup
+  // plus haut) : ses propres dimensions/position deviennent le repère de la
+  // caméra ET la fenêtre de découpe visuelle de la chute — plus besoin de
+  // requêter .hero__orbfield séparément.
+  const field = canvas?.parentElement as HTMLElement | null;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if (canvas && field && orbfield && !prefersReduced) {
-    // Three.js/cannon-es chargés à la demande (voir IntroOverlay.astro pour
-    // le détail de la mesure Lighthouse qui a motivé ce changement) — pas
-    // en import statique qui alourdirait le bundle initial de la page.
+  if (canvas && field && !prefersReduced) {
+    // Three.js chargé à la demande (voir IntroOverlay.astro pour le détail
+    // de la mesure Lighthouse qui a motivé ce changement) — pas en import
+    // statique qui alourdirait le bundle initial de la page. Plus de
+    // cannon-es : la cascade n'a plus besoin de physique (pas de collision,
+    // pas de lévitation en place à retenir par ressort), juste une chute
+    // continue calculée directement dans tick().
     void (async () => {
-    const [THREE, { RoundedBoxGeometry }, { RoomEnvironment }, CANNON] = await Promise.all([
+    const [THREE, { RoundedBoxGeometry }, { RoomEnvironment }] = await Promise.all([
       import('three'),
       import('three/examples/jsm/geometries/RoundedBoxGeometry.js'),
       import('three/examples/jsm/environments/RoomEnvironment.js'),
-      import('cannon-es'),
     ]);
 
     let width = field.clientWidth;
@@ -106,76 +109,49 @@ const tags = [
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(width, height, false);
+    // Tone mapping filmic : sans lui (défaut Three.js = aucun), un reflet
+    // au-delà de 1.0 se clippe net en blanc plat dès qu'une face pointe
+    // vers la zone la plus lumineuse de l'environnement — exactement le
+    // genre de flash qu'on cherche à éviter sur un matériau glossy. ACES
+    // compresse ces hautes lumières en un dégradé au lieu d'un aplat, donc
+    // le verre reste brillant sans jamais tourner cube-blanc-uni.
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-    const ambient = new THREE.AmbientLight(0xffffff, 0.8);
-    const key = new THREE.DirectionalLight(0xffffff, 0.5);
+    // Effet verre brillant : le lustre vient surtout de l'ambiante + de
+    // l'environnement (RoomEnvironment, réfléchi de façon diffuse) plutôt
+    // que d'une lumière directionnelle forte — une "key light" intense sur
+    // un matériau à faible roughness créerait un point chaud net qui flashe
+    // en blanc pur dès qu'une face lui fait face (déjà vu avec ce cube en
+    // rotation continue) ; ici la clé reste en appoint, juste pour donner
+    // un léger gradient de lecture aux faces.
+    const ambient = new THREE.AmbientLight(0xffffff, 1);
+    const key = new THREE.DirectionalLight(0xffffff, 0.25);
     key.position.set(120, 220, 260);
     scene.add(ambient, key);
 
-    // --- cannon-es world : sans gravité, le cube lévite. Un ressort
-    // critiquement amorti (voir applyLevitation) le retient près du
-    // centre du champ d'orbes au lieu de le laisser tomber — un espace
-    // de mouvement resserré, calé sur .hero__orbfield plutôt que sur
-    // toute la hauteur du hero.
-    const world = new CANNON.World({ gravity: new CANNON.Vec3(0, 0, 0) });
-    world.broadphase = new CANNON.SAPBroadphase(world);
-
-    const cubeMat = new CANNON.Material('cube');
-    const wallMat = new CANNON.Material('wall');
-    world.addContactMaterial(new CANNON.ContactMaterial(cubeMat, wallMat, { friction: 0.1, restitution: 0.4 }));
-
-    let depth = Math.min(width, height) * 0.5;
-
-    function makeWall(px: number, py: number, pz: number, hx: number, hy: number, hz: number) {
-      const body = new CANNON.Body({ mass: 0, material: wallMat, shape: new CANNON.Box(new CANNON.Vec3(hx, hy, hz)) });
-      body.position.set(px, py, pz);
-      world.addBody(body);
-      return body;
-    }
-
-    let wallTop: CANNON.Body, wallBottom: CANNON.Body, wallLeft: CANNON.Body, wallRight: CANNON.Body, wallFront: CANNON.Body, wallBack: CANNON.Body;
-
-    // Point de lévitation (centre de .hero__orbfield) et bornes qui
-    // contiennent l'élan de rotation à l'arrivée — proportionnels à la
-    // taille réelle du champ d'orbes (pas des constantes en dur), donc
-    // valables à toutes les largeurs d'écran.
-    let restX = 0;
-    let restY = 0;
+    // Champ (= .hero__orbfield) centré sur l'origine caméra par construction
+    // (voir l'ortho camera juste au-dessus, bornée à ±width/2 / ±height/2) :
+    // la cascade tombe donc autour de x = 0, sur une demi-hauteur halfH
+    // recalculée à chaque resize.
+    const restX = 0;
+    let halfH = height / 2;
 
     function layoutBounds() {
-      const heroRect = field!.getBoundingClientRect();
-      const orbRect = orbfield!.getBoundingClientRect();
-      const centerX = heroRect.left + heroRect.width / 2;
-      const laneLeftX = orbRect.left - centerX;
-      const laneRightX = orbRect.right - centerX;
-      const orbTopWorldY = height / 2 - (orbRect.top - heroRect.top);
-      const orbBottomWorldY = height / 2 - (orbRect.bottom - heroRect.top);
-      restX = (laneLeftX + laneRightX) / 2;
-      restY = (orbTopWorldY + orbBottomWorldY) / 2;
-      depth = Math.min(width, height) * 0.5;
-
-      const big = 4000;
-      const halfW = (laneRightX - laneLeftX) / 2 - 10;
-      const halfH = (orbTopWorldY - orbBottomWorldY) / 2 - 10;
-      if (wallTop) [wallTop, wallBottom, wallLeft, wallRight, wallFront, wallBack].forEach((b) => world.removeBody(b));
-      wallTop = makeWall(restX, restY + halfH, 0, halfW + 30, 20, big);
-      wallBottom = makeWall(restX, restY - halfH, 0, halfW + 30, 20, big);
-      wallLeft = makeWall(restX - halfW, restY, 0, 20, halfH + 30, big);
-      wallRight = makeWall(restX + halfW, restY, 0, 20, halfH + 30, big);
-      wallFront = makeWall(0, 0, depth / 2, big, big, 20);
-      wallBack = makeWall(0, 0, -depth / 2, big, big, 20);
+      halfH = height / 2 - 10;
     }
     layoutBounds();
 
-    // --- Cascade de cubes : plusieurs cubes noir/chrome de tailles
+    // --- Cascade de cubes : plusieurs cubes noir/anthracite de tailles
     // différentes, empilés en diagonale façon socle sculptural, plutôt que
     // l'ancien gros cube unique à faces labellisées — purement décoratif
     // désormais (plus de texte imprimé sur les faces). Toute la cascade
-    // reste UN seul corps physique (une boîte de collision englobante),
-    // donc elle lévite/se lance/rebondit comme un seul objet rigide.
+    // tombe comme un seul groupe rigide (voir tick()), chaque mini-cube
+    // gardant sa propre rotation/flottement par-dessus ce mouvement commun.
     type ClusterCubeSpec = {
       x: number; y: number; z: number; size: number;
       tone: 'black' | 'anthracite';
@@ -187,49 +163,67 @@ const tags = [
     // par cube ici : chaque mini-cube reçoit sa propre rotation continue à
     // la volée (voir spawnCluster), donc un angle statique serait aussitôt
     // écrasé dès la première frame.
+    //
+    // Espacement : chaque cube tournant librement sur son propre axe (voir
+    // spawnCluster), la distance entre deux centres voisins est calée pour
+    // rester toujours supérieure à la somme de leurs rayons circonscrits
+    // (size × √3⁄2 — le rayon de la sphère qui contient le cube quelle que
+    // soit son orientation), avec ~12% de marge. Ça garantit qu'aucun coin
+    // ne peut jamais traverser visuellement un cube voisin, même dans le
+    // pire cas de rotation, tout en les gardant assez proches pour rester
+    // une cascade compacte à l'écran (léger chevauchement en projection).
     const CLUSTER_CUBES: ClusterCubeSpec[] = [
-      { x: 15, y: 160, z: 20, size: 90, tone: 'black' },
-      { x: -38, y: 95, z: -10, size: 78, tone: 'anthracite' },
-      { x: 28, y: 32, z: 16, size: 66, tone: 'black' },
-      { x: -22, y: -32, z: -14, size: 58, tone: 'anthracite' },
-      { x: 18, y: -92, z: 10, size: 50, tone: 'black' },
-      { x: -25, y: -148, z: -10, size: 44, tone: 'anthracite' },
-      { x: 12, y: -200, z: 12, size: 38, tone: 'black' },
+      { x: -38, y: 185, z: -10, size: 78, tone: 'anthracite' },
+      { x: 30, y: 66, z: 18, size: 66, tone: 'black' },
+      { x: -25, y: -35, z: -16, size: 58, tone: 'anthracite' },
+      { x: 20, y: -125, z: 12, size: 50, tone: 'black' },
+      { x: -18, y: -204, z: -14, size: 44, tone: 'anthracite' },
+      { x: 14, y: -270, z: 16, size: 38, tone: 'black' },
     ];
 
-    type ClusterRig = { mesh: THREE.Group; body: CANNON.Body; size: number; age: number };
+    type ClusterRig = { mesh: THREE.Group; age: number };
     const cubes: ClusterRig[] = [];
 
+    // Étendue verticale (locale, avant tout décalage de groupe) de toute la
+    // cascade — sert à savoir de combien la faire dépasser .hero__orbfield
+    // en haut/en bas avant qu'elle soit entièrement hors champ, pour que la
+    // boucle infinie de tick() ne se voie jamais (voir plus bas).
+    let clusterTop = -Infinity;
+    let clusterBottom = Infinity;
+    for (const spec of CLUSTER_CUBES) {
+      const top = spec.y + spec.size / 2;
+      const bottom = spec.y - spec.size / 2;
+      if (top > clusterTop) clusterTop = top;
+      if (bottom < clusterBottom) clusterBottom = bottom;
+    }
+
     function toneMaterial(tone: 'black' | 'anthracite') {
-      // Deux gris sombres à contraste modéré (quasi-noir / anthracite),
-      // plutôt que le blanc trop clair du premier essai — toujours pas de
-      // metalness ~1 plein : on a déjà appris (voir historique du hero)
-      // qu'un chrome trop pur devient quasi invisible sur ce fond sombre,
-      // faute de reflets d'environnement assez lumineux.
-      // Rugosité/clearcoat relevés par rapport à la première passe : avec
-      // chaque mini-cube en rotation continue sur un axe aléatoire, une
-      // face finit tôt ou tard par pointer pile vers la lumière clé — un
-      // matériau trop "miroir" (roughness/clearcoatRoughness bas) fait
-      // alors flasher cette face en blanc pur à cet instant-là. Un fini
-      // plus mat garde le reflet visible sans jamais saturer.
+      // Effet "verre" brillant : metalness bas (le verre n'est pas un
+      // métal), roughness et clearcoatRoughness bas pour un lustre net, et
+      // clearcoat/envMapIntensity élevés pour que les reflets d'environnement
+      // se voient franchement. Le risque du premier essai à faible roughness
+      // (une face qui flashe en blanc pur en pointant vers la lumière clé,
+      // le cube tournant en continu) est traité en amont : voir la clé très
+      // faible et l'ambiante forte plus haut — le lustre vient de
+      // l'environnement diffus, pas d'un point chaud directionnel.
       return tone === 'anthracite'
         ? new THREE.MeshPhysicalMaterial({
             color: 0x3a3d40,
-            metalness: 0.45,
-            roughness: 0.6,
-            envMapIntensity: 0.6,
-            clearcoat: 0.2,
-            clearcoatRoughness: 0.55,
+            metalness: 0.12,
+            roughness: 0.14,
+            envMapIntensity: 1.9,
+            clearcoat: 1,
+            clearcoatRoughness: 0.08,
             transparent: true,
             opacity: 0,
           })
         : new THREE.MeshPhysicalMaterial({
             color: 0x0c1210,
-            metalness: 0.18,
-            roughness: 0.6,
-            envMapIntensity: 0.45,
-            clearcoat: 0.15,
-            clearcoatRoughness: 0.6,
+            metalness: 0.08,
+            roughness: 0.16,
+            envMapIntensity: 1.6,
+            clearcoat: 0.9,
+            clearcoatRoughness: 0.1,
             transparent: true,
             opacity: 0,
           });
@@ -244,7 +238,6 @@ const tags = [
 
     function spawnCluster() {
       const group = new THREE.Group();
-      let maxExtent = 0;
       for (const spec of CLUSTER_CUBES) {
         const geo = new RoundedBoxGeometry(spec.size, spec.size, spec.size, 4, spec.size * 0.08);
         const mesh = new THREE.Mesh(geo, toneMaterial(spec.tone));
@@ -281,8 +274,6 @@ const tags = [
           bobPhase: Math.random() * Math.PI * 2,
         };
         group.add(mesh);
-        const reach = Math.hypot(spec.x, spec.y, spec.z) + spec.size * 0.9;
-        if (reach > maxExtent) maxExtent = reach;
       }
       // Tangage de lecture fixe sur le groupe entier (garde le dessus des
       // cubes visible) — la cascade ne tourne plus comme un seul bloc,
@@ -290,32 +281,12 @@ const tags = [
       group.quaternion.copy(VIEW_TILT);
       scene.add(group);
 
-      // Boîte de collision englobante nettement plus petite que l'étendue
-      // visuelle réelle (les cubes du bord ont surtout du vide entre eux) :
-      // à 0.72 elle talonnait les murs invisibles de .hero__orbfield côté
-      // mobile (largeur/hauteur ~150-170px de rayon), d'où le tremblement —
-      // le ressort la replaçait sans cesse en butée contre un mur. Marge
-      // large ici pour laisser le ressort respirer.
-      const half = Math.min(maxExtent * 0.5, 100);
-      const body = new CANNON.Body({
-        mass: 1,
-        material: cubeMat,
-        shape: new CANNON.Box(new CANNON.Vec3(half, half, half)),
-        linearDamping: 0.15,
-        angularDamping: 0.35,
-      });
-      // Apparaît déjà à son point de lévitation — il n'y a plus de chute à
-      // jouer. La rotation du corps physique n'est plus utilisée (voir la
-      // rotation continue pilotée dans tick()), seule sa position compte.
-      body.position.set(restX, restY, 0);
-
-      const rig: ClusterRig = { mesh: group, body, size: maxExtent, age: 0 };
+      const rig: ClusterRig = { mesh: group, age: 0 };
       cubes.push(rig);
       return rig;
     }
 
-    const rig = spawnCluster();
-    world.addBody(rig.body);
+    spawnCluster();
 
     // Purement décorative : ni cliquable, ni glissable, ni pilotable au
     // clavier. Le canvas n'intercepte donc plus aucun pointeur (voir
@@ -327,33 +298,38 @@ const tags = [
     let rafId = 0;
     let prevTime = performance.now();
 
+    // Vitesse de chute — lente et contemplative, cohérente avec le rythme
+    // du reste du hero (rotation/flottement des mini-cubes, glissé du
+    // curseur Méthode, etc.), pas une chute rapide façon vidéo-jeu.
+    const FALL_SPEED = 26; // px/s
+
     function tick() {
       rafId = requestAnimationFrame(tick);
       const now = performance.now();
       const dt = Math.min((now - prevTime) / 1000, 1 / 30);
       prevTime = now;
 
-      // Ressort critiquement amorti qui retient chaque cascade près de son
-      // point de lévitation (restX, restY, 0) — pas de gravité, donc rien
-      // d'autre ne l'y ramènerait après l'élan d'arrivée.
-      const SPRING_K = 5;
-      const SPRING_DAMP = 2 * Math.sqrt(SPRING_K);
-      for (const c of cubes) {
-        const b = c.body;
-        b.velocity.x += (-SPRING_K * (b.position.x - restX) - SPRING_DAMP * b.velocity.x) * dt;
-        b.velocity.y += (-SPRING_K * (b.position.y - restY) - SPRING_DAMP * b.velocity.y) * dt;
-        b.velocity.z += (-SPRING_K * b.position.z - SPRING_DAMP * b.velocity.z) * dt;
-      }
-      world.step(1 / 60, dt, 6);
+      // Distance totale parcourue avant de boucler : la demi-hauteur du
+      // champ des deux côtés (pour que la cascade soit entièrement hors
+      // champ avant d'apparaître/disparaître) plus l'étendue verticale de
+      // la cascade elle-même (pour qu'elle soit hors champ AVANT que son
+      // dernier cube n'ait fini de sortir). Recalculée à chaque frame à
+      // partir de halfH (mis à jour au resize) : pas de plage figée.
+      const fallSpan = 2 * halfH + (clusterTop - clusterBottom);
+      // Départ : le bas de la cascade est juste au bord haut du champ
+      // (donc la cascade entière est encore invisible, juste au-dessus).
+      const fallTop = halfH - clusterBottom;
+      const p = ((now / 1000) * FALL_SPEED) % fallSpan;
+      const groupY = fallTop - p;
 
       for (let i = cubes.length - 1; i >= 0; i--) {
         const c = cubes[i];
 
-        // Le groupe ne porte plus que la position d'ensemble (lévitation) —
-        // ni bob ni rotation uniformes ici, chaque mini-cube gère les
-        // siens individuellement juste en dessous, pour un mouvement
+        // Le groupe ne porte plus que la chute d'ensemble — ni bob ni
+        // rotation uniformes ici, chaque mini-cube gère les siens
+        // individuellement juste en dessous, pour un mouvement
         // désynchronisé plutôt qu'un bloc rigide qui tourne d'un seul tenant.
-        c.mesh.position.copy(c.body.position as unknown as THREE.Vector3);
+        c.mesh.position.set(restX, groupY, 0);
 
         for (const child of c.mesh.children) {
           const u = child.userData as {
@@ -571,10 +547,12 @@ const tags = [
     animation: hero-reveal 0.7s ease 0.12s both;
   }
 
-  /* Cube chromé — scène WebGL (Three.js + cannon-es), voir le <script>
-     plus bas. Le canvas couvre tout le hero, mais le cube lévite dans une
-     zone resserrée calée en JS sur .hero__orbfield. Posé au-dessus du
-     texte pour rester manipulable par-dessus. */
+  /* Cascade de cubes — scène WebGL (Three.js), voir le <script> plus bas.
+     Le canvas est désormais un enfant de .hero__orbfield (pas un calque
+     plein hero) : ses propres dimensions bornent ce que la caméra peut
+     dessiner, donc la chute infinie de la cascade se découpe net aux
+     bords réels de .hero__orbfield, sans avoir à cliper quoi que ce soit
+     en CSS. */
   .hero__cubes {
     position: absolute;
     inset: 0;
@@ -585,21 +563,12 @@ const tags = [
        contenu en dessous (CTA, liens, cartes flip) — plus besoin du relais
        de clic qu'exigeait l'ancien cube manipulable. */
     pointer-events: none;
-    /* Même halo respirant que le cube-logo de l'écran d'intro (voir
-       IntroOverlay.astro, .intro-overlay__cta-icon) : un drop-shadow qui
-       pulse épouse la silhouette réelle du cube (canvas à fond alpha
-       transparent), donc suit son flottement sans calcul de position. */
-    animation: hero-cube-glow 2.2s ease-in-out infinite;
-  }
-
-  @keyframes hero-cube-glow {
-    0%,
-    100% {
-      filter: drop-shadow(0 0 8px rgba(127, 196, 160, 0.4));
-    }
-    50% {
-      filter: drop-shadow(0 0 22px rgba(127, 196, 160, 0.9));
-    }
+    /* Fondu doux en haut/bas de la zone : sans lui, un cube qui entre ou
+       sort de la chute apparaîtrait/disparaîtrait net au bord du canvas —
+       même principe que le mask-image de .hero__marquee un peu plus bas,
+       en vertical. */
+    mask-image: linear-gradient(180deg, transparent, black 14%, black 86%, transparent);
+    -webkit-mask-image: linear-gradient(180deg, transparent, black 14%, black 86%, transparent);
   }
 
   /* Bandeau de mots-clés — repris de l'ancienne section Vision, déplacé
