@@ -71,6 +71,17 @@ const apports = [
       <div class="cocoon">
         <div class="cocoon__visual" data-stage="0">
           <svg class="cocoon__svg" viewBox="0 0 240 220" aria-hidden="true">
+            <defs>
+              <!-- Dégradé façon monarque : ambre clair côté corps, orange
+                   brûlé côté pointe d'aile. objectBoundingBox (par défaut)
+                   applique le même dégradé 0%→100% sur chacune des 4 ailes
+                   indépendamment de leur orientation, sans le dupliquer. -->
+              <linearGradient id="wing-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffcb6b" />
+                <stop offset="55%" stop-color="#f0932b" />
+                <stop offset="100%" stop-color="#c2540f" />
+              </linearGradient>
+            </defs>
             <path class="cocoon__branch-line" d="M30,24 Q120,4 210,24" fill="none" />
             <path class="cocoon__leaf" d="M74,21 C63,10 46,12 40,23 C46,32 65,31 74,21 Z" />
             <path class="cocoon__leaf" d="M166,21 C177,10 194,12 200,23 C194,32 175,31 166,21 Z" />
@@ -105,35 +116,71 @@ const apports = [
                     class="cocoon__wing-fill"
                     d="M117,122 Q80,130 65,155 Q58,176 72,205 Q88,180 100,165 Q112,150 118,145 Q120,133 117,122 Z"
                   />
+                  <path class="cocoon__wing-vein" d="M117,124 Q95,140 75,165" />
+                  <path class="cocoon__wing-vein" d="M117,128 Q100,158 87,188" />
+                  <circle class="cocoon__wing-spot" cx="73" cy="191" r="2.6" />
+                  <circle class="cocoon__wing-spot" cx="86" cy="174" r="2.2" />
+                  <circle class="cocoon__wing-spot" cx="65" cy="158" r="2" />
                 </g>
                 <g class="cocoon__wing cocoon__wing--lower-right">
                   <path
                     class="cocoon__wing-fill"
                     d="M123,122 Q160,130 175,155 Q182,176 168,205 Q152,180 140,165 Q128,150 122,145 Q120,133 123,122 Z"
                   />
+                  <path class="cocoon__wing-vein" d="M123,124 Q145,140 165,165" />
+                  <path class="cocoon__wing-vein" d="M123,128 Q140,158 153,188" />
+                  <circle class="cocoon__wing-spot" cx="167" cy="191" r="2.6" />
+                  <circle class="cocoon__wing-spot" cx="154" cy="174" r="2.2" />
+                  <circle class="cocoon__wing-spot" cx="175" cy="158" r="2" />
                 </g>
                 <g class="cocoon__wing cocoon__wing--upper-left">
                   <path
                     class="cocoon__wing-fill"
                     d="M120,95 L20,46 Q50,95 58,118 Q75,135 100,132 Q114,118 120,95 Z"
                   />
-                  <circle class="cocoon__ocelle" cx="47" cy="84" r="6" />
+                  <path class="cocoon__wing-vein" d="M118,89 Q68,68 28,49" />
+                  <path class="cocoon__wing-vein" d="M118,97 Q80,103 58,119" />
+                  <path class="cocoon__wing-vein" d="M118,104 Q96,119 80,128" />
+                  <circle class="cocoon__wing-spot" cx="36" cy="58" r="2.4" />
+                  <circle class="cocoon__wing-spot" cx="50" cy="90" r="2.2" />
+                  <circle class="cocoon__wing-spot" cx="66" cy="115" r="2" />
+                  <circle class="cocoon__ocelle" cx="47" cy="84" r="5.5" />
                 </g>
                 <g class="cocoon__wing cocoon__wing--upper-right">
                   <path
                     class="cocoon__wing-fill"
                     d="M120,95 L220,46 Q190,95 182,118 Q165,135 140,132 Q126,118 120,95 Z"
                   />
-                  <circle class="cocoon__ocelle" cx="193" cy="84" r="6" />
+                  <path class="cocoon__wing-vein" d="M122,89 Q172,68 212,49" />
+                  <path class="cocoon__wing-vein" d="M122,97 Q160,103 182,119" />
+                  <path class="cocoon__wing-vein" d="M122,104 Q144,119 160,128" />
+                  <circle class="cocoon__wing-spot" cx="204" cy="58" r="2.4" />
+                  <circle class="cocoon__wing-spot" cx="190" cy="90" r="2.2" />
+                  <circle class="cocoon__wing-spot" cx="174" cy="115" r="2" />
+                  <circle class="cocoon__ocelle" cx="193" cy="84" r="5.5" />
                 </g>
                 <g class="cocoon__body">
+                  <!-- Antennes à massue (renflement au bout) : signature des
+                       papillons de jour (monarque compris), contrairement
+                       aux antennes filiformes/plumeuses des papillons de
+                       nuit. -->
                   <path class="cocoon__antenna" d="M117,72 Q107,54 98,48" />
+                  <circle class="cocoon__antenna-club" cx="98" cy="48" r="2.2" />
                   <path class="cocoon__antenna" d="M123,72 Q133,54 142,48" />
+                  <circle class="cocoon__antenna-club" cx="142" cy="48" r="2.2" />
                   <ellipse cx="120" cy="77" rx="5" ry="6" />
                   <ellipse cx="120" cy="92" rx="6" ry="8" />
                   <ellipse cx="120" cy="109" rx="6.5" ry="9" />
                   <ellipse cx="120" cy="126" rx="5.5" ry="8" />
                   <ellipse cx="120" cy="140" rx="4.5" ry="6" />
+                  <!-- Petites taches claires sur le corps sombre, comme chez
+                       le monarque réel. -->
+                  <circle class="cocoon__body-spot" cx="117" cy="90" r="1" />
+                  <circle class="cocoon__body-spot" cx="123" cy="90" r="1" />
+                  <circle class="cocoon__body-spot" cx="117" cy="107" r="1" />
+                  <circle class="cocoon__body-spot" cx="123" cy="107" r="1" />
+                  <circle class="cocoon__body-spot" cx="117" cy="124" r="1" />
+                  <circle class="cocoon__body-spot" cx="123" cy="124" r="1" />
                 </g>
                 <g class="cocoon__sparkles">
                   <path class="cocoon__spark" d="M0,-6 L1.6,-1.6 L6,0 L1.6,1.6 L0,6 L-1.6,1.6 L-6,0 L-1.6,-1.6 Z" transform="translate(48,64)" />
@@ -458,15 +505,38 @@ const apports = [
     animation: none !important;
   }
 
+  /* Couleur façon monarque : dégradé ambre→orange brûlé (voir <defs>,
+     wing-gradient) et bordure noire épaisse — la marge sombre qui borde
+     chaque aile chez le vrai papillon, pas un simple contour fin. */
   .cocoon__wing-fill {
-    fill: var(--color-accent-2);
-    stroke: #c4c8cc;
-    stroke-width: 1.5;
+    fill: url(#wing-gradient);
+    stroke: #23140c;
+    stroke-width: 3;
     stroke-linejoin: round;
   }
 
+  /* Nervures noires qui rayonnent depuis le corps — sans elles, le
+     dégradé seul lisait comme un aplat plat, pas une vraie aile. */
+  .cocoon__wing-vein {
+    fill: none;
+    stroke: #23140c;
+    stroke-width: 1.1;
+    stroke-linecap: round;
+    opacity: 0.75;
+  }
+
+  /* Rangée de points blancs le long de la bordure — motif caractéristique
+     du monarque en bord d'aile. */
+  .cocoon__wing-spot {
+    fill: #f7f4ee;
+  }
+
+  /* Petite marque sombre cerclée de blanc près de la pointe des ailes
+     supérieures, plutôt qu'un simple rond plein. */
   .cocoon__ocelle {
-    fill: #c4c8cc;
+    fill: #23140c;
+    stroke: #f7f4ee;
+    stroke-width: 1.1;
   }
 
   /* Battement d'aile réaliste : une vraie rotation en charnière (perspective
@@ -488,16 +558,27 @@ const apports = [
     animation: cocoon-flap-right 0.52s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   }
 
+  /* Corps brun très sombre, presque noir — pas le gris/vert de la charte
+     du site : ce papillon est la seule illustration à sortir du noir et
+     blanc, en couleurs réalistes. */
   .cocoon__body ellipse {
-    fill: var(--color-accent);
+    fill: #1c110b;
+  }
+
+  .cocoon__body-spot {
+    fill: #f7f4ee;
   }
 
   .cocoon__antenna {
     fill: none;
-    stroke: var(--color-accent);
+    stroke: #1c110b;
     stroke-width: 1.6;
     stroke-linecap: round;
     transform-box: fill-box;
+  }
+
+  .cocoon__antenna-club {
+    fill: #1c110b;
   }
 
   /* Les antennes bougent légèrement, indépendamment l'une de l'autre et du
