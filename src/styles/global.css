@@ -1,31 +1,49 @@
 :root {
-  /* Couleurs — dark mode : noir sapin profond, vert sapin comme accent
-     chromatique unique (remplace l'ancien duo vert/or sur crème). Les noms
-     de variables restent inchangés pour que tout le site (déjà écrit en
-     tokens sémantiques, jamais en hex en dur) bascule sans réécrire les
+  /* Couleurs — noir et blanc stricts, plus un accent gris anthracite
+     brillant (repris du matériau verre/glass des cubes qui tombent en
+     cascade dans le Hero) à la place de l'ancien accent vert sapin. Les
+     noms de variables restent inchangés pour que tout le site (déjà écrit
+     en tokens sémantiques, jamais en hex en dur) bascule sans réécrire les
      composants un par un. */
   --color-bg: #0b0f0d;
   --color-bg-alt: #121710;
   --color-ink: #f5f3ee;
   --color-text-secondary: #8a9089;
-  /* Sapin profond : réservé aux FONDS pleins (boutons, badges) — jamais en
-     texte/bordure sur --color-bg, le contraste y est insuffisant. */
-  --color-accent: #1e3d2f;
-  /* Sapin clair : texte accentué, liens, bordures, hover — le seul des deux
-     à rester lisible sur noir. */
-  --color-accent-2: #4a8065;
-  --color-line: rgba(74, 128, 101, 0.16);
+  /* Anthracite moyen (même teinte que les cubes du Hero) : réservé aux
+     FONDS pleins (boutons, badges) — jamais en texte/bordure sur
+     --color-bg, le contraste y est insuffisant. */
+  --color-accent: #3a3d40;
+  /* Argent clair "brillant" : texte accentué, liens, bordures, hover — le
+     seul des deux à rester lisible sur noir. */
+  --color-accent-2: #a4a8ac;
+  --color-line: rgba(255, 255, 255, 0.14);
   --color-surface: #121710;
   --color-glass: rgba(18, 23, 16, 0.65);
   --color-glass-strong: rgba(18, 23, 16, 0.85);
-  --color-glass-border: rgba(74, 128, 101, 0.22);
+  --color-glass-border: rgba(255, 255, 255, 0.16);
   /* Sémantique d'erreur — éclairci pour rester lisible sur fond noir */
   --color-error: #e2725b;
 
+  /* Trois noirs/gris qui tournent d'une section à l'autre (voir plus bas,
+     main > section) — façon "scène" (chaque section a sa propre ambiance)
+     inspirée des blocs de couleur qui alternent sur matthewencina.com. La
+     scène 2 porte une légère teinte chaude (voir --color-warm ci-dessous) —
+     une touche, pas une des trois scènes en pleine couleur. */
+  --color-scene-1: #0b0f0d;
+  --color-scene-2: #171410;
+  --color-scene-3: #1c1c1c;
+
+  /* Touches de couleur ponctuelles — teintes reprises telles quelles de
+     matthewencina.com (taupe chaud / olive sombre), utilisées avec
+     parcimonie (un halo ici, un survol là) plutôt qu'en fond de section
+     plein cadre : le site reste noir/blanc/anthracite dans l'ensemble. */
+  --color-warm: #8a7b68;
+  --color-warm-deep: #454539;
+
   /* Dégradé texte-safe : jamais --color-accent dedans (trop sombre sur
-     noir une fois en background-clip:text) — seulement les deux teintes
-     claires de la famille sapin. */
-  --gradient-accent: linear-gradient(135deg, var(--color-accent-2), #7fc4a0);
+     noir une fois en background-clip:text) — seulement des gris clairs,
+     façon reflet métallique/verre plutôt que le dégradé vert d'origine. */
+  --gradient-accent: linear-gradient(135deg, var(--color-accent-2), #e4e6e8);
   --shadow-soft: 0 20px 45px -20px rgba(0, 0, 0, 0.6);
   --shadow-card: 0 12px 32px -18px rgba(0, 0, 0, 0.5);
 
@@ -64,14 +82,12 @@ html {
 
 body {
   margin: 0;
-  /* Les deux dégradés d'ambiance étaient vert foncé + or : l'or est retiré
-     (le sapin devient l'accent chromatique unique) et le vert foncé,
-     invisible sur fond noir, est remplacé par la teinte claire de la
-     famille sapin. */
+  /* Ambiance neutre — gris/blanc doux plutôt que le vert sapin d'origine,
+     pour rester strictement noir et blanc. */
   background:
-    radial-gradient(720px 480px at 8% -10%, rgba(74, 128, 101, 0.2), transparent 60%),
-    radial-gradient(680px 460px at 96% 8%, rgba(74, 128, 101, 0.14), transparent 60%),
-    radial-gradient(900px 600px at 50% 60%, rgba(30, 61, 47, 0.4), transparent 65%),
+    radial-gradient(720px 480px at 8% -10%, rgba(255, 255, 255, 0.06), transparent 60%),
+    radial-gradient(680px 460px at 96% 8%, rgba(255, 255, 255, 0.045), transparent 60%),
+    radial-gradient(900px 600px at 50% 60%, rgba(20, 20, 20, 0.4), transparent 65%),
     var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-body);
@@ -86,9 +102,51 @@ body {
   overflow-x: hidden;
 }
 
+/* Chaque section pleine largeur (enfant direct de <main>, voir index.astro)
+   reçoit un fond plein — plus la transparence qui laissait le dégradé
+   ambiant de <body> traverser uniformément partout. Rotation sur 3 tons
+   (jamais deux voisines identiques) pour la sensation de "scène" qui change
+   en scrollant. */
+main > section {
+  position: relative;
+  background: var(--color-scene-1);
+  /* Chaque section occupe au moins un écran plein — dvh (fallback vh pour
+     les navigateurs qui ne le comprennent pas) pour éviter le petit saut
+     de hauteur au chargement/scroll dû à la barre d'adresse mobile.
+     "min-height", pas "height" : une section plus longue que l'écran
+     (Méthode, FAQ, Contact...) grandit normalement, rien n'est jamais
+     coupé — elle prend juste plus d'un écran de scroll. */
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Un enfant flex a par défaut min-width:auto — il refuse de rétrécir sous
+   la largeur intrinsèque de son contenu. Sans ça, un contenu à
+   width:max-content quelque part à l'intérieur (le bandeau de tags défilant
+   du Hero, notamment) empêche .hero__inner de rétrécir sous ~780px même sur
+   mobile : invisible (juste clippé par overflow:hidden), mais ça décale
+   silencieusement tout le contenu et les cubes du Hero. */
+main > section > * {
+  min-width: 0;
+}
+
+main > section:nth-of-type(3n+2) {
+  background: var(--color-scene-2);
+}
+
+main > section:nth-of-type(3n) {
+  background: var(--color-scene-3);
+}
+
 h1, h2, h3, h4 {
   font-family: var(--font-display);
-  font-weight: 600;
+  /* Fin plutôt que gras : à cette échelle XXL, un poids léger lit comme un
+     titre éditorial/affiche plutôt qu'un titre "app" — Fraunces reste
+     très lisible même fin, et prend du caractère. */
+  font-weight: 300;
   margin: 0;
   color: var(--color-ink);
 }
@@ -234,7 +292,9 @@ summary:focus-visible,
 .glass-card:hover {
   transform: translateY(-6px) scale(1.015);
   background: var(--color-surface);
-  box-shadow: 0 26px 50px -20px rgba(36, 27, 58, 0.3);
+  /* Touche chaude au survol — remplace un vieux violet resté d'une palette
+     précédente, jamais mis à jour depuis. */
+  box-shadow: 0 26px 50px -20px rgba(138, 123, 104, 0.35);
 }
 
 /* Titre centré encadré de deux traits dorés — signature typographique
@@ -253,11 +313,11 @@ summary:focus-visible,
   flex-shrink: 0;
   width: 56px;
   height: 1px;
-  background: linear-gradient(to left, #7fc4a0, transparent);
+  background: linear-gradient(to left, #c4c8cc, transparent);
 }
 
 .title-flanked__line--right {
-  background: linear-gradient(to right, #7fc4a0, transparent);
+  background: linear-gradient(to right, #c4c8cc, transparent);
 }
 
 @media (max-width: 640px) {
@@ -497,7 +557,7 @@ summary:focus-visible,
    transparent, façon verre) plutôt qu'un simple trait de séparation — les
    questions se lisent comme des unités distinctes, pas une longue liste. */
 .accordion-item {
-  border: 1px solid rgba(127, 196, 160, 0.4);
+  border: 1px solid rgba(196, 200, 204, 0.4);
   border-radius: var(--radius-card-sm);
   background: var(--color-glass);
   padding: 0 18px;
@@ -512,7 +572,7 @@ summary:focus-visible,
 .accordion-item:hover,
 .accordion-item[open] {
   background: var(--color-glass-strong);
-  border-color: rgba(127, 196, 160, 0.75);
+  border-color: rgba(196, 200, 204, 0.75);
 }
 
 .accordion-item summary {

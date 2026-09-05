@@ -5,16 +5,31 @@ interface Props {
 }
 
 const { variant = 'on-light', class: className = '' } = Astro.props;
+
+// Id unique par instance (Navbar + Footer affichent chacun un <Logo />) :
+// deux <svg> qui définiraient le même id de gradient collisionneraient,
+// la résolution d'un url(#id) portant sur tout le document, pas juste le
+// <svg> local.
+const gradientId = `logo-shine-${Math.random().toString(36).slice(2, 9)}`;
 ---
 
 <a href="/" class={`logo logo--${variant} ${className}`} aria-label="Sya.Creates, accueil">
   <svg class="logo__mark" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <!-- Cube isométrique — une seule teinte à 3 opacités (100/80/55%) pour
-         les 3 faces, comme les 3 étapes de la méthode (comprendre,
-         structurer, habiller). Couleur pilotée par le variant on-light/
-         on-dark ci-dessous, pas par currentColor (le cube garde toujours
-         la teinte de marque, indépendamment du wordmark). -->
-    <path class="logo__face logo__face--top" d="M22 4 L38 13 L22 22 L6 13 Z" />
+    <!-- Cube isométrique en vert sapin brillant — seul élément du site à
+         garder cet accent chromatique (le reste est passé en noir/blanc/
+         anthracite), à la demande explicite : "laisse le logo de mon cube
+         en vert sapin". La face du dessus porte un dégradé (reflet
+         spéculaire diagonal) plutôt qu'un aplat, pour garder le lustre
+         "brillant" déjà en place. Les faces latérales restent des aplats à
+         opacité dégressive pour le modelé 3D. -->
+    <defs>
+      <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#1e3d2f" />
+        <stop offset="45%" stop-color="#7fc4a0" />
+        <stop offset="100%" stop-color="#4a8065" />
+      </linearGradient>
+    </defs>
+    <path class="logo__face logo__face--top" d="M22 4 L38 13 L22 22 L6 13 Z" fill={`url(#${gradientId})`} />
     <path class="logo__face logo__face--left" d="M6 13 L22 22 L22 40 L6 31 Z" />
     <path class="logo__face logo__face--right" d="M38 13 L38 31 L22 40 L22 22 Z" />
   </svg>
@@ -42,23 +57,40 @@ const { variant = 'on-light', class: className = '' } = Astro.props;
     width: 32px;
     height: 32px;
     flex-shrink: 0;
+    /* Le cube lévite en continu, partout où le logo apparaît (navbar,
+       footer, écran d'intro) — même esprit que les cascades de cubes du
+       site, en miniature. */
+    animation: logo-float 3.2s ease-in-out infinite;
   }
 
-  .logo--on-light .logo__face--top,
-  .logo--on-dark .logo__face--top {
-    fill: var(--color-accent-2);
+  @keyframes logo-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .logo__mark {
+      animation: none;
+    }
+  }
+
+  /* La face du dessus a son propre dégradé (voir <defs> plus haut, fill
+     inline) — pas de règle de couleur ici pour elle. */
   .logo--on-light .logo__face--left,
   .logo--on-dark .logo__face--left {
-    fill: var(--color-accent-2);
-    opacity: 0.8;
+    fill: #4a8065;
+    opacity: 0.85;
   }
 
   .logo--on-light .logo__face--right,
   .logo--on-dark .logo__face--right {
-    fill: var(--color-accent-2);
-    opacity: 0.55;
+    fill: #1e3d2f;
+    opacity: 0.75;
   }
 
   .logo__wordmark {

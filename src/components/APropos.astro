@@ -62,7 +62,7 @@ import portrait from '../assets/sya-creates-photo.jpg';
     height: 380px;
     bottom: -140px;
     right: -100px;
-    background: radial-gradient(circle, rgba(214, 178, 110, 0.16), transparent 70%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.08), transparent 70%);
   }
 
   .about__grid {
@@ -89,12 +89,12 @@ import portrait from '../assets/sya-creates-photo.jpg';
     /* Cadre fin sapin clair plutôt que le cadre épais plein d'origine —
        aéré, cohérent avec le traitement outline des cartes. */
     border: 1px solid var(--color-accent-2);
-    box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.7), 0 0 50px -10px rgba(74, 128, 101, 0.45);
+    box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.7), 0 0 50px -10px rgba(255, 255, 255, 0.16);
     transition: box-shadow 0.4s var(--ease-spring);
   }
 
   .about__photo:hover {
-    box-shadow: 0 34px 64px -22px rgba(0, 0, 0, 0.7), 0 0 70px -8px rgba(74, 128, 101, 0.65);
+    box-shadow: 0 34px 64px -22px rgba(0, 0, 0, 0.7), 0 0 70px -8px rgba(255, 255, 255, 0.24);
   }
 
   .about__photo-inner {
@@ -146,9 +146,9 @@ import portrait from '../assets/sya-creates-photo.jpg';
   }
 
   .about__title {
-    font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.25rem);
-    line-height: 1.2;
-    font-weight: 600;
+    font-size: clamp(2.5rem, 1.3rem + 5vw, 5.25rem);
+    line-height: 0.98;
+    font-weight: 300;
     color: var(--color-ink);
     max-width: 24ch;
   }

@@ -19,6 +19,15 @@ const tags = [
   <span class="blob blob--1" aria-hidden="true"></span>
   <span class="blob blob--2" aria-hidden="true"></span>
 
+  <!-- Champ de cubes noir/anthracite (voir <script>) : couvre désormais
+       toute la première section, pas juste une zone dédiée — un calque de
+       fond en pleine page derrière le contenu (z-index sous .hero__inner),
+       façon upadz.io où les sphères flottent sur toute la hauteur du hero,
+       pas dans un encart. Purement décoratif et non interactive — aria-
+       hidden, et pointer-events:none pour ne jamais intercepter un clic
+       destiné au contenu au-dessus. -->
+  <canvas id="hero-cubes" class="hero__cubes" aria-hidden="true"></canvas>
+
   <div class="hero__inner">
     <span class="eyebrow-pill">
       <span class="eyebrow-pill__dot"></span>
@@ -61,26 +70,14 @@ const tags = [
       </div>
     </div>
 
-    <!-- Cascade de cubes noir/anthracite (voir <script>) : tombe en boucle
-         infinie à travers .hero__orbfield, qui héberge directement le
-         canvas — ses propres dimensions bornent ce que la caméra peut
-         dessiner, donc les cubes apparaissent/disparaissent net aux bords
-         de cette zone, sans déborder sur le reste du hero. Purement
-         décorative et non interactive (ni cliquable, ni glissable, ni
-         pilotable au clavier) — aria-hidden, et pointer-events:none pour ne
-         jamais intercepter un clic destiné au contenu en dessous. -->
-    <div class="hero__orbfield" aria-hidden="true">
-      <canvas id="hero-cubes" class="hero__cubes" aria-hidden="true"></canvas>
-    </div>
   </div>
 </section>
 
 <script>
   const canvas = document.getElementById('hero-cubes') as HTMLCanvasElement | null;
-  // .hero__orbfield est maintenant le parent direct du canvas (voir markup
-  // plus haut) : ses propres dimensions/position deviennent le repère de la
-  // caméra ET la fenêtre de découpe visuelle de la chute — plus besoin de
-  // requêter .hero__orbfield séparément.
+  // .hero (la section entière) est le parent direct du canvas (voir markup
+  // plus haut) : le champ de cubes couvre donc toute la première section,
+  // pas un encart dédié — ses dimensions deviennent le repère de la caméra.
   const field = canvas?.parentElement as HTMLElement | null;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -134,68 +131,49 @@ const tags = [
     key.position.set(120, 220, 260);
     scene.add(ambient, key);
 
-    // Champ (= .hero__orbfield) centré sur l'origine caméra par construction
-    // (voir l'ortho camera juste au-dessus, bornée à ±width/2 / ±height/2) :
-    // la cascade tombe donc autour de x = 0, sur une demi-hauteur halfH
-    // recalculée à chaque resize.
+    // Champ (= toute la section .hero) centré sur l'origine caméra par
+    // construction (voir l'ortho camera juste au-dessus, bornée à
+    // ±width/2 / ±height/2).
     const restX = 0;
-    let halfH = height / 2;
 
-    function layoutBounds() {
-      halfH = height / 2 - 10;
-    }
-    layoutBounds();
-
-    // --- Cascade de cubes : plusieurs cubes noir/anthracite de tailles
-    // différentes, empilés en diagonale façon socle sculptural, plutôt que
-    // l'ancien gros cube unique à faces labellisées — purement décoratif
-    // désormais (plus de texte imprimé sur les faces). Toute la cascade
-    // tombe comme un seul groupe rigide (voir tick()), chaque mini-cube
-    // gardant sa propre rotation/flottement par-dessus ce mouvement commun.
+    // --- Champ de cubes flottants : plusieurs cubes noir/anthracite de
+    // tailles différentes, chacun dérivant lentement autour de sa propre
+    // position, façon bulles/sphères qui flottent dans le champ — inspiré
+    // du mouvement de https://www.upadz.io (sphères métalliques éparpillées,
+    // qui dérivent doucement dans toutes les directions) plutôt que de
+    // l'ancienne cascade qui tombait en colonne. Chaque cube garde sa
+    // propre rotation continue (voir spawnCluster), donc pas d'angle de
+    // départ figé ici non plus.
     type ClusterCubeSpec = {
       x: number; y: number; z: number; size: number;
       tone: 'black' | 'anthracite';
     };
-    // Composition recalée sur la photo de référence : une tour qui tombe
-    // presque à la verticale (léger zigzag gauche/droite), pas une longue
-    // diagonale à 45° — le plus gros cube en haut, le plus petit tout en
-    // bas, comme une pile qui vient de dégringoler. Pas d'angle de départ
-    // par cube ici : chaque mini-cube reçoit sa propre rotation continue à
-    // la volée (voir spawnCluster), donc un angle statique serait aussitôt
-    // écrasé dès la première frame.
-    //
-    // Espacement : chaque cube tournant librement sur son propre axe (voir
-    // spawnCluster), la distance entre deux centres voisins est calée pour
-    // rester toujours supérieure à la somme de leurs rayons circonscrits
-    // (size × √3⁄2 — le rayon de la sphère qui contient le cube quelle que
-    // soit son orientation), avec ~12% de marge. Ça garantit qu'aucun coin
-    // ne peut jamais traverser visuellement un cube voisin, même dans le
-    // pire cas de rotation, tout en les gardant assez proches pour rester
-    // une cascade compacte à l'écran (léger chevauchement en projection).
+    // Uniquement sur les deux côtés, jamais derrière le texte : .hero__inner
+    // (le texte) fait 780px de large max, donc 390px de demi-largeur — tous
+    // les cubes ci-dessous ont une position de base à |x| ≥ 460, ce qui
+    // laisse une marge même au maximum de leur amplitude de dérive (~30px,
+    // voir spawnCluster). Beaucoup plus gros qu'avant (jusqu'à 100px, contre
+    // 70 max précédemment) pour rester une présence forte malgré l'écart au
+    // centre. Sur mobile (champ étroit), ils sortent du cadre et ne
+    // s'affichent pas — le texte y occupe de toute façon toute la largeur,
+    // impossible d'avoir des cubes visibles sans qu'ils passent dessous.
     const CLUSTER_CUBES: ClusterCubeSpec[] = [
-      { x: -38, y: 185, z: -10, size: 78, tone: 'anthracite' },
-      { x: 30, y: 66, z: 18, size: 66, tone: 'black' },
-      { x: -25, y: -35, z: -16, size: 58, tone: 'anthracite' },
-      { x: 20, y: -125, z: 12, size: 50, tone: 'black' },
-      { x: -18, y: -204, z: -14, size: 44, tone: 'anthracite' },
-      { x: 14, y: -270, z: 16, size: 38, tone: 'black' },
+      { x: -480, y: 300, z: 20, size: 100, tone: 'anthracite' },
+      { x: -560, y: 100, z: -20, size: 70, tone: 'black' },
+      { x: -500, y: -100, z: 25, size: 85, tone: 'anthracite' },
+      { x: -600, y: -280, z: -15, size: 58, tone: 'black' },
+      { x: -470, y: -350, z: 15, size: 62, tone: 'anthracite' },
+      { x: -540, y: 350, z: -10, size: 56, tone: 'black' },
+      { x: 470, y: 260, z: -25, size: 95, tone: 'black' },
+      { x: 550, y: 60, z: 20, size: 72, tone: 'anthracite' },
+      { x: 490, y: -160, z: -15, size: 80, tone: 'black' },
+      { x: 610, y: -320, z: 25, size: 60, tone: 'anthracite' },
+      { x: 530, y: 340, z: -10, size: 64, tone: 'black' },
+      { x: 480, y: -380, z: 15, size: 55, tone: 'anthracite' },
     ];
 
     type ClusterRig = { mesh: THREE.Group; age: number };
     const cubes: ClusterRig[] = [];
-
-    // Étendue verticale (locale, avant tout décalage de groupe) de toute la
-    // cascade — sert à savoir de combien la faire dépasser .hero__orbfield
-    // en haut/en bas avant qu'elle soit entièrement hors champ, pour que la
-    // boucle infinie de tick() ne se voie jamais (voir plus bas).
-    let clusterTop = -Infinity;
-    let clusterBottom = Infinity;
-    for (const spec of CLUSTER_CUBES) {
-      const top = spec.y + spec.size / 2;
-      const bottom = spec.y - spec.size / 2;
-      if (top > clusterTop) clusterTop = top;
-      if (bottom < clusterBottom) clusterBottom = bottom;
-    }
 
     function toneMaterial(tone: 'black' | 'anthracite') {
       // Effet "verre" brillant : metalness bas (le verre n'est pas un
@@ -254,13 +232,17 @@ const tags = [
           })
         );
         mesh.add(edges);
-        // Animation propre à chaque mini-cube (axe/vitesse/déphasage de
-        // rotation, phase/amplitude de flottement) plutôt qu'un seul
-        // mouvement partagé par toute la cascade — demandé explicitement
-        // pour un rendu moins mécanique, plus naturel : chaque cube tourne
-        // à son rythme, certains flottent plus haut ou plus bas que
-        // d'autres à un instant donné.
+        // Animation propre à chaque mini-cube : rotation continue (axe
+        // aléatoire) plus une dérive X/Y lente en double sinusoïde, sur
+        // deux fréquences non harmoniques par cube — la trajectoire ne se
+        // referme jamais exactement sur elle-même à l'échelle d'une visite,
+        // façon dérive organique plutôt qu'un aller-retour mécanique. C'est
+        // ce qui donne l'effet "sphères qui flottent" façon upadz.io, sans
+        // avoir besoin de gérer un rebond/wrap aux bords du champ : chaque
+        // cube reste borné autour de sa position de départ par sa propre
+        // amplitude (voir CLUSTER_CUBES, positions déjà dispersées).
         mesh.userData = {
+          baseX: spec.x,
           baseY: spec.y,
           spinAxis: new THREE.Vector3(
             Math.random() * 2 - 1,
@@ -269,9 +251,12 @@ const tags = [
           ).normalize(),
           spinSpeed: 0.06 + Math.random() * 0.22,
           spinPhase: Math.random() * Math.PI * 2,
-          bobAmp: 5 + Math.random() * 9,
-          bobSpeed: 0.55 + Math.random() * 0.7,
-          bobPhase: Math.random() * Math.PI * 2,
+          driftAmpX: 16 + Math.random() * 14,
+          driftFreqX: 0.035 + Math.random() * 0.045,
+          driftPhaseX: Math.random() * Math.PI * 2,
+          driftAmpY: 16 + Math.random() * 14,
+          driftFreqY: 0.04 + Math.random() * 0.05,
+          driftPhaseY: Math.random() * Math.PI * 2,
         };
         group.add(mesh);
       }
@@ -298,45 +283,28 @@ const tags = [
     let rafId = 0;
     let prevTime = performance.now();
 
-    // Vitesse de chute — lente et contemplative, cohérente avec le rythme
-    // du reste du hero (rotation/flottement des mini-cubes, glissé du
-    // curseur Méthode, etc.), pas une chute rapide façon vidéo-jeu.
-    const FALL_SPEED = 26; // px/s
-
     function tick() {
       rafId = requestAnimationFrame(tick);
       const now = performance.now();
       const dt = Math.min((now - prevTime) / 1000, 1 / 30);
       prevTime = now;
 
-      // Distance totale parcourue avant de boucler : la demi-hauteur du
-      // champ des deux côtés (pour que la cascade soit entièrement hors
-      // champ avant d'apparaître/disparaître) plus l'étendue verticale de
-      // la cascade elle-même (pour qu'elle soit hors champ AVANT que son
-      // dernier cube n'ait fini de sortir). Recalculée à chaque frame à
-      // partir de halfH (mis à jour au resize) : pas de plage figée.
-      const fallSpan = 2 * halfH + (clusterTop - clusterBottom);
-      // Départ : le bas de la cascade est juste au bord haut du champ
-      // (donc la cascade entière est encore invisible, juste au-dessus).
-      const fallTop = halfH - clusterBottom;
-      const p = ((now / 1000) * FALL_SPEED) % fallSpan;
-      const groupY = fallTop - p;
-
       for (let i = cubes.length - 1; i >= 0; i--) {
         const c = cubes[i];
 
-        // Le groupe ne porte plus que la chute d'ensemble — ni bob ni
-        // rotation uniformes ici, chaque mini-cube gère les siens
-        // individuellement juste en dessous, pour un mouvement
-        // désynchronisé plutôt qu'un bloc rigide qui tourne d'un seul tenant.
-        c.mesh.position.set(restX, groupY, 0);
+        // Le groupe reste fixe au centre du champ — chaque mini-cube porte
+        // désormais toute sa position (dérive X/Y + rotation), plus de
+        // mouvement d'ensemble façon chute.
+        c.mesh.position.set(restX, 0, 0);
 
         for (const child of c.mesh.children) {
           const u = child.userData as {
-            baseY: number; spinAxis: THREE.Vector3; spinSpeed: number; spinPhase: number;
-            bobAmp: number; bobSpeed: number; bobPhase: number;
+            baseX: number; baseY: number; spinAxis: THREE.Vector3; spinSpeed: number; spinPhase: number;
+            driftAmpX: number; driftFreqX: number; driftPhaseX: number;
+            driftAmpY: number; driftFreqY: number; driftPhaseY: number;
           };
-          child.position.y = u.baseY + Math.sin(now / 1000 * u.bobSpeed + u.bobPhase) * u.bobAmp;
+          child.position.x = u.baseX + Math.sin(now / 1000 * u.driftFreqX + u.driftPhaseX) * u.driftAmpX;
+          child.position.y = u.baseY + Math.sin(now / 1000 * u.driftFreqY + u.driftPhaseY) * u.driftAmpY;
           child.quaternion.setFromAxisAngle(u.spinAxis, now / 1000 * u.spinSpeed + u.spinPhase);
         }
 
@@ -381,7 +349,6 @@ const tags = [
       camera.bottom = -height / 2;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
-      layoutBounds();
     });
     })();
   }
@@ -404,7 +371,7 @@ const tags = [
     height: 340px;
     top: -80px;
     left: -100px;
-    background: radial-gradient(circle, rgba(76, 140, 99, 0.4), transparent 70%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.16), transparent 70%);
   }
 
   .blob--2 {
@@ -412,7 +379,7 @@ const tags = [
     height: 380px;
     top: 60px;
     right: -140px;
-    background: radial-gradient(circle, rgba(214, 178, 110, 0.4), transparent 70%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.14), transparent 70%);
     animation-delay: -4s;
   }
 
@@ -423,6 +390,7 @@ const tags = [
     flex-direction: column;
     align-items: center;
     gap: 24px;
+    width: 100%;
     max-width: 780px;
     margin: 0 auto;
     text-align: center;
@@ -441,9 +409,9 @@ const tags = [
   }
 
   .hero__title {
-    font-size: clamp(2.1rem, 1.5rem + 2.6vw, 3.5rem);
-    line-height: 1.12;
-    font-weight: 600;
+    font-size: clamp(3.25rem, 1.6rem + 7.5vw, 7.5rem);
+    line-height: 0.96;
+    font-weight: 300;
     color: var(--color-ink);
   }
 
@@ -453,7 +421,7 @@ const tags = [
 
   .hero__title-accent {
     font-style: italic;
-    font-weight: 500;
+    font-weight: 300;
   }
 
   /* Traits volontairement courts : le titre du hero occupe déjà toute la
@@ -533,42 +501,21 @@ const tags = [
     color: var(--color-text-secondary);
   }
 
-  /* Champ d'orbes flottants — composition graphique originale inspirée du
-     dynamisme du site de référence (formes glossy en lévitation), sans
-     réutiliser ses assets. */
-  .hero__orbfield {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 680px;
-    height: 400px;
-    margin-top: 24px;
-    perspective: 1200px;
-    animation: hero-reveal 0.7s ease 0.12s both;
-  }
-
-  /* Cascade de cubes — scène WebGL (Three.js), voir le <script> plus bas.
-     Le canvas est désormais un enfant de .hero__orbfield (pas un calque
-     plein hero) : ses propres dimensions bornent ce que la caméra peut
-     dessiner, donc la chute infinie de la cascade se découpe net aux
-     bords réels de .hero__orbfield, sans avoir à cliper quoi que ce soit
-     en CSS. */
+  /* Champ de cubes — scène WebGL (Three.js), voir le <script> plus bas.
+     Calque de fond en pleine section (enfant direct de .hero, pas d'un
+     encart dédié) : z-index sous .hero__inner (1) pour que le texte reste
+     toujours lisible par-dessus, les cubes dérivant derrière lui plutôt
+     qu'à côté. */
   .hero__cubes {
     position: absolute;
     inset: 0;
-    z-index: 2;
+    z-index: 0;
     width: 100%;
     height: 100%;
     /* Purement décorative : n'intercepte jamais un clic/tap destiné au
-       contenu en dessous (CTA, liens, cartes flip) — plus besoin du relais
-       de clic qu'exigeait l'ancien cube manipulable. */
+       contenu au-dessus (CTA, liens) — plus besoin du relais de clic
+       qu'exigeait l'ancien cube manipulable. */
     pointer-events: none;
-    /* Fondu doux en haut/bas de la zone : sans lui, un cube qui entre ou
-       sort de la chute apparaîtrait/disparaîtrait net au bord du canvas —
-       même principe que le mask-image de .hero__marquee un peu plus bas,
-       en vertical. */
-    mask-image: linear-gradient(180deg, transparent, black 14%, black 86%, transparent);
-    -webkit-mask-image: linear-gradient(180deg, transparent, black 14%, black 86%, transparent);
   }
 
   /* Bandeau de mots-clés — repris de l'ancienne section Vision, déplacé
@@ -592,10 +539,6 @@ const tags = [
   @media (max-width: 860px) {
     .hero {
       padding: 40px 20px var(--section-py-mobile);
-    }
-
-    .hero__orbfield {
-      height: 360px;
     }
 
     .hero__marquee {
