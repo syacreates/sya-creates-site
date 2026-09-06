@@ -64,12 +64,14 @@ const gradientId = `logo-shine-${Math.random().toString(36).slice(2, 9)}`;
   }
 
   @keyframes logo-float {
-    0%,
-    100% {
-      transform: translateY(0);
+    0% {
+      transform: translateY(0) rotate(0deg);
     }
     50% {
-      transform: translateY(-4px);
+      transform: translateY(-4px) rotate(180deg);
+    }
+    100% {
+      transform: translateY(0) rotate(360deg);
     }
   }
 
