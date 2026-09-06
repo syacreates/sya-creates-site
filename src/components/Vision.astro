@@ -1,4 +1,6 @@
 ---
+import CocoonButterfly from './CocoonButterfly.astro';
+
 const etapes = [
   {
     emoji: '🔍',
@@ -70,128 +72,7 @@ const apports = [
 
       <div class="cocoon">
         <div class="cocoon__visual" data-stage="0">
-          <svg class="cocoon__svg" viewBox="0 0 240 220" aria-hidden="true">
-            <defs>
-              <!-- Dégradé façon monarque : ambre clair côté corps, orange
-                   brûlé côté pointe d'aile. objectBoundingBox (par défaut)
-                   applique le même dégradé 0%→100% sur chacune des 4 ailes
-                   indépendamment de leur orientation, sans le dupliquer. -->
-              <linearGradient id="wing-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#ffcb6b" />
-                <stop offset="55%" stop-color="#f0932b" />
-                <stop offset="100%" stop-color="#c2540f" />
-              </linearGradient>
-            </defs>
-            <path class="cocoon__branch-line" d="M30,24 Q120,4 210,24" fill="none" />
-            <path class="cocoon__leaf" d="M74,21 C63,10 46,12 40,23 C46,32 65,31 74,21 Z" />
-            <path class="cocoon__leaf" d="M166,21 C177,10 194,12 200,23 C194,32 175,31 166,21 Z" />
-            <line class="cocoon__thread" x1="120" y1="24" x2="120" y2="58" />
-
-            <g class="cocoon__swing">
-              <g class="cocoon__shell">
-                <path
-                  class="cocoon__shell-fill"
-                  d="M120,58 C142,64 150,88 150,110 C150,136 137,157 120,160 C103,157 90,136 90,110 C90,88 98,64 120,58 Z"
-                />
-                <path class="cocoon__band" d="M96,82 Q120,89 144,82" />
-                <path class="cocoon__band" d="M93,102 Q120,110 147,102" />
-                <path class="cocoon__band" d="M94,124 Q120,132 146,124" />
-                <path class="cocoon__band" d="M98,143 Q120,149 142,143" />
-              </g>
-
-              <ellipse class="cocoon__glow" cx="120" cy="112" rx="46" ry="56" />
-              <g class="cocoon__veins">
-                <path d="M118,66 Q94,88 91,118 Q91,140 106,156" />
-                <path d="M122,66 Q146,88 149,118 Q149,140 134,156" />
-              </g>
-
-              <g class="cocoon__butterfly" aria-hidden="true">
-                <!-- Silhouette réaliste (ailes pointues, façon monarque/machaon)
-                     plutôt que les lobes arrondis d'origine : bord d'attaque
-                     droit vers une pointe nette, bord externe qui revient en
-                     courbe. Ailes inférieures prolongées d'une petite queue,
-                     signature des machaons. -->
-                <g class="cocoon__wing cocoon__wing--lower-left">
-                  <path
-                    class="cocoon__wing-fill"
-                    d="M117,122 Q80,130 65,155 Q58,176 72,205 Q88,180 100,165 Q112,150 118,145 Q120,133 117,122 Z"
-                  />
-                  <path class="cocoon__wing-vein" d="M117,124 Q95,140 75,165" />
-                  <path class="cocoon__wing-vein" d="M117,128 Q100,158 87,188" />
-                  <circle class="cocoon__wing-spot" cx="73" cy="191" r="2.6" />
-                  <circle class="cocoon__wing-spot" cx="86" cy="174" r="2.2" />
-                  <circle class="cocoon__wing-spot" cx="65" cy="158" r="2" />
-                </g>
-                <g class="cocoon__wing cocoon__wing--lower-right">
-                  <path
-                    class="cocoon__wing-fill"
-                    d="M123,122 Q160,130 175,155 Q182,176 168,205 Q152,180 140,165 Q128,150 122,145 Q120,133 123,122 Z"
-                  />
-                  <path class="cocoon__wing-vein" d="M123,124 Q145,140 165,165" />
-                  <path class="cocoon__wing-vein" d="M123,128 Q140,158 153,188" />
-                  <circle class="cocoon__wing-spot" cx="167" cy="191" r="2.6" />
-                  <circle class="cocoon__wing-spot" cx="154" cy="174" r="2.2" />
-                  <circle class="cocoon__wing-spot" cx="175" cy="158" r="2" />
-                </g>
-                <g class="cocoon__wing cocoon__wing--upper-left">
-                  <path
-                    class="cocoon__wing-fill"
-                    d="M120,95 L20,46 Q50,95 58,118 Q75,135 100,132 Q114,118 120,95 Z"
-                  />
-                  <path class="cocoon__wing-vein" d="M118,89 Q68,68 28,49" />
-                  <path class="cocoon__wing-vein" d="M118,97 Q80,103 58,119" />
-                  <path class="cocoon__wing-vein" d="M118,104 Q96,119 80,128" />
-                  <circle class="cocoon__wing-spot" cx="36" cy="58" r="2.4" />
-                  <circle class="cocoon__wing-spot" cx="50" cy="90" r="2.2" />
-                  <circle class="cocoon__wing-spot" cx="66" cy="115" r="2" />
-                  <circle class="cocoon__ocelle" cx="47" cy="84" r="5.5" />
-                </g>
-                <g class="cocoon__wing cocoon__wing--upper-right">
-                  <path
-                    class="cocoon__wing-fill"
-                    d="M120,95 L220,46 Q190,95 182,118 Q165,135 140,132 Q126,118 120,95 Z"
-                  />
-                  <path class="cocoon__wing-vein" d="M122,89 Q172,68 212,49" />
-                  <path class="cocoon__wing-vein" d="M122,97 Q160,103 182,119" />
-                  <path class="cocoon__wing-vein" d="M122,104 Q144,119 160,128" />
-                  <circle class="cocoon__wing-spot" cx="204" cy="58" r="2.4" />
-                  <circle class="cocoon__wing-spot" cx="190" cy="90" r="2.2" />
-                  <circle class="cocoon__wing-spot" cx="174" cy="115" r="2" />
-                  <circle class="cocoon__ocelle" cx="193" cy="84" r="5.5" />
-                </g>
-                <g class="cocoon__body">
-                  <!-- Antennes à massue (renflement au bout) : signature des
-                       papillons de jour (monarque compris), contrairement
-                       aux antennes filiformes/plumeuses des papillons de
-                       nuit. -->
-                  <path class="cocoon__antenna" d="M117,72 Q107,54 98,48" />
-                  <circle class="cocoon__antenna-club" cx="98" cy="48" r="2.2" />
-                  <path class="cocoon__antenna" d="M123,72 Q133,54 142,48" />
-                  <circle class="cocoon__antenna-club" cx="142" cy="48" r="2.2" />
-                  <ellipse cx="120" cy="77" rx="5" ry="6" />
-                  <ellipse cx="120" cy="92" rx="6" ry="8" />
-                  <ellipse cx="120" cy="109" rx="6.5" ry="9" />
-                  <ellipse cx="120" cy="126" rx="5.5" ry="8" />
-                  <ellipse cx="120" cy="140" rx="4.5" ry="6" />
-                  <!-- Petites taches claires sur le corps sombre, comme chez
-                       le monarque réel. -->
-                  <circle class="cocoon__body-spot" cx="117" cy="90" r="1" />
-                  <circle class="cocoon__body-spot" cx="123" cy="90" r="1" />
-                  <circle class="cocoon__body-spot" cx="117" cy="107" r="1" />
-                  <circle class="cocoon__body-spot" cx="123" cy="107" r="1" />
-                  <circle class="cocoon__body-spot" cx="117" cy="124" r="1" />
-                  <circle class="cocoon__body-spot" cx="123" cy="124" r="1" />
-                </g>
-                <g class="cocoon__sparkles">
-                  <path class="cocoon__spark" d="M0,-6 L1.6,-1.6 L6,0 L1.6,1.6 L0,6 L-1.6,1.6 L-6,0 L-1.6,-1.6 Z" transform="translate(48,64)" />
-                  <circle class="cocoon__spark" cx="192" cy="70" r="2.4" />
-                  <path class="cocoon__spark" d="M0,-5 L1.3,-1.3 L5,0 L1.3,1.3 L0,5 L-1.3,1.3 L-5,0 L-1.3,-1.3 Z" transform="translate(200,120)" />
-                  <circle class="cocoon__spark" cx="38" cy="130" r="2" />
-                  <path class="cocoon__spark" d="M0,-5 L1.3,-1.3 L5,0 L1.3,1.3 L0,5 L-1.3,1.3 L-5,0 L-1.3,-1.3 Z" transform="translate(120,30)" />
-                </g>
-              </g>
-            </g>
-          </svg>
+          <CocoonButterfly idSuffix="main" />
 
           <p class="cocoon__label" aria-hidden="true">{etapes[0].titre}</p>
 
@@ -210,12 +91,17 @@ const apports = [
                 data-stage-trigger={index}
                 aria-pressed="false"
               >
-                <span class="cocoon__step-num">0{index + 1}</span>
-                <h4 class="cocoon__step-titre">{etape.titre}</h4>
-                <p class="cocoon__step-texte">{etape.texte}</p>
-                <ul class="cocoon__step-methodes">
-                  {etape.methodes.map((methode) => <li>{methode}</li>)}
-                </ul>
+                <div class="cocoon__step-mini" data-stage={index} aria-hidden="true">
+                  <CocoonButterfly idSuffix={`step-${index}`} />
+                </div>
+                <div class="cocoon__step-content">
+                  <span class="cocoon__step-num">0{index + 1}</span>
+                  <h4 class="cocoon__step-titre">{etape.titre}</h4>
+                  <p class="cocoon__step-texte">{etape.texte}</p>
+                  <ul class="cocoon__step-methodes">
+                    {etape.methodes.map((methode) => <li>{methode}</li>)}
+                  </ul>
+                </div>
               </button>
             ))
           }
@@ -348,7 +234,16 @@ const apports = [
   }
 </script>
 
-<style>
+<style is:global>
+  /* is:global : le papillon (CocoonButterfly.astro) est un composant
+     enfant séparé — le scoping Astro (data-astro-cid-*) n'ajoute son
+     attribut qu'aux éléments rendus directement ici, pas à ceux d'un
+     composant importé. Sans is:global, tous les sélecteurs .cocoon__*
+     ci-dessous cesseraient de matcher le SVG (opacité par étape,
+     animations) dès qu'il vient de ce composant. Les classes de ce
+     fichier (.vision__*, .cocoon__*, .vision-benefit*) sont déjà
+     préfixées de façon unique au site, donc rien à protéger par le
+     scoping ici de toute façon.
   .vision {
     position: relative;
     padding: var(--section-py) 0;
@@ -505,11 +400,12 @@ const apports = [
     animation: none !important;
   }
 
-  /* Couleur façon monarque : dégradé ambre→orange brûlé (voir <defs>,
-     wing-gradient) et bordure noire épaisse — la marge sombre qui borde
-     chaque aile chez le vrai papillon, pas un simple contour fin. */
+  /* Couleur façon monarque : dégradé ambre→orange brûlé (voir <defs>
+     dans CocoonButterfly.astro — fill posé en attribut inline là-bas,
+     un id par instance, donc pas de règle "fill" ici) et bordure noire
+     épaisse — la marge sombre qui borde chaque aile chez le vrai
+     papillon, pas un simple contour fin. */
   .cocoon__wing-fill {
-    fill: url(#wing-gradient);
     stroke: #23140c;
     stroke-width: 3;
     stroke-linejoin: round;
@@ -622,33 +518,48 @@ const apports = [
      (opacity 0, valeur par défaut de .cocoon__butterfly) sur les deux
      premières, pour que son apparition reste un vrai moment plutôt qu'un
      filigrane présent en continu. */
-  .cocoon__visual[data-stage='1'] .cocoon__shell {
+  .cocoon__visual[data-stage='1'] .cocoon__shell,
+  .cocoon__step-mini[data-stage='1'] .cocoon__shell {
     opacity: 0.4;
   }
 
-  .cocoon__visual[data-stage='1'] .cocoon__glow {
+  .cocoon__visual[data-stage='1'] .cocoon__glow,
+  .cocoon__step-mini[data-stage='1'] .cocoon__glow {
     opacity: 1;
     animation: cocoon-glow-pulse 2s ease-in-out infinite;
   }
 
-  .cocoon__visual[data-stage='1'] .cocoon__veins {
+  .cocoon__visual[data-stage='1'] .cocoon__veins,
+  .cocoon__step-mini[data-stage='1'] .cocoon__veins {
     opacity: 1;
   }
 
   .cocoon__visual[data-stage='2'] .cocoon__shell,
   .cocoon__visual[data-stage='2'] .cocoon__glow,
   .cocoon__visual[data-stage='2'] .cocoon__veins,
-  .cocoon__visual[data-stage='2'] .cocoon__thread {
+  .cocoon__visual[data-stage='2'] .cocoon__thread,
+  .cocoon__step-mini[data-stage='2'] .cocoon__shell,
+  .cocoon__step-mini[data-stage='2'] .cocoon__glow,
+  .cocoon__step-mini[data-stage='2'] .cocoon__veins,
+  .cocoon__step-mini[data-stage='2'] .cocoon__thread {
     opacity: 0;
   }
 
-  .cocoon__visual[data-stage='2'] .cocoon__butterfly {
+  /* Sur la miniature (mobile), pas de mise en scène cliquable : c'est
+     déjà fixé sur cette étape en continu, contrairement au grand visuel
+     qui n'y passe qu'un temps avant de repartir en boucle. */
+  .cocoon__visual[data-stage='2'] .cocoon__butterfly,
+  .cocoon__step-mini[data-stage='2'] .cocoon__butterfly {
     opacity: 1;
+  }
+
+  .cocoon__visual[data-stage='2'] .cocoon__butterfly {
     cursor: pointer;
     pointer-events: auto;
   }
 
-  .cocoon__visual[data-stage='2'] .cocoon__swing {
+  .cocoon__visual[data-stage='2'] .cocoon__swing,
+  .cocoon__step-mini[data-stage='2'] .cocoon__swing {
     animation: none;
     transform: none;
   }
@@ -806,6 +717,21 @@ const apports = [
     border-color: var(--color-accent-2);
   }
 
+  /* Miniature par étape : masquée sur desktop (le grand visuel partagé,
+     piloté par le script, suffit) — réservée au mobile, où le papillon
+     doit rester visible à côté de chaque étape plutôt que de disparaître
+     dès qu'on ne regarde plus le grand visuel en haut (voir media query
+     plus bas). Contrairement au grand visuel, son data-stage est posé une
+     fois pour toutes ici (pas de script) : chaque miniature reste figée
+     sur sa propre étape. */
+  .cocoon__step-mini {
+    display: none;
+  }
+
+  .cocoon__step-content {
+    min-width: 0;
+  }
+
   .cocoon__step-num {
     font-family: var(--font-mono);
     font-size: 12px;
@@ -911,39 +837,39 @@ const apports = [
       margin-top: 48px;
     }
 
-    .cocoon {
-      flex-direction: column;
-      gap: 24px;
-    }
-
+    /* Sur mobile, le grand visuel unique (piloté par le script, en haut
+       du bloc) cède la place à une miniature par étape, posée juste à
+       côté de son texte — le papillon reste "en action" au fil de la
+       lecture au lieu d'un visuel isolé qu'on doit remonter voir. */
     .cocoon__visual {
-      width: 260px;
+      display: none;
     }
 
-    /* L'envol (cocoon-fly-away, cf. plus haut) monte de 420px en absolu :
-       largement assez pour dégager le visuel sur desktop, mais sur mobile
-       le bloc est bien plus proche du haut de viewport (texte qui prend
-       plus de lignes au-dessus) — le papillon traversait le paragraphe
-       d'intro et passait sous la navbar sticky. Trajectoire raccourcie
-       pour rester dans la zone du visuel. */
-    .cocoon__butterfly.is-flying {
-      animation-name: cocoon-fly-away-mobile;
+    .cocoon__step {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .cocoon__step-mini {
+      display: block;
+      flex-shrink: 0;
+      width: 72px;
+    }
+
+    /* Même dégradé qu'en grand format (voir .cocoon__glow), mais un flou
+       CSS réel en px ne se met pas à l'échelle du viewBox : sans ce
+       correctif, la lueur de l'étape 2 déborderait largement de l'icône. */
+    .cocoon__step-mini .cocoon__glow {
+      filter: blur(3px);
+    }
+
+    .cocoon__step-content {
+      flex: 1;
     }
 
     .vision-benefits {
       grid-template-columns: 1fr 1fr;
-    }
-  }
-
-  @keyframes cocoon-fly-away-mobile {
-    0% {
-      transform: translate(0, 0) rotate(0deg) scale(1);
-    }
-    60% {
-      transform: translate(10px, -100px) rotate(6deg) scale(0.95);
-    }
-    100% {
-      transform: translate(22px, -170px) rotate(12deg) scale(0.3);
     }
   }
 
