@@ -2,6 +2,7 @@
 const offres = [
   {
     titre: 'Le diagnostic UX/UI',
+    resout: ['Interface qui ne convertit pas', 'Décisions prises à vue'],
     prix: '890 € – 1 200 €',
     prixNote: 'Forfait fixe, 3 jours de travail effectif',
     texte:
@@ -17,6 +18,7 @@ const offres = [
   },
   {
     titre: 'Sprint ciblé',
+    resout: ['Design qui vieillit mal'],
     prix: '1 800 € – 2 800 €',
     prixNote: 'Forfait fixe, 5 jours de travail effectif',
     texte:
@@ -30,6 +32,7 @@ const offres = [
   },
   {
     titre: "L'accompagnement sur-mesure",
+    resout: ['Design et dev désynchronisés', 'Décisions prises à vue'],
     prix: 'À partir de 400 €/jour',
     prixNote: 'Selon périmètre, devis personnalisé après le premier échange',
     texte:
@@ -75,6 +78,10 @@ const offres = [
             <div class="offer__header">
               <h3 class="offer__titre">{offre.titre}</h3>
             </div>
+
+            <p class="offer__resout">
+              <span class="offer__resout-label">Répond à :</span> {offre.resout.join(' · ')}
+            </p>
 
             <div class="offer__pricing">
               <span class="offer__prix">{offre.prix}</span>
@@ -194,6 +201,20 @@ const offres = [
     font-size: 1.1875rem;
     font-weight: 600;
     color: var(--color-ink);
+  }
+
+  .offer__resout {
+    margin-top: 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+  }
+
+  .offer__resout-label {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-accent-2);
   }
 
   .offer__pricing {

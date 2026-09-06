@@ -4,21 +4,37 @@ const problemes = [
     titre: 'Une interface qui ne convertit pas',
     texte:
       "Le produit fonctionne, mais les utilisateurs abandonnent avant l'étape clé, sans qu'on sache précisément où, ni pourquoi.",
+    solution: {
+      label: 'Le diagnostic UX/UI identifie où et pourquoi tes utilisateurs décrochent →',
+      href: '#accompagnement',
+    },
   },
   {
     titre: 'Design et développement désynchronisés',
     texte:
       'Les maquettes prennent des semaines à devenir une interface réelle, et le résultat livré finit par trahir ce qui avait été validé.',
+    solution: {
+      label: "L'accompagnement sur-mesure fait avancer design et dev ensemble →",
+      href: '#accompagnement',
+    },
   },
   {
     titre: 'Des décisions produit prises à vue',
     texte:
       "Sans parcours utilisateur clairement cadré, chaque nouvelle fonctionnalité rouvre le débat au lieu de s'appuyer sur une base solide.",
+    solution: {
+      label: 'Le diagnostic pose la base de décision qui manque →',
+      href: '#accompagnement',
+    },
   },
   {
     titre: 'Un design qui vieillit mal',
     texte:
       'Une interface bricolée au fil des besoins finit par perdre en cohérence et en crédibilité aux yeux de tes utilisateurs.',
+    solution: {
+      label: "Le sprint ciblé refond l'UI et pose un design system →",
+      href: '#accompagnement',
+    },
   },
 ];
 ---
@@ -62,6 +78,9 @@ const problemes = [
               </div>
               <div class="flip-card__back">
                 <p>{probleme.texte}</p>
+                <a href={probleme.solution.href} class="problem-card__solution">
+                  {probleme.solution.label}
+                </a>
               </div>
             </div>
           </div>
@@ -131,7 +150,7 @@ const problemes = [
   }
 
   .problem-card {
-    min-height: 156px;
+    min-height: 196px;
   }
 
   .problem-card .flip-card__front {
@@ -143,10 +162,29 @@ const problemes = [
 
   .problem-card .flip-card__back {
     padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
   }
 
   .problem-card .flip-card__back p {
     font-size: 0.875rem;
+    margin: 0;
+  }
+
+  .problem-card__solution {
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent-2);
+    text-underline-offset: 3px;
+  }
+
+  .problem-card__solution:hover {
+    filter: brightness(1.35);
   }
 
   .problem-card__titre {
