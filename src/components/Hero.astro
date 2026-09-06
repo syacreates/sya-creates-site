@@ -154,9 +154,7 @@ const tags = [
     // laisse une marge même au maximum de leur amplitude de dérive (~30px,
     // voir spawnCluster). Beaucoup plus gros qu'avant (jusqu'à 100px, contre
     // 70 max précédemment) pour rester une présence forte malgré l'écart au
-    // centre. Sur mobile (champ étroit), ils sortent du cadre et ne
-    // s'affichent pas — le texte y occupe de toute façon toute la largeur,
-    // impossible d'avoir des cubes visibles sans qu'ils passent dessous.
+    // centre.
     const CLUSTER_CUBES: ClusterCubeSpec[] = [
       { x: -480, y: 300, z: 20, size: 100, tone: 'anthracite' },
       { x: -560, y: 100, z: -20, size: 70, tone: 'black' },
@@ -171,6 +169,26 @@ const tags = [
       { x: 530, y: 340, z: -10, size: 64, tone: 'black' },
       { x: 480, y: -380, z: 15, size: 55, tone: 'anthracite' },
     ];
+
+    // Sur mobile, le texte occupe toute la largeur du champ (pas de marge
+    // de 390px comme sur desktop) : impossible de garder les cubes
+    // entièrement à côté du texte sans qu'ils sortent du cadre. On les
+    // rapproche donc du bord (|x| ~120-185, pour un champ ~375-430px de
+    // large, cf. le clientWidth mesuré) et on les réduit nettement (28-42px
+    // contre 55-100px) — ils passent alors derrière le texte (canvas en
+    // z-index 0, texte en z-index 1) plutôt qu'à côté, sans nuire à la
+    // lisibilité vu leur teinte sombre sur fond sombre.
+    const MOBILE_CLUSTER_CUBES: ClusterCubeSpec[] = [
+      { x: -150, y: 320, z: 15, size: 34, tone: 'anthracite' },
+      { x: -180, y: 100, z: -10, size: 42, tone: 'black' },
+      { x: -140, y: -140, z: 20, size: 28, tone: 'anthracite' },
+      { x: -170, y: -340, z: -15, size: 36, tone: 'black' },
+      { x: 155, y: 220, z: -20, size: 38, tone: 'black' },
+      { x: 180, y: -20, z: 15, size: 30, tone: 'anthracite' },
+      { x: 165, y: -390, z: -10, size: 36, tone: 'black' },
+    ];
+
+    const cubeSpecs = width < 640 ? MOBILE_CLUSTER_CUBES : CLUSTER_CUBES;
 
     type ClusterRig = { mesh: THREE.Group; age: number };
     const cubes: ClusterRig[] = [];
@@ -216,7 +234,7 @@ const tags = [
 
     function spawnCluster() {
       const group = new THREE.Group();
-      for (const spec of CLUSTER_CUBES) {
+      for (const spec of cubeSpecs) {
         const geo = new RoundedBoxGeometry(spec.size, spec.size, spec.size, 4, spec.size * 0.08);
         const mesh = new THREE.Mesh(geo, toneMaterial(spec.tone));
         mesh.position.set(spec.x, spec.y, spec.z);
