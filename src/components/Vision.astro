@@ -920,8 +920,30 @@ const apports = [
       width: 260px;
     }
 
+    /* L'envol (cocoon-fly-away, cf. plus haut) monte de 420px en absolu :
+       largement assez pour dégager le visuel sur desktop, mais sur mobile
+       le bloc est bien plus proche du haut de viewport (texte qui prend
+       plus de lignes au-dessus) — le papillon traversait le paragraphe
+       d'intro et passait sous la navbar sticky. Trajectoire raccourcie
+       pour rester dans la zone du visuel. */
+    .cocoon__butterfly.is-flying {
+      animation-name: cocoon-fly-away-mobile;
+    }
+
     .vision-benefits {
       grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @keyframes cocoon-fly-away-mobile {
+    0% {
+      transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    60% {
+      transform: translate(10px, -100px) rotate(6deg) scale(0.95);
+    }
+    100% {
+      transform: translate(22px, -170px) rotate(12deg) scale(0.3);
     }
   }
 
