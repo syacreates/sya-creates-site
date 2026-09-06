@@ -147,6 +147,25 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
          détail de l'étape reste visible en permanence à côté du visuel,
          sans avoir à défiler pour le lire pendant que le curseur avance. -->
     <div class="method-layout">
+    <!-- Détail de l'étape en cours — mis en avant automatiquement au rythme
+         du curseur (arrêt à chaque étape), ou épinglé manuellement au clic
+         sur un cube. Une seule zone, partagée par les deux tracés
+         (desktop/mobile), plutôt qu'un texte casé dans le SVG. Placé avant
+         .method-path dans le markup : sur mobile, le tracé serpentin est
+         bien plus haut que l'écran, donc ce panneau doit précéder le tracé
+         en flux normal pour que sa position "sticky" (voir la media query)
+         reste calée par rapport à toute la hauteur du tracé qui suit, pas
+         juste à sa propre boîte. L'ordre visuel desktop (tracé à gauche,
+         détail à droite) est restauré par CSS (order) plus bas. -->
+    <div class="method-detail" id="method-detail" aria-live="polite">
+      <span class="method-detail__accent" aria-hidden="true" />
+      <div class="method-detail__body">
+        <span class="method-detail__numero" id="method-detail-numero" />
+        <p class="method-detail__titre" id="method-detail-titre" />
+        <p class="method-detail__texte" id="method-detail-texte" />
+      </div>
+    </div>
+
     <div class="method-path">
       <svg
         class="method-path__svg method-path__svg--desktop"
@@ -251,19 +270,6 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
           ))
         }
       </svg>
-    </div>
-
-    <!-- Détail de l'étape en cours — mis en avant automatiquement au rythme
-         du curseur (arrêt à chaque étape), ou épinglé manuellement au clic
-         sur un cube. Une seule zone, partagée par les deux tracés
-         (desktop/mobile), plutôt qu'un texte casé dans le SVG. -->
-    <div class="method-detail" id="method-detail" aria-live="polite">
-      <span class="method-detail__accent" aria-hidden="true" />
-      <div class="method-detail__body">
-        <span class="method-detail__numero" id="method-detail-numero" />
-        <p class="method-detail__titre" id="method-detail-titre" />
-        <p class="method-detail__texte" id="method-detail-texte" />
-      </div>
     </div>
     </div>
   </div>
@@ -482,6 +488,18 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
     align-items: center;
   }
 
+  /* .method-detail précède .method-path dans le markup (voir le
+     commentaire au-dessus de .method-detail dans le HTML) — order
+     restaure ici l'ordre visuel desktop (tracé large à gauche, détail
+     plus étroit à droite) sans dépendre du DOM. */
+  .method-path {
+    order: 1;
+  }
+
+  .method-detail {
+    order: 2;
+  }
+
   .method-path__svg {
     display: block;
     width: 100%;
@@ -657,18 +675,32 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
   @media (max-width: 860px) {
     .method {
       padding: var(--section-py-mobile) 20px;
+      /* overflow:hidden (desktop) casse position:sticky sur .method-detail :
+         un ancêtre avec overflow différent de visible devient la "boîte" de
+         référence du sticky, et comme cet ancêtre ne défile pas lui-même
+         (c'est la page qui défile), le sticky n'a plus aucun effet. Le blob
+         décoratif ne risque pas de déborder verticalement sur cette section
+         bien plus haute que lui en mobile (voir .blob--method), et le
+         débordement horizontal reste de toute façon coupé par overflow-x:
+         hidden sur <body> (voir global.css). */
+      overflow: visible;
     }
 
+    /* display:block plutôt que grid à une colonne : avec grid, chaque
+       enfant en auto-placement reçoit sa PROPRE piste de grille comme
+       "containing block" — un sticky posé dessus reste alors coincé dans
+       les limites de cette petite piste (sa propre hauteur de contenu) au
+       lieu de rester ancré tant qu'on défile le grand frère qui suit. En
+       flux de bloc normal, .method-detail (placé avant .method-path dans
+       le markup) reste sticky sur toute la hauteur combinée des deux. */
     .method-layout {
-      grid-template-columns: 1fr;
-      gap: 32px;
+      display: block;
       margin-top: 40px;
     }
 
     .method-path {
       max-width: 320px;
-      margin-left: auto;
-      margin-right: auto;
+      margin: 32px auto 0;
     }
 
     .method-path__svg--desktop {
@@ -679,7 +711,22 @@ const mobilePath = buildSerpentine(mobilePoints, 'y');
       display: block;
     }
 
+    /* Le tracé serpentin est bien plus haut que l'écran sur mobile (le
+       parcours vertical, cube après cube) : le panneau de détail, laissé
+       après lui dans le flux normal, se retrouvait à devoir défiler très
+       loin pour apparaître — sélectionner une étape en haut de l'écran ne
+       montrait donc jamais son explication. Fixé (sticky) juste sous la
+       navbar, il reste visible en continu pendant qu'on défile et qu'on
+       choisit une étape, où qu'elle soit sur le tracé. */
     .method-detail {
+      position: sticky;
+      top: 90px;
+      z-index: 2;
+      /* Fond quasi opaque plutôt que --color-glass-strong (0.85) : posé en
+         sticky par-dessus le tracé qui continue de défiler dessous, la
+         transparence habituelle laissait un cube fantôme transparaître
+         derrière le texte. */
+      background: #121710;
       max-width: 320px;
       margin-left: auto;
       margin-right: auto;
